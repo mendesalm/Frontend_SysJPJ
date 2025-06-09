@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
-import { getAllMembers, updateMember } from '../../../services/memberService';
+import { useAuth } from '../../../../context/AuthContext';
+import { getAllMembers, updateMember } from '../../../../services/memberService';
 import './MemberList.css';
 
 const MemberList = () => {
@@ -25,10 +25,9 @@ const MemberList = () => {
   }, []);
 
   useEffect(() => {
-    // Apenas utilizadores com permissão podem aceder
     const canManage = user?.credencialAcesso === 'Diretoria' || user?.credencialAcesso === 'Webmaster';
     if (!canManage) {
-      navigate('/dashboard'); // Redireciona se não tiver permissão
+      navigate('/dashboard');
       return;
     }
     fetchMembers();
@@ -37,7 +36,6 @@ const MemberList = () => {
   const handleUpdateStatus = async (memberId, newStatus) => {
     try {
       await updateMember(memberId, { statusCadastro: newStatus });
-      // Atualiza a lista para refletir a mudança
       fetchMembers();
     } catch (err) {
       console.error(`Erro ao atualizar status para ${newStatus}:`, err);
@@ -55,7 +53,10 @@ const MemberList = () => {
 
   return (
     <div className="member-list-container">
-      <h1>Gestão de Membros</h1>
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+        <h1>Gestão de Membros</h1>
+        <button onClick={() => navigate('/admin/members/create')} className="btn-action btn-approve">Novo Membro</button>
+      </div>
       <div className="table-responsive">
         <table>
           <thead>

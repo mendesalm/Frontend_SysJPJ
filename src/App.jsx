@@ -1,151 +1,76 @@
-import React, { useMemo, useEffect } from 'react';
-import { useLocation, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 
-// Componentes da Aplicação
+// Layouts e Componentes Estruturais
 import Header from './components/header/Header.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
+import DashboardLayout from './components/layout/DashboardLayout.jsx';
 
-// Componentes da Página Inicial (Pública)
-import FullscreenImageSlider from './components/Slider/FullscreenImageSlider.jsx';
-import GridSection from './components/grid/GridSection.jsx';
-import LocationSection from './components/location/LocationSection.jsx';
-
-// Páginas Públicas
+// Páginas
+import HomePage from './assets/pages/home/HomePage.jsx';
 import LoginPage from './assets/pages/login/LoginPage.jsx';
 import ForgotPasswordPage from './assets/pages/auth/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './assets/pages/auth/ResetPasswordPage.jsx';
-
-// Páginas da Área Restrita (Protegidas)
 import DashboardPage from './assets/pages/dashboard/DashboardPage.jsx';
-import AvisosPage from './assets/pages/avisos/AvisosPage.jsx';
-import MemberList from './assets/pages/admin/members/MemberList.jsx';
-import MemberEditPage from './assets/pages/admin/members/MemberEditPage.jsx';
 import ProfilePage from './assets/pages/profile/ProfilePage.jsx';
-import PlanoContasPage from './assets/pages/financeiro/PlanoContasPage.jsx';
-import LancamentosPage from './assets/pages/financeiro/LancamentosPage.jsx';
-import OrcamentoPage from './assets/pages/financeiro/OrcamentoPage.jsx';
-import BibliotecaPage from './assets/pages/biblioteca/BibliotecaPage.jsx';
-import SessionsPage from './assets/pages/sessions/SessionsPage.jsx';
-import PublicacoesPage from './assets/pages/publicacoes/PublicacoesPage.jsx';
+import AvisosPage from './assets/pages/avisos/AvisosPage.jsx';
+import MemberCreatePage from './assets/pages/admin/members/MemberCreatePage.jsx';
 import EventosPage from './assets/pages/eventos/EventosPage.jsx';
+import PublicacoesPage from './assets/pages/publicacoes/PublicacoesPage.jsx';
+import BibliotecaPage from './assets/pages/biblioteca/BibliotecaPage.jsx';
+import HarmoniaPage from './assets/pages/harmonia/HarmoniaPage.jsx';
+import PlayerPage from './assets/pages/harmonia/PlayerPage.jsx';
+import SessionsPage from './assets/pages/sessions/SessionsPage.jsx';
 import ComissoesPage from './assets/pages/comissoes/ComissoesPage.jsx';
 import PatrimonioPage from './assets/pages/patrimonio/PatrimonioPage.jsx';
 import RelatoriosPage from './assets/pages/relatorios/RelatoriosPage.jsx';
-import HarmoniaPage from './assets/pages/harmonia/HarmoniaPage.jsx';
-import PlayerPage from './assets/pages/harmonia/PlayerPage.jsx';
+import MemberList from './assets/pages/admin/members/MemberList.jsx';
+import MemberEditPage from './assets/pages/admin/members/MemberEditPage.jsx';
+import PlanoContasPage from './assets/pages/financeiro/PlanoContasPage.jsx';
+import LancamentosPage from './assets/pages/financeiro/LancamentosPage.jsx';
+import OrcamentoPage from './assets/pages/financeiro/OrcamentoPage.jsx';
 
-
-// Estilos e Imagens
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import imgSlider1 from './assets/images/slider/slider1.jpg';
-import imgSlider2 from './assets/images/slider/slider2.jpg';
-import imgSlider3 from './assets/images/slider/slider3.jpg';
-import imgSlider4 from './assets/images/slider/slider4.jpg';
-
-// --- Componente para a Página Inicial ---
-// Para manter o App.jsx limpo, a lógica da HomePage é isolada aqui.
-const HomePage = ({ minhasImagens, cardData }) => {
-  const location = useLocation();
-
-  // Efeito para lidar com a rolagem suave para âncoras (#)
-  useEffect(() => {
-    if (location.pathname === '/' && location.hash) {
-      const id = location.hash.substring(1);
-      const timer = setTimeout(() => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [location]);
-
-  return (
-    <>
-      <section id="inicio" aria-label="Início - Slider de Imagens">
-        <FullscreenImageSlider images={minhasImagens} />
-      </section>
-      <section id="sobre-nos" aria-label="Sobre Nós">
-        <GridSection cardTexts={cardData} />
-      </section>
-      <section id="localizacao" aria-label="Nossa Localização">
-        <LocationSection />
-      </section>
-      <section id="contato" aria-label="Entre em Contato" style={{ padding: '50px 0', minHeight: '300px' }}>
-         <div style={{maxWidth: '800px', margin: '0 auto', textAlign: 'center'}}>
-          <h2>Entre em Contato</h2>
-          <p>Email: contato@exemplo.com | Telefone: (XX) XXXX-XXXX</p>
-        </div>
-      </section>
-    </>
-  );
-};
-
-
-// --- Componente Principal da Aplicação ---
 function App() {
-  // Memoização dos dados para evitar recriações desnecessárias em cada renderização
-  const minhasImagens = useMemo(() => [
-    { src: imgSlider1, alt: 'Imagem 1' },
-    { src: imgSlider2, alt: 'Imagem 2' },
-    { src: imgSlider3, alt: 'Imagem 3' },
-    { src: imgSlider4, alt: 'Imagem 4' },
-  ], []);
-
-  const cardData = useMemo(() => [
-    { title: "Soluções Completas", text: "Oferecemos uma gama completa de serviços." },
-    { title: "Inovação Contínua", text: "Estamos sempre buscando as últimas tecnologias." },
-    { title: "Suporte Dedicado", text: "Nossa equipe está pronta para ajudar você." }
-  ], []);
-
   return (
     <div className="App">
-      <Header />
-      <main className="app-main-content">
-        <Routes>
-          {/* Rotas Públicas */}
-          <Route path="/" element={<HomePage minhasImagens={minhasImagens} cardData={cardData} />} />
-          <Route path="/login-teste" element={<LoginPage />} />
-          <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
-          <Route path="/resetar-senha/:token" element={<ResetPasswordPage />} />
-          
-          {/* Rotas de conveniência para links de âncora */}
-          <Route path="/sobre" element={<HomePage minhasImagens={minhasImagens} cardData={cardData} />} />
-          <Route path="/contato" element={<HomePage minhasImagens={minhasImagens} cardData={cardData} />} />
-
-          {/* Wrapper para Rotas Protegidas */}
-          <Route element={<ProtectedRoute />}>
+      {/* O Header só será visível nas rotas públicas */}
+      <Routes>
+        {/* Rotas Públicas com Header */}
+        <Route path="/" element={<><Header /><HomePage /></>} />
+        <Route path="/sobre" element={<><Header /><HomePage /></>} />
+        <Route path="/contato" element={<><Header /><HomePage /></>} />
+        
+        {/* Rotas Públicas sem Header */}
+        <Route path="/login-teste" element={<LoginPage />} />
+        <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
+        <Route path="/resetar-senha/:token" element={<ResetPasswordPage />} />
+        
+        {/* Rotas Protegidas dentro do novo Layout com Sidebar */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/mural-de-avisos" element={<AvisosPage />} />
-            <Route path="/admin/members" element={<MemberList />} />
-            <Route path="/admin/members/edit/:memberId" element={<MemberEditPage />} />
             <Route path="/perfil" element={<ProfilePage />} />
-            <Route path="/financeiro/plano-contas" element={<PlanoContasPage />} />
-            <Route path="/financeiro/lancamentos" element={<LancamentosPage />} />
-            <Route path="/financeiro/orcamento" element={<OrcamentoPage />} /> 
-            <Route path="/biblioteca" element={<BibliotecaPage />} />
-            <Route path="/sessoes" element={<SessionsPage />} />
+            <Route path="/mural-de-avisos" element={<AvisosPage />} />
+            <Route path="/eventos" element={<EventosPage />} />
             <Route path="/publicacoes" element={<PublicacoesPage />} />
-            <Route path="/eventos" element={<EventosPage />} /> 
-            <Route path="/comissoes" element={<ComissoesPage />} /> 
+            <Route path="/biblioteca" element={<BibliotecaPage />} />
+            <Route path="/harmonia" element={<HarmoniaPage />} />
+            <Route path="/player-harmonia" element={<PlayerPage />} />
+            <Route path="/sessoes" element={<SessionsPage />} />
+            <Route path="/comissoes" element={<ComissoesPage />} />
             <Route path="/patrimonio" element={<PatrimonioPage />} />
             <Route path="/relatorios" element={<RelatoriosPage />} />
-            <Route path="/harmonia" element={<HarmoniaPage />} /> 
-            <Route path="/player-harmonia" element={<PlayerPage />} />
-            
+            <Route path="/admin/members" element={<MemberList />} />
+            <Route path="/admin/members/create" element={<MemberCreatePage />} />
+            <Route path="/admin/members/edit/:memberId" element={<MemberEditPage />} />
+            <Route path="/financeiro/plano-contas" element={<PlanoContasPage />} />
+            <Route path="/financeiro/lancamentos" element={<LancamentosPage />} />
+            <Route path="/financeiro/orcamento" element={<OrcamentoPage />} />
           </Route>
+        </Route>
 
-          {/* Rota para páginas não encontradas */}
-          <Route path="*" element={
-            <div style={{ textAlign: 'center', marginTop: '50px' }}>
-              <h2>404 - Página Não Encontrada</h2>
-              <p>Oops! A página que você está a procurar não existe.</p>
-            </div>
-          } />
-        </Routes>
-      </main>
+        <Route path="*" element={<h2>404 - Página Não Encontrada</h2>} />
+      </Routes>
     </div>
   );
 }

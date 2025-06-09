@@ -25,3 +25,7 @@ export const deleteMember = (id) => {
 export const updateMyProfile = (profileData) => {
   return apiClient.put('/lodgemembers/me', profileData);
 };
+
+export const createLodgeMember = (memberData) => {
+  return apiClient.post('/lodgemembers', memberData);
+};

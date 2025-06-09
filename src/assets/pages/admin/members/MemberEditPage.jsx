@@ -1,89 +1,55 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMemberById, updateMember } from '../../../../services/memberService';
-import './MemberForm.css'; // Usaremos um CSS de formulário
+import MemberForm from './MemberForm';
+import './MemberForm.css';
 
 const MemberEditPage = () => {
   const { memberId } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState(null); // Inicia como nulo
+  const [memberData, setMemberData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const fetchMember = useCallback(async () => {
+    // Impede a chamada à API se o memberId não for um número válido
+    if (!memberId || isNaN(parseInt(memberId))) {
+        setIsLoading(false);
+        // Opcional: redirecionar ou mostrar erro
+        navigate('/admin/members'); 
+        return;
+    }
     try {
-      setIsLoading(true);
       const response = await getMemberById(memberId);
-      setFormData(response.data); // Preenche o formulário com os dados do membro
-    } catch (err) {
-      console.error("Erro ao buscar dados do membro:", err);
-      setError('Falha ao carregar dados do membro.');
+      setMemberData(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar dados do membro:", error);
     } finally {
       setIsLoading(false);
     }
-  }, [memberId]);
+  }, [memberId, navigate]);
 
   useEffect(() => {
     fetchMember();
   }, [fetchMember]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+  const handleSave = async (formData) => {
     try {
       await updateMember(memberId, formData);
       alert('Membro atualizado com sucesso!');
-      navigate('/admin/members'); // Volta para a lista após salvar
-    } catch (err) {
-      console.error("Erro ao atualizar membro:", err);
-      setError('Não foi possível salvar as alterações. Verifique os dados e tente novamente.');
+      navigate('/admin/members');
+    } catch (error) {
+      console.error("Erro ao atualizar membro:", error);
+      alert(error.response?.data?.message || "Não foi possível salvar as alterações.");
     }
   };
 
   if (isLoading) return <div className="member-form-container">A carregar...</div>;
-  if (error) return <div className="member-form-container error-message">{error}</div>;
 
+  // Só renderiza o formulário se tiver dados
   return (
     <div className="member-form-container">
-      <h1>Editar Membro: {formData?.NomeCompleto}</h1>
-      <form onSubmit={handleSubmit} className="member-form">
-        <div className="form-grid">
-            <div className="form-group">
-                <label htmlFor="NomeCompleto">Nome Completo</label>
-                <input type="text" id="NomeCompleto" name="NomeCompleto" value={formData?.NomeCompleto || ''} onChange={handleChange} />
-            </div>
-            <div className="form-group">
-                <label htmlFor="Email">Email</label>
-                <input type="email" id="Email" name="Email" value={formData?.Email || ''} onChange={handleChange} />
-            </div>
-            <div className="form-group">
-                <label htmlFor="credencialAcesso">Credencial</label>
-                <select id="credencialAcesso" name="credencialAcesso" value={formData?.credencialAcesso || ''} onChange={handleChange}>
-                    <option value="Membro">Membro</option>
-                    <option value="Diretoria">Diretoria</option>
-                    <option value="Webmaster">Webmaster</option>
-                </select>
-            </div>
-            <div className="form-group">
-                <label htmlFor="statusCadastro">Status do Cadastro</label>
-                <select id="statusCadastro" name="statusCadastro" value={formData?.statusCadastro || ''} onChange={handleChange}>
-                    <option value="Pendente">Pendente</option>
-                    <option value="Aprovado">Aprovado</option>
-                    <option value="Rejeitado">Rejeitado</option>
-                </select>
-            </div>
-             {/* Adicione mais campos aqui conforme necessário */}
-        </div>
-        <div className="form-actions">
-          <button type="button" onClick={() => navigate('/admin/members')} className="btn btn-secondary">Cancelar</button>
-          <button type="submit" className="btn btn-primary">Salvar Alterações</button>
-        </div>
-      </form>
+      <h1>Editar Membro</h1>
+      {memberData && <MemberForm initialData={memberData} onSave={handleSave} />}
     </div>
   );
 };
