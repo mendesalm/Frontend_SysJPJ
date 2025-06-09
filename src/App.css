@@ -1,0 +1,68 @@
+/* Em seu arquivo CSS global como index.css ou App.css */
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: transparent; /* Garante que o root seja transparente */
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+html {
+  scroll-behavior: smooth;
+  height: 100%; /* Garante que o html também ocupe a altura total */
+}
+
+body {
+  margin: 60; 
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /*background-color: black;
+  /* --- INÍCIO: Estilos para Background Fixo Global --- */
+  /* Mova sua imagem para a pasta 'public/assets/images/' */
+  /* e use um caminho absoluto a partir da raiz do servidor. */
+  background-image: url('./assets/images/background_jpj.jpg'); /* CAMINHO CORRIGIDO (assumindo imagem em public/assets/images/) */
+  background-attachment: fixed;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+  /* --- FIM: Estilos para Background Fixo Global --- */
+  
+  overflow-x: hidden; /* Previne scroll horizontal */
+}
+
+.App {
+  text-align: center; 
+  min-height: 100vh; 
+  display: flex;
+  flex-direction: column;
+  background-color: transparent; /* Garante que o container .App seja transparente */
+}
+
+.app-main-content {
+  width: 100%; 
+  box-sizing: border-box;
+  flex-grow: 1; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  margin: 0 auto;
+  padding-top: 12vh; /* Para compensar o header fixo de 12vh. */
+}
+
+/* PARA COMPENSAR O HEADER FIXO NA NAVEGAÇÃO POR ÂNCORA */
+#inicio, 
+#sobre-nos, 
+#localizacao, 
+#contato {
+  scroll-margin-top: 12vh; /* Ajustado para a altura do header de 12vh */
+}
+
+/* Removida a chave '}' extra que estava aqui no arquivo original do usuário */

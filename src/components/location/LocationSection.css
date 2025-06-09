@@ -1,0 +1,64 @@
+/* LocationSection.css */
+
+/* A tag <section id="localizacao"> é o elemento raiz deste componente.
+   Seu dimensionamento e posicionamento geral na página são influenciados
+   pelo .app-main-content e .app-main-content > section no App.css. */
+
+#localizacao {
+  width: 100%; 
+  box-sizing: border-box;
+  display: flex; 
+  flex-direction: column;
+  align-items: center; 
+  min-height: 88vh; 
+  background-color: transparent;
+}
+
+.location-content-wrapper {
+  width: 100%;
+  max-width: 1200px; /* Defina a largura máxima para o conteúdo desta seção */
+  padding: 0 15px; /* Adiciona padding lateral para telas menores */
+  box-sizing: border-box;
+  text-align: center; /* Centraliza o h2, p e o contêiner do mapa */
+  padding-top: 3vh;
+}
+
+#localizacao h2 {
+  font-size: clamp(1.2rem, 2rem + 4vw, 3rem);
+  margin-top: 0; /* Remove margem superior se o padding da seção já for suficiente */
+  margin-bottom: 20px;
+  color: #e4e0e0;
+}
+
+.location-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  color: #eadddd;
+  max-width: 800px; /* Limita a largura do texto para melhor legibilidade */
+  margin-left: auto;   /* Centraliza o bloco de texto se max-width for atingido */
+  margin-right: auto;  /* Centraliza o bloco de texto se max-width for atingido */
+}
+
+.map-responsive {
+  overflow: hidden;
+  /* Proporção 16:9 para o mapa ( (9 / 16) * 100% = 56.25% ) */
+  /* Ajuste se o seu mapa tiver uma proporção diferente ou se quiser uma altura diferente */
+  padding-bottom: 50%; /* Exemplo, pode ser 56.25% para 16:9 ou ajuste conforme necessário */
+  position: relative;
+  height: 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 6px 12px 2px rgba(0, 0, 0, 0.15);  
+  margin-top: 30px;
+  width: 100%; /* Garante que o contêiner do mapa ocupe a largura do .location-content-wrapper */
+}
+
+.map-responsive iframe {
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  border: 0; /* Remove a borda padrão do iframe */
+}

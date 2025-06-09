@@ -1,0 +1,68 @@
+/* frontend/src/pages/DashboardPage.css */
+
+.dashboard-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 25px 30px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  font-family: 'Roboto', sans-serif; /* Usando a fonte Roboto que adicionamos ao index.html */
+}
+
+.dashboard-title {
+  color: #2c3e50; /* Um azul escuro/cinza */
+  margin-bottom: 15px;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.dashboard-welcome-message {
+  font-size: 18px;
+  color: #34495e; /* Um cinza azulado */
+  margin-bottom: 10px;
+}
+
+.dashboard-info {
+  font-size: 16px;
+  color: #7f8c8d; /* Um cinza mais claro */
+  margin-bottom: 25px;
+}
+
+.dashboard-user-details {
+  background-color: #f8f9fa;
+  border: 1px dashed #ced4da;
+  padding: 15px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.dashboard-user-details p {
+  margin: 8px 0;
+  font-size: 15px;
+  color: #495057;
+}
+
+.dashboard-user-details strong {
+  color: #343a40;
+}
+
+.dashboard-logout-button {
+  padding: 12px 25px;
+  background-color: #e74c3c; /* Vermelho para logout */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.dashboard-logout-button:hover {
+  background-color: #c0392b; /* Vermelho mais escuro no hover */
+}

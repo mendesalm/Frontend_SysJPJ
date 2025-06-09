@@ -1,0 +1,179 @@
+/* src/components/Header.css */
+.app-header {
+  /* Restaurando um fundo mais tradicional e sombra */
+  /*background-color: #800; /* Cor de fundo escura original ou similar */
+  background-image: url(../../assets/images/banner-bg.jpg); /* Descomente se quiser a imagem de volta */
+  color: white; /* Cor de texto padrão para o header */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.833); /* Sombra padrão que tínhamos */
+  box-sizing: border-box;
+}
+
+.header-content {
+  display: flex;
+  align-items:center;
+  justify-content: space-between;
+  height: 12vh; 
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.header-logo {
+  height: 10vh; 
+  flex-shrink: 0;
+  margin-right: 5vw;
+}
+
+.header-title {
+  font-size: clamp(1.2rem, 2rem + 2vw, 4rem); 
+  margin: 0;
+  margin-right: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: white; /* Cor do título restaurada */
+}
+
+/* Navegação Desktop (Padrão) */
+.header-nav {
+  display: flex; 
+}
+
+.header-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.header-nav li {
+  margin-left: 20px;
+}
+
+.header-nav a {
+  color: white; /* Cor dos links restaurada */
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  display: block;
+  padding: 5px 0;
+  position: relative; /* Necessário para posicionar a barra animada (::after) */
+}
+
+.header-nav a:hover {
+  color: #61dafb; /* Cor de destaque ao passar o mouse - pode ajustar */
+}
+
+/* BARRA ANIMADA NO HOVER DOS LINKS (Mantida) */
+.header-nav a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px; 
+  left: 50%; 
+  transform: translateX(-50%);
+  background-color: #61dafb; 
+  transition: width 0.3s ease-in-out;
+}
+
+.header-nav a:hover::after {
+  width: 100%; 
+}
+
+
+/* Botão Sanduíche (Hamburger) (Padrão) */
+.hamburger-menu {
+  display: none; 
+  flex-direction: column;
+  justify-content: space-around;
+  width: 30px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 15px; 
+  z-index: 1100;
+  box-sizing: border-box;
+}
+
+.hamburger-line {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background-color: white; /* Cor das linhas do hamburger restaurada */
+  border-radius: 3px;
+  transition: all 0.3s ease-in-out;
+}
+
+.hamburger-menu.open .hamburger-line:nth-child(1) {
+  transform: translateY(7.5px) rotate(45deg);
+}
+
+.hamburger-menu.open .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-menu.open .hamburger-line:nth-child(3) {
+  transform: translateY(-7.5px) rotate(-45deg);
+}
+
+/* --- ESTILOS RESPONSIVOS (Abaixo de 999px) --- */
+@media (max-width: 998px) {
+  .header-nav {
+    display: none !important; 
+    position: absolute;
+    top: 12vh; 
+    left: 0;
+    right: 0;
+    background-color: #3a3a3a; /* Cor de fundo para o menu mobile dropdown */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para o menu dropdown */
+    border-top: 1px solid #4a4a4a; 
+    z-index: 1050;
+  }
+
+  .header-nav.active {
+    display: block !important; 
+  }
+
+  .header-nav ul {
+    flex-direction: column;
+    width: 100%;
+    padding: 0; 
+  }
+
+  .header-nav li {
+    margin: 0; 
+    width: 100%;
+    text-align: left;
+  }
+
+  .header-nav li:not(:last-child) {
+    border-bottom: 1px solid #4a4a4a; 
+  }
+
+  .header-nav a {
+    padding: 15px 20px;
+    width: 100%;
+    box-sizing: border-box;
+    color: white; /* Garante que o texto do link no menu mobile seja branco */
+  }
+
+  .header-nav a:hover {
+    background-color: #4f4f4f; 
+  }
+  /* A barra animada ::after também funcionará no menu mobile */
+
+  .hamburger-menu {
+    display: flex !important; 
+  }
+}
