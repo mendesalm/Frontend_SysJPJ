@@ -1,0 +1,12 @@
+.session-form { display: flex; flex-direction: column; gap: 2rem; }
+.form-section { border: 1px solid #eee; padding: 1.5rem; border-radius: 8px; }
+.form-section h3 { margin-top: 0; margin-bottom: 1.5rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.form-group.full-width { grid-column: 1 / -1; }
+.multi-select { height: 150px !important; }
+.visitor-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+.visitor-row input { flex: 1; }
+.btn-remove-visitor, .btn-add-visitor { border-radius: 50%; width: 30px; height: 30px; border: 1px solid; cursor: pointer; }
+.btn-remove-visitor { background-color: #fce8e6; color: #a50e0e; }
+.btn-add-visitor { background-color: #e6f4ea; color: #137333; }
+.form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }

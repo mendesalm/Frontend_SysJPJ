@@ -1,0 +1,75 @@
+.member-list-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.member-list-container h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+th, td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+thead {
+  background-color: #f4f4f4;
+}
+
+th {
+  font-weight: bold;
+}
+
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 15px;
+  color: #fff;
+  font-size: 0.85em;
+  text-transform: capitalize;
+}
+
+.status-aprovado { background-color: #28a745; }
+.status-pendente { background-color: #ffc107; color: #333; }
+.status-rejeitado { background-color: #dc3545; }
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.actions-cell .btn-action {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  transition: opacity 0.2s;
+}
+
+.actions-cell .btn-action:hover {
+  opacity: 0.8;
+}
+
+.btn-approve {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-edit {
+  background-color: #007bff;
+  color: white;
+}

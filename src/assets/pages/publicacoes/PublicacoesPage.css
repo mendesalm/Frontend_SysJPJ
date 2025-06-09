@@ -1,0 +1,52 @@
+.publicacoes-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+.publicacoes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.publicacoes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+.publicacao-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+.publicacao-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+.publicacao-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+.publicacao-card p {
+  margin: 0.25rem 0;
+  color: #555;
+  flex-grow: 1;
+}
+.btn-download {
+  margin-top: 1rem;
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+.btn-download:hover {
+  background-color: #0056b3;
+}

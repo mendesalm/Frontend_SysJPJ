@@ -1,0 +1,27 @@
+.biblioteca-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.biblioteca-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.biblioteca-header h1 {
+  font-size: 2.2rem;
+}
+
+/* Reutilizando estilos de tabela de MemberList.css, mas adicionando específicos */
+.status-livro-disponível { background-color: #28a745; color: white; }
+.status-livro-emprestado { background-color: #ffc107; color: #333; }
+.status-livro-reservado { background-color: #17a2b8; color: white; }
+.status-livro-manutenção, .status-livro-perdido { background-color: #6c757d; color: white; }
+
+.btn-emprestar { background-color: #007bff; color: white; }
+.btn-devolver { background-color: #ffc107; color: #333; }
+.btn-details { background-color: #6c757d; color: white; }

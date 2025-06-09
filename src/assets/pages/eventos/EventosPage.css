@@ -1,0 +1,38 @@
+.eventos-container { width: 100%; max-width: 900px; margin: 2rem auto; padding: 1rem; }
+.eventos-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.eventos-list { display: flex; flex-direction: column; gap: 1rem; }
+.evento-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  gap: 1.5rem;
+}
+.evento-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  padding: 10px;
+  min-width: 70px;
+  text-align: center;
+}
+.evento-day { font-size: 2rem; font-weight: bold; color: #333; }
+.evento-month { font-size: 1rem; text-transform: uppercase; color: #007bff; }
+.evento-details { flex-grow: 1; }
+.evento-details h3 { margin: 0 0 5px 0; font-size: 1.4rem; }
+.evento-time-local, .evento-tipo { margin: 0 0 5px 0; color: #666; }
+.evento-actions .btn-confirmar {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.evento-actions .btn-confirmar:hover { background-color: #218838; }

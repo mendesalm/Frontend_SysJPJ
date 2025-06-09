@@ -18,6 +18,19 @@ import ResetPasswordPage from './assets/pages/auth/ResetPasswordPage.jsx';
 // Páginas da Área Restrita (Protegidas)
 import DashboardPage from './assets/pages/dashboard/DashboardPage.jsx';
 import AvisosPage from './assets/pages/avisos/AvisosPage.jsx';
+import MemberList from './assets/pages/admin/members/MemberList.jsx';
+import MemberEditPage from './assets/pages/admin/members/MemberEditPage.jsx';
+import ProfilePage from './assets/pages/profile/ProfilePage.jsx';
+import PlanoContasPage from './assets/pages/financeiro/PlanoContasPage.jsx';
+import LancamentosPage from './assets/pages/financeiro/LancamentosPage.jsx';
+import OrcamentoPage from './assets/pages/financeiro/OrcamentoPage.jsx';
+import BibliotecaPage from './assets/pages/biblioteca/BibliotecaPage.jsx';
+import SessionsPage from './assets/pages/sessions/SessionsPage.jsx';
+import PublicacoesPage from './assets/pages/publicacoes/PublicacoesPage.jsx';
+import EventosPage from './assets/pages/eventos/EventosPage.jsx';
+import ComissoesPage from './assets/pages/comissoes/ComissoesPage.jsx';
+import PatrimonioPage from './assets/pages/patrimonio/PatrimonioPage.jsx';
+import RelatoriosPage from './assets/pages/relatorios/RelatoriosPage.jsx';
 
 // Estilos e Imagens
 import "slick-carousel/slick/slick.css";
@@ -103,7 +116,21 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/mural-de-avisos" element={<AvisosPage />} />
-            {/* Futuras rotas protegidas serão adicionadas aqui */}
+            <Route path="/admin/members" element={<MemberList />} />
+            <Route path="/admin/members/edit/:memberId" element={<MemberEditPage />} />
+            <Route path="/perfil" element={<ProfilePage />} />
+            <Route path="/financeiro/plano-contas" element={<PlanoContasPage />} />
+            <Route path="/financeiro/lancamentos" element={<LancamentosPage />} />
+            <Route path="/financeiro/orcamento" element={<OrcamentoPage />} /> 
+            <Route path="/biblioteca" element={<BibliotecaPage />} />
+            <Route path="/sessoes" element={<SessionsPage />} />
+            <Route path="/publicacoes" element={<PublicacoesPage />} />
+            <Route path="/eventos" element={<EventosPage />} /> 
+            <Route path="/comissoes" element={<ComissoesPage />} /> 
+            <Route path="/patrimonio" element={<PatrimonioPage />} />
+            <Route path="/relatorios" element={<RelatoriosPage />} />
+
+            
           </Route>
 
           {/* Rota para páginas não encontradas */}
