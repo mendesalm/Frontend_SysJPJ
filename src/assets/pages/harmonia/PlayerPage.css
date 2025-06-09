@@ -1,0 +1,59 @@
+:root { /* Definindo variáveis de cor globais */
+  --theme-bg-color: #1f2937;
+  --theme-text-primary: #e5e7eb;
+  --theme-text-secondary: #9ca3af;
+  --theme-accent-sky: #38bdf8;
+  --theme-accent-blue: #3b82f6;
+  --theme-accent-blue-darker: #2563eb;
+  --dropdown-bg: #4b5563;
+  --dropdown-border: #6b7280;
+}
+
+.player-body-wrapper {
+  font-family: 'Inter', sans-serif;
+  padding: 16px;
+  background-color: var(--theme-bg-color);
+  color: var(--theme-text-primary);
+  min-height: calc(100vh - 12vh); /* Subtrai a altura do header */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-content-wrapper { max-width: 600px; width: 100%; margin: auto; }
+header { margin-bottom: 2.5rem; text-align: center; }
+header h1 { font-size: 2.25rem; font-weight: 700; color: var(--theme-accent-sky); }
+header p { color: var(--theme-text-secondary); font-size: 1.125rem; }
+
+.player-section {
+  background-color: rgba(55, 65, 81, 0.7);
+  border: 1px solid rgba(75, 85, 99, 0.5);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-controls-container { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+.dropdown-controls-container label { font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--theme-accent-sky); }
+
+.custom-dropdown {
+  background-color: var(--dropdown-bg); color: var(--theme-text-primary);
+  border: 1px solid var(--dropdown-border); padding: 10px 15px; border-radius: 6px; font-size: 1rem; width: 100%;
+}
+.custom-dropdown:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.action-button {
+  color: white; padding: 12px 20px; border-radius: 6px; cursor: pointer;
+  transition: background-color 0.2s; font-weight: 600; font-size: 1rem; width: 100%; border: none;
+}
+.action-button:disabled { background-color: #6b7280; cursor: not-allowed; }
+.play-button-style { background-color: var(--theme-accent-blue); }
+.play-button-style:hover:not(:disabled) { background-color: var(--theme-accent-blue-darker); }
+
+.current-song-info-single { min-height: 70px; background-color: rgba(31, 41, 55, 0.6); border-radius: 6px; padding: 12px 15px; margin-bottom: 15px; border: 1px solid rgba(75, 85, 99, 0.3); }
+.current-song-info-single .title { font-weight: 700; font-size: 1.1rem; color: var(--theme-text-primary); }
+.current-song-info-single .artist { font-size: 0.9rem; color: var(--theme-text-secondary); }
+
+.audio-player { width: 100%; margin-top: 10px; }
+.buttons-footer-container { margin-top: 1.5rem; display: flex; justify-content: center; }
+.small-reset-button { padding: 6px 12px; font-size: 0.8rem; width: auto; background-color: #ef4444; }

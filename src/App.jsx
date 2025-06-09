@@ -31,6 +31,9 @@ import EventosPage from './assets/pages/eventos/EventosPage.jsx';
 import ComissoesPage from './assets/pages/comissoes/ComissoesPage.jsx';
 import PatrimonioPage from './assets/pages/patrimonio/PatrimonioPage.jsx';
 import RelatoriosPage from './assets/pages/relatorios/RelatoriosPage.jsx';
+import HarmoniaPage from './assets/pages/harmonia/HarmoniaPage.jsx';
+import PlayerPage from './assets/pages/harmonia/PlayerPage.jsx';
+
 
 // Estilos e Imagens
 import "slick-carousel/slick/slick.css";
@@ -129,7 +132,8 @@ function App() {
             <Route path="/comissoes" element={<ComissoesPage />} /> 
             <Route path="/patrimonio" element={<PatrimonioPage />} />
             <Route path="/relatorios" element={<RelatoriosPage />} />
-
+            <Route path="/harmonia" element={<HarmoniaPage />} /> 
+            <Route path="/player-harmonia" element={<PlayerPage />} />
             
           </Route>
 
