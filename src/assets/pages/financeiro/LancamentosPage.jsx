@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { getLancamentos, createLancamento } from '../../../services/financeService';
 import Modal from '../../../components/modal/Modal';
 import LancamentoForm from './LancamentoForm';
-import '../admin/members/MemberList.css'; // Reutiliza CSS
+import '../../styles/TableStyles.css';
+
 
 const LancamentosPage = () => {
   const [lancamentos, setLancamentos] = useState([]);
@@ -23,6 +24,7 @@ const LancamentosPage = () => {
       setLancamentos(response.data);
     } catch (err) {
       setError('Falha ao carregar os lançamentos.');
+      console.error(err);
     } finally {
       setIsLoading(false);
     }

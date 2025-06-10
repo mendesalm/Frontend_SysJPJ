@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../../context/AuthContext';
+// CORREÇÃO: A importação de 'useAuth' foi removida pois não estava a ser utilizada.
 import { getAllMembers, updateMember } from '../../../../services/memberService';
-import './MemberList.css';
+import '../../../../assets/styles/TableStyles.css'; // Importa os novos estilos de tabela
 
 const MemberList = () => {
   const [members, setMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const { user } = useAuth();
+  
   const navigate = useNavigate();
 
+  // CORREÇÃO: A chamada ao hook `useAuth()` foi removida.
+  
   const fetchMembers = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -25,18 +27,15 @@ const MemberList = () => {
   }, []);
 
   useEffect(() => {
-    const canManage = user?.credencialAcesso === 'Diretoria' || user?.credencialAcesso === 'Webmaster';
-    if (!canManage) {
-      navigate('/dashboard');
-      return;
-    }
+    // A permissão para aceder a esta página é agora inteiramente gerida pelo
+    // componente `ProtectedRoute` e pelo middleware do backend.
     fetchMembers();
-  }, [fetchMembers, user, navigate]);
+  }, [fetchMembers]);
 
   const handleUpdateStatus = async (memberId, newStatus) => {
     try {
       await updateMember(memberId, { statusCadastro: newStatus });
-      fetchMembers();
+      fetchMembers(); // Re-fetch para atualizar a lista
     } catch (err) {
       console.error(`Erro ao atualizar status para ${newStatus}:`, err);
       setError(`Não foi possível atualizar o status do membro.`);
@@ -44,21 +43,27 @@ const MemberList = () => {
   };
 
   if (isLoading) {
-    return <div className="member-list-container">A carregar lista de membros...</div>;
+    return <div className="table-page-container">A carregar lista de membros...</div>;
   }
 
   if (error) {
-    return <div className="member-list-container error-message">{error}</div>;
+    return <div className="table-page-container error-message">{error}</div>;
   }
 
   return (
-    <div className="member-list-container">
-      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+    <div className="table-page-container">
+      <div className="table-header">
         <h1>Gestão de Membros</h1>
-        <button onClick={() => navigate('/admin/members/create')} className="btn-action btn-approve">Novo Membro</button>
+        <button 
+          onClick={() => navigate('/admin/members/create')} 
+          className="btn-action btn-approve"
+        >
+          + Novo Membro
+        </button>
       </div>
+
       <div className="table-responsive">
-        <table>
+        <table className="custom-table">
           <thead>
             <tr>
               <th>Nome Completo</th>
@@ -74,7 +79,7 @@ const MemberList = () => {
                 <td>{member.NomeCompleto}</td>
                 <td>{member.Email}</td>
                 <td>
-                  <span className={`status-badge status-${member.statusCadastro?.toLowerCase()}`}>
+                  <span className={`status-badge status-${member.statusCadastro?.toLowerCase() || 'pendente'}`}>
                     {member.statusCadastro}
                   </span>
                 </td>
@@ -88,7 +93,10 @@ const MemberList = () => {
                       Aprovar
                     </button>
                   )}
-                  <button className="btn-action btn-edit" onClick={() => navigate(`/admin/members/edit/${member.id}`)}>
+                  <button 
+                    className="btn-action btn-edit" 
+                    onClick={() => navigate(`/admin/members/edit/${member.id}`)}
+                  >
                     Editar
                   </button>
                 </td>

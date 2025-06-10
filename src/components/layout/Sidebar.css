@@ -79,7 +79,6 @@
   transform: rotate(180deg);
 }
 
-/* ANIMAÇÃO DO SUBMENU */
 .submenu {
   list-style: none;
   padding-left: 0;
@@ -94,7 +93,6 @@
   max-height: 500px; /* Valor alto para acomodar todos os itens */
 }
 
-/* ANIMAÇÃO DOS ITENS DO SUBMENU */
 .submenu li {
     opacity: 0;
     transform: translateY(-15px);
@@ -106,7 +104,6 @@
     transform: translateY(0);
 }
 
-/* Efeito de cascata na animação dos itens */
 .submenu.open li:nth-child(1) { transition-delay: 0.05s; }
 .submenu.open li:nth-child(2) { transition-delay: 0.1s; }
 .submenu.open li:nth-child(3) { transition-delay: 0.15s; }
@@ -123,9 +120,32 @@
 
 .sidebar-footer {
   padding: 1rem;
-  margin-top: auto;
   border-top: 1px solid #34495e;
 }
+
+/* ESTILOS ADICIONADOS PARA A INFORMAÇÃO DE DEBUG */
+.user-info-debug {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+}
+.user-info-debug p {
+    margin: 4px 0;
+    color: #bdc3c7;
+}
+.user-info-debug strong {
+    color: #ecf0f1;
+}
+.debug-credential {
+    font-weight: bold;
+    color: #e67e22; /* Laranja para destaque */
+    background-color: rgba(0,0,0,0.3);
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+/* FIM DOS ESTILOS DE DEBUG */
 
 .logout-button {
   width: 100%;
@@ -141,3 +161,4 @@
 .logout-button:hover {
     background-color: #e74c3c;
 }
+

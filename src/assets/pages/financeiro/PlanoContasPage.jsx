@@ -3,7 +3,8 @@ import { getContas, createConta, updateConta, deleteConta } from '../../../servi
 import Modal from '../../../components/modal/Modal';
 import ContaForm from './ContaForm';
 // Reutilizaremos o CSS da lista de membros para a tabela
-import '../admin/members/MemberList.css';
+import '../../styles/TableStyles.css';
+
 
 const PlanoContasPage = () => {
   const [contas, setContas] = useState([]);
@@ -20,6 +21,7 @@ const PlanoContasPage = () => {
       setContas(response.data);
     } catch (err) {
       setError('Falha ao carregar o plano de contas.');
+      console.error(err);
     } finally {
       setIsLoading(false);
     }

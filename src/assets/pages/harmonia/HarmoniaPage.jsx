@@ -3,7 +3,8 @@ import { getHarmoniaItens, createHarmoniaItem, deleteHarmoniaItem } from '../../
 import { useAuth } from '../../../context/AuthContext';
 import Modal from '../../../components/modal/Modal';
 import HarmoniaForm from './HarmoniaForm';
-import '../admin/members/MemberList.css'; // Reutiliza CSS da tabela
+import '../../styles/TableStyles.css';
+
 
 const HarmoniaPage = () => {
   const [itens, setItens] = useState([]);
@@ -21,6 +22,7 @@ const HarmoniaPage = () => {
       setItens(response.data);
     } catch (err) {
       setError('Falha ao carregar o acervo de harmonia.');
+      console.error(err);
     } finally { setIsLoading(false); }
   }, []);
 

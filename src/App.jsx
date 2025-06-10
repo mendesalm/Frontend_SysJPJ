@@ -4,7 +4,8 @@ import { Routes, Route } from 'react-router-dom';
 // Layouts e Componentes Estruturais
 import Header from './components/header/Header.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
-import DashboardLayout from './components/layout/DashboardLayout.jsx';
+//import DashboardLayout from './components/layout/DashboardLayout.jsx';
+import PermissionsPage from './assets/pages/admin/permissions/PermissionsPage.jsx';
 
 // Páginas
 import HomePage from './assets/pages/home/HomePage.jsx';
@@ -12,6 +13,7 @@ import LoginPage from './assets/pages/login/LoginPage.jsx';
 import ForgotPasswordPage from './assets/pages/auth/ForgotPasswordPage.jsx';
 import ResetPasswordPage from './assets/pages/auth/ResetPasswordPage.jsx';
 import DashboardPage from './assets/pages/dashboard/DashboardPage.jsx';
+import NewDashboardLayout from './components/layout/NewDashboardLayout.jsx'; 
 import ProfilePage from './assets/pages/profile/ProfilePage.jsx';
 import AvisosPage from './assets/pages/avisos/AvisosPage.jsx';
 import MemberCreatePage from './assets/pages/admin/members/MemberCreatePage.jsx';
@@ -47,7 +49,7 @@ function App() {
         
         {/* Rotas Protegidas dentro do novo Layout com Sidebar */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<DashboardLayout />}>
+          <Route element={<NewDashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/perfil" element={<ProfilePage />} />
             <Route path="/mural-de-avisos" element={<AvisosPage />} />
@@ -66,6 +68,7 @@ function App() {
             <Route path="/financeiro/plano-contas" element={<PlanoContasPage />} />
             <Route path="/financeiro/lancamentos" element={<LancamentosPage />} />
             <Route path="/financeiro/orcamento" element={<OrcamentoPage />} />
+            <Route path="/admin/permissions" element={<PermissionsPage />} />
           </Route>
         </Route>
 

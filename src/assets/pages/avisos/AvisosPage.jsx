@@ -3,7 +3,7 @@ import { useAuth } from '../../../context/AuthContext';
 import { getAllAvisos, createAviso, updateAviso, deleteAviso } from '../../../services/avisoService';
 import Modal from '../../../components/modal/Modal';
 import AvisoForm from './AvisoForm';
-import './AvisosPage.css';
+import './AvisosPage.css'; // Mantém o CSS da página, mas remove o do formulário se houver
 
 const AvisosPage = () => {
   const [avisos, setAvisos] = useState([]);
@@ -21,7 +21,6 @@ const AvisosPage = () => {
       const response = await getAllAvisos();
       setAvisos(response.data);
     } catch (err) {
-      // CORREÇÃO: Utilizando a variável 'err' para logging.
       console.error("Erro ao buscar avisos:", err);
       setError('Falha ao carregar o mural de avisos.');
     } finally {
@@ -64,7 +63,6 @@ const AvisosPage = () => {
         await deleteAviso(id);
         fetchAvisos();
       } catch (err) {
-        // CORREÇÃO: Utilizando a variável 'err' para logging.
         console.error("Erro ao apagar aviso:", err);
         setError('Não foi possível apagar o aviso.');
       }

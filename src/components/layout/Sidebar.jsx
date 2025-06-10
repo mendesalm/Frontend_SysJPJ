@@ -11,9 +11,10 @@ const ChevronDownIcon = () => (
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
-  const [openMenu, setOpenMenu] = useState(''); // Guarda o nome do menu aberto
+  const [openMenu, setOpenMenu] = useState('');
 
   const isAdmin = user?.credencialAcesso === 'Webmaster' || user?.credencialAcesso === 'Diretoria';
+  const isWebmaster = user?.credencialAcesso === 'Webmaster';
 
   const menuItems = [
     { label: 'Dashboard', path: '/dashboard' },
@@ -33,7 +34,8 @@ const Sidebar = () => {
        { label: 'Gestão de Património', path: '/patrimonio' },
        { label: 'Gestão de Harmonia', path: '/harmonia' },
        { label: 'Relatórios', path: '/relatorios' },
-    ],
+       isWebmaster && { label: 'Gestão de Permissões', path: '/admin/permissions' },
+    ].filter(Boolean),
     'Financeiro': [
        { label: 'Plano de Contas', path: '/financeiro/plano-contas' },
        { label: 'Lançamentos', path: '/financeiro/lancamentos' },
@@ -79,7 +81,15 @@ const Sidebar = () => {
           ))}
         </ul>
       </nav>
+
+      {/* SECÇÃO DE DEBUG ADICIONADA AO RODAPÉ */}
       <div className="sidebar-footer">
+        {user && (
+            <div className="user-info-debug">
+                <p><strong>Utilizador:</strong> {user.NomeCompleto}</p>
+                <p><strong>Credencial:</strong> <span className="debug-credential">{user.credencialAcesso}</span></p>
+            </div>
+        )}
         <button onClick={logout} className="logout-button">Sair</button>
       </div>
     </aside>

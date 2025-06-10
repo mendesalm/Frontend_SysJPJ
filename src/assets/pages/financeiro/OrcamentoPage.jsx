@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getRelatorioOrcamentario, setOrcamento } from '../../../services/financeService';
-import './OrcamentoPage.css';
+import '../../styles/TableStyles.css'
 
 const OrcamentoPage = () => {
   const [relatorio, setRelatorio] = useState([]);

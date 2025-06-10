@@ -3,7 +3,7 @@ import { getPatrimonios, createPatrimonio, updatePatrimonio } from '../../../ser
 import { useAuth } from '../../../context/AuthContext';
 import Modal from '../../../components/modal/Modal';
 import PatrimonioForm from './PatrimonioForm';
-import '../admin/members/MemberList.css'; // Reutilizando CSS
+import '../../styles/TableStyles.css'; // Reutilizando CSS
 
 const PatrimonioPage = () => {
   const [itens, setItens] = useState([]);
@@ -22,6 +22,7 @@ const PatrimonioPage = () => {
       setItens(response.data);
     } catch (err) {
       setError('Falha ao carregar o inventário de património.');
+      console.error("Erro ao carregar o inventário de património:", err);
     } finally {
       setIsLoading(false);
     }
