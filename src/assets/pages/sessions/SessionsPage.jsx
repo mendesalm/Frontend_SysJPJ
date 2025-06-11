@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getSessions, createSession } from '../../../services/sessionService';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 import Modal from '../../../components/modal/Modal';
 import SessionForm from './SessionForm';
 import './SessionsPage.css';
@@ -21,6 +21,7 @@ const SessionsPage = () => {
       setSessions(response.data);
     } catch (err) {
       setError('Falha ao carregar as sessões.');
+      console.error(err);
     } finally {
       setIsLoading(false);
     }

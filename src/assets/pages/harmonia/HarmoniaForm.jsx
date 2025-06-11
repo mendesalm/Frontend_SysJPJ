@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import '../avisos/AvisoForm.css'; // Reutilizando estilos
+import '../../styles/FormStyles.css';
+
 
 const HarmoniaForm = ({ onSave, onCancel }) => {
   const [formData, setFormData] = useState({

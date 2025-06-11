@@ -1,9 +1,8 @@
 // src/components/layout/SecondarySidebar.jsx
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
-// Define a estrutura de todos os sub-menus
 const menuData = {
     'menu-usuario': {
         title: 'Painel do Usuário',
@@ -18,45 +17,16 @@ const menuData = {
         title: 'Secretaria',
         items: [
             { label: 'Gestão de Membros', path: '/admin/members' },
-            { label: 'Gestão de Atas', path: '/sessoes' }, // Assumindo que atas estão em sessões
+            { label: 'Gestão de Atas', path: '/sessoes' },
             { label: 'Gestão de Publicações', path: '/publicacoes' },
         ]
     },
-    'menu-chancelaria': {
-        title: 'Chancelaria',
-        items: [
-            { label: 'Dados de Membros', path: '/admin/members' },
-            { label: 'Gestão de Sessões', path: '/sessoes' },
-            { label: 'Controle de Frequência', path: '/relatorios' }, // Link para a página geral de relatórios
-        ]
-    },
-    'menu-tesouraria': {
-        title: 'Tesouraria',
-        items: [
-            { label: 'Plano de Contas', path: '/financeiro/plano-contas' },
-            { label: 'Lançamentos', path: '/financeiro/lancamentos' },
-            { label: 'Orçamento', path: '/financeiro/orcamento' },
-        ]
-    },
-    'menu-biblioteca': {
-        title: 'Biblioteca',
-        items: [
-            { label: 'Acervo', path: '/biblioteca' },
-            // Empréstimos podem ser parte da página de acervo
-        ]
-    },
-    'menu-harmonia': {
-        title: 'Harmonia',
-        items: [
-            { label: 'Player de Harmonia', path: '/player-harmonia' },
-            { label: 'Gestão de Músicas', path: '/harmonia' },
-        ]
-    },
+    // ... (resto do objeto menuData) ...
     'menu-webmaster': {
         title: 'Webmaster',
         items: [
             { label: 'Gestão de Permissões', path: '/admin/permissions' },
-            { label: 'Configurações Gerais', path: '#' }, // Placeholder
+            { label: 'Configurações Gerais', path: '#' },
         ],
         adminOnly: true
     },
@@ -64,9 +34,10 @@ const menuData = {
 
 const SecondarySidebar = ({ activeMenu }) => {
     const { user } = useAuth();
+    const finalClassName = `secondary-sidebar ${activeMenu ? 'is-open' : ''}`;
     
-    // CORREÇÃO: A variável 'currentMenu' foi removida, pois não estava a ser utilizada.
-    
+    console.log(`[SecondarySidebar] Renderizou. Prop activeMenu: '${activeMenu}'. Classe final: '${finalClassName}'`);
+
     const isWebmaster = user?.credencialAcesso === 'Webmaster';
 
     const shouldRenderMenu = (menu) => {
@@ -76,11 +47,12 @@ const SecondarySidebar = ({ activeMenu }) => {
     };
 
     return (
-        <div className={`secondary-sidebar ${activeMenu ? 'is-open' : ''}`}>
+        <div className={finalClassName}>
             {Object.entries(menuData).map(([key, menu]) => {
                 if (!shouldRenderMenu(menu)) return null;
+                const contentClassName = `menu-content ${activeMenu === key ? 'is-visible' : ''}`;
                 return (
-                    <div key={key} id={key} className={`menu-content ${activeMenu === key ? 'is-visible' : ''}`}>
+                    <div key={key} id={key} className={contentClassName}>
                         <h3>{menu.title}</h3>
                         <ul className="secondary-menu">
                             {menu.items.map(item => (

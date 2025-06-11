@@ -1,7 +1,7 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import apiClient from '../services/apiClient';
-import { useNavigate } from 'react-router-dom';
 
+// O contexto é criado aqui, mas não precisa ser exportado se o hook for o único ponto de acesso.
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const value = { user, login, logout, isAuthenticated: !!user, loading };
+  const value = { user, login, logout, isAuthenticated: !!user, loading, checkUserStatus };
 
   return (
     <AuthContext.Provider value={value}>
@@ -49,6 +49,7 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+// A função do hook useAuth foi movida para o seu próprio ficheiro para corrigir o erro de Fast Refresh.
+// Adicionamos uma exportação nomeada para o AuthContext para que o hook possa acedê-lo.
+export { AuthContext };
+

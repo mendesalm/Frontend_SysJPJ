@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext'; // Importe o nosso hook!
+import { useAuth } from '../../hooks/useAuth'
 import './Header.css';
 import logoImagem from '../../assets/images/logo_jpg.png';
 

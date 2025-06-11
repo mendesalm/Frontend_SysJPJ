@@ -1,52 +1,89 @@
+/*
+ * src/components/modal/Modal.css
+ * Estilos atualizados para o modal com tema escuro e glassmorphism.
+ */
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7); /* Fundo mais escuro e mais opaco */
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
+  backdrop-filter: blur(5px); /* Efeito de desfoque no fundo da página */
+  -webkit-backdrop-filter: blur(5px);
 }
 
 .modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  /* --- Estilos Glassmorphism --- */
+  background: rgba(31, 41, 55, 0.8); /* Fundo de vidro azul-escuro */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+  
+  color: #F9FAFB; /* Cor do texto padrão dentro do modal */
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
   width: 90%;
-  max-width: 500px;
-  animation: slide-down 0.3s ease-out;
+  max-width: 700px; /* Aumenta a largura máxima para formulários mais complexos */
+  animation: slide-down 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  max-height: 90vh; /* Garante que o modal não ultrapasse a altura da tela */
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #374151; /* Borda mais escura */
   padding-bottom: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
 }
 
 .modal-title {
   margin: 0;
   font-size: 1.5rem;
-  color: #333;
+  color: #E5E7EB; /* Cor do título ajustada */
 }
 
 .modal-close-button {
   background: transparent;
   border: none;
-  font-size: 2rem;
+  font-size: 2.2rem;
   cursor: pointer;
-  color: #888;
+  color: #9CA3AF; /* Cor do botão de fechar ajustada */
+  transition: color 0.2s;
+}
+
+.modal-close-button:hover {
+    color: #F9FAFB;
 }
 
 .modal-body {
-  padding-top: 1rem;
+  overflow-y: auto; /* Permite scroll se o conteúdo do formulário for muito grande */
+  padding-right: 10px; /* Espaço para a barra de scroll */
 }
+
+/* Scrollbar personalizada para o modal */
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+.modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.modal-body::-webkit-scrollbar-thumb {
+  background-color: #4B5563;
+  border-radius: 10px;
+  border: 3px solid transparent;
+}
+
 
 @keyframes slide-down {
   from {

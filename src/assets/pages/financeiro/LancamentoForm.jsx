@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getContas } from '../../../services/financeService';
 import { getAllMembers } from '../../../services/memberService';
-import '../avisos/AvisoForm.css';
+import '../../styles/FormStyles.css';
+
 
 const LancamentoForm = ({ onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -24,6 +25,7 @@ const LancamentoForm = ({ onSave, onCancel }) => {
         setMembros(membrosRes.data);
       } catch (err) {
         setError('Erro ao carregar dados para o formulário.');
+        console.error(err);
       }
     };
     fetchData();

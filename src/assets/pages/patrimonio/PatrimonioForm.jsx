@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../avisos/AvisoForm.css'; // Reutilizando estilos
+import '../../../assets/styles/FormStyles.css';
 
 const PatrimonioForm = ({ itemToEdit, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -36,7 +36,7 @@ const PatrimonioForm = ({ itemToEdit, onSave, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="aviso-form">
+    <form onSubmit={handleSubmit} className="form-container">
       <div className="form-group">
         <label htmlFor="nome">Nome do Item</label>
         <input type="text" id="nome" name="nome" value={formData.nome} onChange={handleChange} required />

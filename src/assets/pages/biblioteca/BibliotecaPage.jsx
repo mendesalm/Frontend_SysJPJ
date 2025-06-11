@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getLivros, createLivro, updateLivro, registrarEmprestimo, registrarDevolucao, reservarLivro } from '../../../services/bibliotecaService';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 import Modal from '../../../components/modal/Modal';
 import LivroForm from './LivroForm';
 import EmprestimoForm from './EmprestimoForm';

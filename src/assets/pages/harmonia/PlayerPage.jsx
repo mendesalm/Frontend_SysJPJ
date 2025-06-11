@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useAuth } from '../../../context/AuthContext';
+//import { useAuth } from '../../hooks/useAuth';
 import { getHarmoniaItens } from '../../../services/harmoniaService';
 import './PlayerPage.css';
 
@@ -21,6 +21,7 @@ const PlayerPage = () => {
         setItens(response.data);
       } catch (err) {
         setError('Falha ao carregar o acervo de harmonia.');
+        console.error(err);
       } finally {
         setIsLoading(false);
       }

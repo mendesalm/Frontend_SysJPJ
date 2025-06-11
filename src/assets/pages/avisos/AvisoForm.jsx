@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-// Importa o novo ficheiro de estilos.
-// Não precisa mais do AvisoForm.css se todos os estilos estiverem no novo ficheiro.
-import '../../../assets/styles/FormStyles.css';
+import '../../styles/FormStyles.css';
 
+
+// O componente agora é a única exportação do ficheiro, corrigindo o erro de Fast Refresh.
 const AvisoForm = ({ avisoToEdit, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
     titulo: '',
@@ -20,6 +20,7 @@ const AvisoForm = ({ avisoToEdit, onSave, onCancel }) => {
         dataExpiracao: avisoToEdit.dataExpiracao ? new Date(avisoToEdit.dataExpiracao).toISOString().split('T')[0] : '',
       });
     } else {
+      // Garante que o formulário está limpo para um novo aviso
       setFormData({ titulo: '', conteudo: '', fixado: false, dataExpiracao: '' });
     }
   }, [avisoToEdit]);
@@ -38,7 +39,7 @@ const AvisoForm = ({ avisoToEdit, onSave, onCancel }) => {
   };
 
   return (
-    // Usa a nova classe de container do formulário
+    // Aplica as classes de estilo padrão dos formulários
     <form onSubmit={handleSubmit} className="form-container">
       <div className="form-group">
         <label htmlFor="titulo">Título</label>
@@ -49,9 +50,10 @@ const AvisoForm = ({ avisoToEdit, onSave, onCancel }) => {
           value={formData.titulo} 
           onChange={handleChange} 
           required 
-          className="form-input" // Usa a nova classe de input
+          className="form-input" 
         />
       </div>
+      
       <div className="form-group">
         <label htmlFor="conteudo">Conteúdo</label>
         <textarea 
@@ -59,11 +61,12 @@ const AvisoForm = ({ avisoToEdit, onSave, onCancel }) => {
           name="conteudo" 
           value={formData.conteudo} 
           onChange={handleChange} 
-          rows="6" 
+          rows="5" 
           required 
-          className="form-textarea" // Usa a nova classe de textarea
+          className="form-textarea" 
         />
       </div>
+
       <div className="form-group">
         <label htmlFor="dataExpiracao">Data de Expiração (opcional)</label>
         <input 
@@ -72,9 +75,10 @@ const AvisoForm = ({ avisoToEdit, onSave, onCancel }) => {
           name="dataExpiracao" 
           value={formData.dataExpiracao} 
           onChange={handleChange} 
-          className="form-input" // Usa a nova classe de input
+          className="form-input" 
         />
       </div>
+
       <div className="form-group-inline">
         <input 
           type="checkbox" 
@@ -85,6 +89,7 @@ const AvisoForm = ({ avisoToEdit, onSave, onCancel }) => {
         />
         <label htmlFor="fixado">Fixar este aviso no topo</label>
       </div>
+      
       <div className="form-actions">
         <button type="button" onClick={onCancel} className="btn btn-secondary">Cancelar</button>
         <button type="submit" className="btn btn-primary">Salvar Aviso</button>

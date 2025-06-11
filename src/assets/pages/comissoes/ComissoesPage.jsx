@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getComissoes, createComissao } from '../../../services/comissoesService';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 import Modal from '../../../components/modal/Modal';
 import ComissaoForm from './ComissaoForm';
 import './ComissoesPage.css';
@@ -21,6 +21,7 @@ const ComissoesPage = () => {
       setComissoes(response.data);
     } catch (err) {
       setError('Falha ao carregar as comissões.');
+      console.error(err);
     } finally {
       setIsLoading(false);
     }

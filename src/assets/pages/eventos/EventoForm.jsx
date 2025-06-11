@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import '../avisos/AvisoForm.css'; // Reutilizando estilos
+import '../../styles/FormStyles.css';
+
+
 
 const EventoForm = ({ onSave, onCancel }) => {
   const [formData, setFormData] = useState({

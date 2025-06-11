@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMemberById, updateMember } from '../../../../services/memberService';
 import MemberForm from './MemberForm';
-import './MemberForm.css';
+import '../../../styles/FormStyles.css';
 
 const MemberEditPage = () => {
   const { memberId } = useParams();

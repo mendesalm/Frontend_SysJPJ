@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getEventos, createEvento, confirmarPresenca } from '../../../services/eventosService';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 import Modal from '../../../components/modal/Modal';
 import EventoForm from './EventoForm';
 import './EventosPage.css';
@@ -21,6 +21,7 @@ const EventosPage = () => {
       setEventos(response.data);
     } catch (err) {
       setError('Falha ao carregar os eventos.');
+      console.error(err);
     } finally {
       setIsLoading(false);
     }

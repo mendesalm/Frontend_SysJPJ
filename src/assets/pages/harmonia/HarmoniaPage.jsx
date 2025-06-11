@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getHarmoniaItens, createHarmoniaItem, deleteHarmoniaItem } from '../../../services/harmoniaService';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 import Modal from '../../../components/modal/Modal';
 import HarmoniaForm from './HarmoniaForm';
 import '../../styles/TableStyles.css';

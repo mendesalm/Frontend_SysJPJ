@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAllMembers } from '../../../services/memberService';
-import '../avisos/AvisoForm.css'; // Reutilizando estilos
+import '../../styles/FormStyles.css';
+
 
 const ComissaoForm = ({ onSave, onCancel }) => {
   const [formData, setFormData] = useState({

@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createLodgeMember } from '../../../../services/memberService';
 import MemberForm from './MemberForm';
-import './MemberForm.css';
+import '../../../styles/FormStyles.css';
 
 const MemberCreatePage = () => {
   const navigate = useNavigate();

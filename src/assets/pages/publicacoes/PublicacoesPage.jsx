@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getPublicacoes, createPublicacao } from '../../../services/publicacaoService';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../hooks/useAuth';
 import Modal from '../../../components/modal/Modal';
 import PublicacaoForm from './PublicacaoForm';
 import './PublicacoesPage.css';
@@ -21,6 +21,7 @@ const PublicacoesPage = () => {
       setPublicacoes(response.data);
     } catch (err) {
       setError('Falha ao carregar as publicações.');
+      console.error(err);
     } finally {
       setIsLoading(false);
     }

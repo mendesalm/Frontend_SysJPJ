@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAllMembers } from '../../../services/memberService';
-import './SessionForm.css';
+import '../../../assets/styles/FormStyles.css';
 
 // Função auxiliar para encontrar a próxima sexta-feira
 const getNextFriday = () => {
@@ -98,7 +98,7 @@ const SessionForm = ({ onSave, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="session-form">
+    <form onSubmit={handleSubmit} className="form-container">
       {error && <p className="error-message">{error}</p>}
       
       <div className="form-section">

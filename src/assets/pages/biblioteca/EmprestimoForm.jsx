@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getAllMembers } from '../../../services/memberService'; // Reutilizamos o serviço de membros
-import '../avisos/AvisoForm.css';
+import '../../styles/FormStyles.css';
+
+
 
 const EmprestimoForm = ({ livro, onSave, onCancel }) => {
   const [membroId, setMembroId] = useState('');
@@ -19,6 +21,7 @@ const EmprestimoForm = ({ livro, onSave, onCancel }) => {
         setMembros(response.data);
       } catch (err) {
         setError('Não foi possível carregar a lista de membros.');
+        console.error(err);
       }
     };
     fetchMembros();

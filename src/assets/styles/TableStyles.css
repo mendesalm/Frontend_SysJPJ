@@ -103,9 +103,9 @@
     transform: scale(1.05);
 }
 
-.btn-approve { background-color: #16a34a; color: white; }
-.btn-edit { background-color: #2563eb; color: white; }
-.btn-delete { background-color: #dc2626; color: white; }
+.btn-approve { background-color: #011508; color: white; }
+.btn-edit { background-color: #02153c; color: white; }
+.btn-delete { background-color: hsl(0, 75%, 13%); color: white; }
 
 /* --- Badges de Status --- */
 .status-badge {

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 // Reutiliza o CSS de outros formulários para manter a consistência
-import '../avisos/AvisoForm.css';
+import '../../styles/FormStyles.css';
+
+
 
 const LivroForm = ({ livroToEdit, onSave, onCancel }) => {
   const [formData, setFormData] = useState({

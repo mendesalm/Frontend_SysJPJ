@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // Reutilizaremos o CSS do formulário de avisos
-import '../avisos/AvisoForm.css';
+import '../../styles/FormStyles.css';
+
 
 const ContaForm = ({ contaToEdit, onSave, onCancel }) => {
   const [formData, setFormData] = useState({

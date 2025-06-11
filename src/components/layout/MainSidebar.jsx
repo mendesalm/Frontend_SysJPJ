@@ -1,9 +1,8 @@
 // src/components/layout/MainSidebar.jsx
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
-// --- Ícones como Componentes React (versão temática) ---
 const IconUsuario = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
 const IconSecretaria = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3l4 4L7 21l-4-4L17 3z"></path><path d="M7 3l4 4L3 21l-4-4L7 3z"></path><path d="M14 8L6 16"></path></svg>;
 const IconChancelaria = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><circle cx="10.5" cy="15.5" r="2.5"></circle><path d="m16 10-5.5 5.5"></path></svg>;
@@ -17,12 +16,13 @@ const MainSidebar = ({ activeMenu, onMenuClick }) => {
     const { logout } = useAuth();
     const navigate = useNavigate();
 
+    console.log('[MainSidebar] Renderizou com a prop activeMenu:', activeMenu);
+
     const handleLogout = () => {
         logout();
-        navigate('/'); // Redireciona para a página inicial pública
+        navigate('/');
     };
     
-    // Definição dos itens do menu principal com os novos ícones
     const menuItems = [
         { id: 'menu-usuario', tooltip: 'Painel do Usuário', icon: <IconUsuario /> },
         { id: 'menu-secretaria', tooltip: 'Secretaria', icon: <IconSecretaria /> },
@@ -35,7 +35,6 @@ const MainSidebar = ({ activeMenu, onMenuClick }) => {
     return (
         <nav className="main-sidebar">
             <Link to="/dashboard" className="main-sidebar-logo">JPJ</Link>
-            
             <ul className="main-menu">
                 {menuItems.map(item => (
                     <li key={item.id} className="main-menu-item">
@@ -49,7 +48,6 @@ const MainSidebar = ({ activeMenu, onMenuClick }) => {
                     </li>
                 ))}
             </ul>
-
             <div className="main-sidebar-footer">
                  <button className={`main-menu-button ${activeMenu === 'menu-webmaster' ? 'active' : ''}`}
                     onClick={() => onMenuClick('menu-webmaster')}>
@@ -66,4 +64,3 @@ const MainSidebar = ({ activeMenu, onMenuClick }) => {
 };
 
 export default MainSidebar;
-
