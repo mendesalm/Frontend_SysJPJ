@@ -1,31 +1,31 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
-// Busca todos os membros
-export const getAllMembers = () => {
-  return apiClient.get('/lodgemembers');
+// --- Funções para o próprio utilizador ---
+
+export const getMyProfile = () => {
+  return apiClient.get("/lodgemembers/me");
 };
 
-// Busca um membro específico por ID
+export const updateMyProfile = (profileData) => {
+  return apiClient.put("/lodgemembers/me", profileData);
+};
+
+// --- Funções para Administradores ---
+
+export const getAllMembers = () => {
+  return apiClient.get("/lodgemembers");
+};
+
+// --- NOVA FUNÇÃO ADICIONADA ---
+// Busca os dados de um membro específico pelo ID.
 export const getMemberById = (id) => {
   return apiClient.get(`/lodgemembers/${id}`);
 };
 
-// Atualiza os dados de um membro
-// A `memberData` pode conter qualquer campo que o backend permita atualizar
+export const createMember = (memberData) => {
+  return apiClient.post("/lodgemembers", memberData);
+};
+
 export const updateMember = (id, memberData) => {
   return apiClient.put(`/lodgemembers/${id}`, memberData);
-};
-
-// Apaga um membro
-export const deleteMember = (id) => {
-  return apiClient.delete(`/lodgemembers/${id}`);
-};
-
-// Atualiza o perfil do próprio utilizador logado
-export const updateMyProfile = (profileData) => {
-  return apiClient.put('/lodgemembers/me', profileData);
-};
-
-export const createLodgeMember = (memberData) => {
-  return apiClient.post('/lodgemembers', memberData);
 };

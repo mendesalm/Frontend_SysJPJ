@@ -1,20 +1,22 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createLodgeMember } from '../../../../services/memberService';
-import MemberForm from './MemberForm';
-import '../../../styles/FormStyles.css';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { createMember } from "../../../../services/memberService";
+import MemberForm from "./MemberForm";
+import "../../../styles/FormStyles.css";
 
 const MemberCreatePage = () => {
   const navigate = useNavigate();
 
   const handleSave = async (formData) => {
     try {
-      await createLodgeMember(formData);
-      alert('Membro criado com sucesso!');
-      navigate('/admin/members');
+      await createMember(formData);
+      alert("Membro criado com sucesso!");
+      navigate("/admin/members");
     } catch (error) {
       console.error("Erro ao criar membro:", error);
-      alert(error.response?.data?.message || "Não foi possível criar o membro.");
+      alert(
+        error.response?.data?.message || "Não foi possível criar o membro."
+      );
     }
   };
 

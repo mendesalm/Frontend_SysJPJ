@@ -1,74 +1,150 @@
-import React, { useState, useEffect } from 'react';
-// Reutiliza o CSS de outros formulários para manter a consistência
-import '../../styles/FormStyles.css';
-
-
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { livroValidationSchema } from "../../../validators/livroValidator.js";
+import "../../styles/FormStyles.css";
 
 const LivroForm = ({ livroToEdit, onSave, onCancel }) => {
-  const [formData, setFormData] = useState({
-    titulo: '',
-    autores: '',
-    editora: '',
-    anoPublicacao: '',
-    ISBN: '',
-    observacoes: ''
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm({
+    resolver: yupResolver(livroValidationSchema),
+    defaultValues: {
+      titulo: "",
+      autores: "",
+      editora: "",
+      anoPublicacao: "",
+      ISBN: "",
+      numeroPaginas: "",
+      classificacao: "",
+      observacoes: "",
+    },
   });
 
   useEffect(() => {
     if (livroToEdit) {
-      setFormData({
-        titulo: livroToEdit.titulo || '',
-        autores: livroToEdit.autores || '',
-        editora: livroToEdit.editora || '',
-        anoPublicacao: livroToEdit.anoPublicacao || '',
-        ISBN: livroToEdit.ISBN || '',
-        observacoes: livroToEdit.observacoes || ''
-      });
+      reset(livroToEdit);
     } else {
-      // Reseta o formulário para criação
-      setFormData({ titulo: '', autores: '', editora: '', anoPublicacao: '', ISBN: '', observacoes: '' });
+      reset(); // Limpa o formulário para um novo livro
     }
-  }, [livroToEdit]);
+  }, [livroToEdit, reset]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData);
+  const onSubmit = (data) => {
+    onSave(data);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="aviso-form">
+    <form onSubmit={handleSubmit(onSubmit)} className="form-container">
+      <div className="form-grid">
+        <div className="form-group full-width">
+          <label htmlFor="titulo">Título</label>
+          <input
+            id="titulo"
+            type="text"
+            {...register("titulo")}
+            className={`form-input ${errors.titulo ? "is-invalid" : ""}`}
+          />
+          {errors.titulo && (
+            <p className="form-error-message">{errors.titulo.message}</p>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="autores">Autor(es)</label>
+          <input
+            id="autores"
+            type="text"
+            {...register("autores")}
+            className={`form-input ${errors.autores ? "is-invalid" : ""}`}
+          />
+          {errors.autores && (
+            <p className="form-error-message">{errors.autores.message}</p>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="editora">Editora</label>
+          <input
+            id="editora"
+            type="text"
+            {...register("editora")}
+            className="form-input"
+          />
+        </div>
+      </div>
+
+      <div className="form-grid">
+        <div className="form-group">
+          <label htmlFor="anoPublicacao">Ano de Publicação</label>
+          <input
+            id="anoPublicacao"
+            type="number"
+            {...register("anoPublicacao")}
+            className={`form-input ${errors.anoPublicacao ? "is-invalid" : ""}`}
+          />
+          {errors.anoPublicacao && (
+            <p className="form-error-message">{errors.anoPublicacao.message}</p>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="numeroPaginas">Nº de Páginas</label>
+          <input
+            id="numeroPaginas"
+            type="number"
+            {...register("numeroPaginas")}
+            className={`form-input ${errors.numeroPaginas ? "is-invalid" : ""}`}
+          />
+          {errors.numeroPaginas && (
+            <p className="form-error-message">{errors.numeroPaginas.message}</p>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="ISBN">ISBN</label>
+          <input
+            id="ISBN"
+            type="text"
+            {...register("ISBN")}
+            className="form-input"
+          />
+        </div>
+      </div>
+
       <div className="form-group">
-        <label htmlFor="titulo">Título do Livro</label>
-        <input type="text" id="titulo" name="titulo" value={formData.titulo} onChange={handleChange} required />
+        <label htmlFor="classificacao">Classificação/Localização</label>
+        <input
+          id="classificacao"
+          type="text"
+          {...register("classificacao")}
+          className="form-input"
+        />
       </div>
-      <div className="form-group">
-        <label htmlFor="autores">Autor(es)</label>
-        <input type="text" id="autores" name="autores" value={formData.autores} onChange={handleChange} />
-      </div>
-       <div className="form-group">
-        <label htmlFor="editora">Editora</label>
-        <input type="text" id="editora" name="editora" value={formData.editora} onChange={handleChange} />
-      </div>
-       <div className="form-group">
-        <label htmlFor="anoPublicacao">Ano de Publicação</label>
-        <input type="number" id="anoPublicacao" name="anoPublicacao" value={formData.anoPublicacao} onChange={handleChange} />
-      </div>
-      <div className="form-group">
-        <label htmlFor="ISBN">ISBN</label>
-        <input type="text" id="ISBN" name="ISBN" value={formData.ISBN} onChange={handleChange} />
-      </div>
+
       <div className="form-group">
         <label htmlFor="observacoes">Observações</label>
-        <textarea id="observacoes" name="observacoes" value={formData.observacoes} onChange={handleChange} rows="3" />
+        <textarea
+          id="observacoes"
+          rows="3"
+          {...register("observacoes")}
+          className="form-textarea"
+        />
       </div>
+
       <div className="form-actions">
-        <button type="button" onClick={onCancel} className="btn btn-secondary">Cancelar</button>
-        <button type="submit" className="btn btn-primary">Salvar Livro</button>
+        <button type="button" onClick={onCancel} className="btn btn-secondary">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "A salvar..." : "Salvar Livro"}
+        </button>
       </div>
     </form>
   );

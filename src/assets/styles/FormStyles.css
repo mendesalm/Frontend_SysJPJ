@@ -5,12 +5,12 @@
  */
 
 :root {
-    --cor-fundo-input: #1F2937;
-    --cor-borda-input: #4B5563;
-    --cor-foco-input: #38BDF8;
-    --cor-texto-primario: #F9FAFB;
-    --cor-texto-secundario: #9CA3AF;
-    --cor-borda-vidro: rgba(255, 255, 255, 0.1);
+  --cor-fundo-input: #1f2937;
+  --cor-borda-input: #4b5563;
+  --cor-foco-input: #38bdf8;
+  --cor-texto-primario: #f9fafb;
+  --cor-texto-secundario: #9ca3af;
+  --cor-borda-vidro: rgba(255, 255, 255, 0.1);
 }
 
 /* Container principal para o formulário (geralmente dentro de um modal) */
@@ -37,9 +37,9 @@
 
 /* Grid para alinhar campos em colunas */
 .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
 }
 
 /* Grupo individual de label + input */
@@ -50,7 +50,7 @@
 }
 
 .form-group.full-width {
-    grid-column: 1 / -1;
+  grid-column: 1 / -1;
 }
 
 .form-group label {
@@ -86,8 +86,8 @@
 }
 
 .form-select[multiple] {
-    height: 150px;
-    padding: 10px;
+  height: 150px;
+  padding: 10px;
 }
 
 /* Checkboxes */
@@ -125,18 +125,36 @@
 }
 
 .btn-primary {
-  background-color: #0EA5E9;
+  background-color: #0ea5e9;
   color: white;
 }
 .btn-primary:hover {
-  background-color: #0284C7;
+  background-color: #0284c7;
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background-color: #4B5563;
+  background-color: #4b5563;
   color: var(--cor-texto-primario);
 }
 .btn-secondary:hover {
-  background-color: #6B7280;
+  background-color: #6b7280;
+}
+/* Estilos para campos inválidos */
+.form-input.is-invalid,
+.form-textarea.is-invalid {
+  border-color: #dc3545; /* Vermelho para indicar erro */
+}
+
+.form-input.is-invalid:focus,
+.form-textarea.is-invalid:focus {
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Estilo para a mensagem de erro */
+.form-error-message {
+  color: #e74c3c; /* Tom de vermelho mais suave */
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  font-weight: 500;
 }

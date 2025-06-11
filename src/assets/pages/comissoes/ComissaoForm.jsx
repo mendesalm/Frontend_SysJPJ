@@ -1,74 +1,164 @@
-import React, { useState, useEffect } from 'react';
-import { getAllMembers } from '../../../services/memberService';
-import '../../styles/FormStyles.css';
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { comissaoValidationSchema } from "../../../validators/comissaoValidator.js";
+import { getAllMembers } from "../../../services/memberService";
+import "../../styles/FormStyles.css";
 
+const ComissaoForm = ({ comissaoToEdit, onSave, onCancel }) => {
+  const [membrosDisponiveis, setMembrosDisponiveis] = useState([]);
 
-const ComissaoForm = ({ onSave, onCancel }) => {
-  const [formData, setFormData] = useState({
-    nome: '',
-    tipo: 'Permanente',
-    dataInicio: new Date().toISOString().split('T')[0],
-    dataFim: '',
-    membrosIds: []
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    //setValue,
+  } = useForm({
+    resolver: yupResolver(comissaoValidationSchema),
+    defaultValues: {
+      nome: "",
+      descricao: "",
+      tipo: "Temporária",
+      dataInicio: "",
+      dataFim: "",
+      membrosIds: [],
+    },
   });
-  const [allMembers, setAllMembers] = useState([]);
-  const [error, setError] = useState('');
 
   useEffect(() => {
-    getAllMembers()
-      .then(response => setAllMembers(response.data))
-      .catch(() => setError('Não foi possível carregar a lista de membros.'));
+    async function fetchMembers() {
+      try {
+        const response = await getAllMembers();
+        setMembrosDisponiveis(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar membros", error);
+      }
+    }
+    fetchMembers();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  useEffect(() => {
+    if (comissaoToEdit) {
+      reset({
+        ...comissaoToEdit,
+        dataInicio: comissaoToEdit.dataInicio
+          ? new Date(comissaoToEdit.dataInicio).toISOString().split("T")[0]
+          : "",
+        dataFim: comissaoToEdit.dataFim
+          ? new Date(comissaoToEdit.dataFim).toISOString().split("T")[0]
+          : "",
+        // O `react-hook-form` lida bem com a seleção múltipla se o `value` do select for um array
+        membrosIds: comissaoToEdit.membros.map((m) => m.id),
+      });
+    } else {
+      reset();
+    }
+  }, [comissaoToEdit, reset]);
 
-  const handleMemberSelect = (e) => {
-    const selectedIds = Array.from(e.target.selectedOptions, option => option.value);
-    setFormData(prev => ({ ...prev, membrosIds: selectedIds }));
+  const onSubmit = (data) => {
+    onSave(data);
   };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData);
-  };
-  
-  if (error) return <p className="error-message">{error}</p>
 
   return (
-    <form onSubmit={handleSubmit} className="aviso-form">
+    <form onSubmit={handleSubmit(onSubmit)} className="form-container">
       <div className="form-group">
         <label htmlFor="nome">Nome da Comissão</label>
-        <input type="text" id="nome" name="nome" value={formData.nome} onChange={handleChange} required />
+        <input
+          id="nome"
+          type="text"
+          {...register("nome")}
+          className={`form-input ${errors.nome ? "is-invalid" : ""}`}
+        />
+        {errors.nome && (
+          <p className="form-error-message">{errors.nome.message}</p>
+        )}
       </div>
+
       <div className="form-group">
-        <label htmlFor="tipo">Tipo</label>
-        <select id="tipo" name="tipo" value={formData.tipo} onChange={handleChange}>
-          <option value="Permanente">Permanente</option>
-          <option value="Temporária">Temporária</option>
-        </select>
+        <label htmlFor="descricao">Descrição</label>
+        <textarea
+          id="descricao"
+          rows="3"
+          {...register("descricao")}
+          className={`form-textarea ${errors.descricao ? "is-invalid" : ""}`}
+        />
+        {errors.descricao && (
+          <p className="form-error-message">{errors.descricao.message}</p>
+        )}
       </div>
-      <div className="form-group">
-        <label htmlFor="dataInicio">Data de Início</label>
-        <input type="date" id="dataInicio" name="dataInicio" value={formData.dataInicio} onChange={handleChange} required />
+
+      <div className="form-grid">
+        <div className="form-group">
+          <label htmlFor="tipo">Tipo</label>
+          <select
+            id="tipo"
+            {...register("tipo")}
+            className={`form-select ${errors.tipo ? "is-invalid" : ""}`}
+          >
+            <option value="Temporária">Temporária</option>
+            <option value="Permanente">Permanente</option>
+          </select>
+          {errors.tipo && (
+            <p className="form-error-message">{errors.tipo.message}</p>
+          )}
+        </div>
+        <div className="form-group">
+          <label htmlFor="dataInicio">Data de Início</label>
+          <input
+            id="dataInicio"
+            type="date"
+            {...register("dataInicio")}
+            className={`form-input ${errors.dataInicio ? "is-invalid" : ""}`}
+          />
+          {errors.dataInicio && (
+            <p className="form-error-message">{errors.dataInicio.message}</p>
+          )}
+        </div>
+        <div className="form-group">
+          <label htmlFor="dataFim">Data Final (opcional)</label>
+          <input
+            id="dataFim"
+            type="date"
+            {...register("dataFim")}
+            className={`form-input ${errors.dataFim ? "is-invalid" : ""}`}
+          />
+          {errors.dataFim && (
+            <p className="form-error-message">{errors.dataFim.message}</p>
+          )}
+        </div>
       </div>
+
       <div className="form-group">
-        <label htmlFor="dataFim">Data de Fim</label>
-        <input type="date" id="dataFim" name="dataFim" value={formData.dataFim} onChange={handleChange} required />
-      </div>
-      <div className="form-group">
-        <label htmlFor="membrosIds">Membros (Ctrl+Click para selecionar vários)</label>
-        <select id="membrosIds" name="membrosIds" multiple value={formData.membrosIds} onChange={handleMemberSelect} required size="8" style={{height: '150px'}}>
-          {allMembers.map(member => (
-            <option key={member.id} value={member.id}>{member.NomeCompleto}</option>
+        <label htmlFor="membrosIds">Membros da Comissão</label>
+        <select
+          id="membrosIds"
+          multiple
+          {...register("membrosIds")}
+          className={`form-select ${errors.membrosIds ? "is-invalid" : ""}`}
+        >
+          {membrosDisponiveis.map((membro) => (
+            <option key={membro.id} value={membro.id}>
+              {membro.NomeCompleto}
+            </option>
           ))}
         </select>
+        {errors.membrosIds && (
+          <p className="form-error-message">{errors.membrosIds.message}</p>
+        )}
       </div>
+
       <div className="form-actions">
-        <button type="button" onClick={onCancel} className="btn btn-secondary">Cancelar</button>
-        <button type="submit" className="btn btn-primary">Salvar Comissão</button>
+        <button type="button" onClick={onCancel} className="btn btn-secondary">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "A salvar..." : "Salvar Comissão"}
+        </button>
       </div>
     </form>
   );

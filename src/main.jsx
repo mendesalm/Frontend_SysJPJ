@@ -1,16 +1,20 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom'; // Importe o BrowserRouter
-import { AuthProvider } from './context/AuthContext.jsx'; // Importe o AuthProvider
-import App from './App.jsx';
-import './App.css'; // Mova os imports de CSS globais para cá
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App.jsx";
+import "./App.css";
+import { AuthProvider } from "./context/AuthContext.jsx";
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
+// CORREÇÃO: Adicionadas as importações de CSS para a biblioteca do slider (react-slick)
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <App />
       </AuthProvider>
     </BrowserRouter>
-  </StrictMode>,
+  </React.StrictMode>
 );

@@ -1,98 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import '../../styles/FormStyles.css';
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { avisoValidationSchema } from "../../../validators/avisoValidator.js";
+import "../../styles/FormStyles.css";
 
-
-// O componente agora é a única exportação do ficheiro, corrigindo o erro de Fast Refresh.
 const AvisoForm = ({ avisoToEdit, onSave, onCancel }) => {
-  const [formData, setFormData] = useState({
-    titulo: '',
-    conteudo: '',
-    fixado: false,
-    dataExpiracao: '',
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm({
+    resolver: yupResolver(avisoValidationSchema),
+    defaultValues: {
+      titulo: "",
+      conteudo: "",
+      fixado: false,
+      dataExpiracao: "",
+    },
   });
 
   useEffect(() => {
     if (avisoToEdit) {
-      setFormData({
-        titulo: avisoToEdit.titulo || '',
-        conteudo: avisoToEdit.conteudo || '',
+      reset({
+        titulo: avisoToEdit.titulo || "",
+        conteudo: avisoToEdit.conteudo || "",
         fixado: avisoToEdit.fixado || false,
-        dataExpiracao: avisoToEdit.dataExpiracao ? new Date(avisoToEdit.dataExpiracao).toISOString().split('T')[0] : '',
+        dataExpiracao: avisoToEdit.dataExpiracao
+          ? new Date(avisoToEdit.dataExpiracao).toISOString().split("T")[0]
+          : "",
       });
     } else {
-      // Garante que o formulário está limpo para um novo aviso
-      setFormData({ titulo: '', conteudo: '', fixado: false, dataExpiracao: '' });
+      reset(); // Limpa o formulário para um novo aviso
     }
-  }, [avisoToEdit]);
+  }, [avisoToEdit, reset]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData);
+  const onSubmit = (data) => {
+    // A função onSave agora recebe os dados já validados
+    onSave(data);
   };
 
   return (
-    // Aplica as classes de estilo padrão dos formulários
-    <form onSubmit={handleSubmit} className="form-container">
+    <form onSubmit={handleSubmit(onSubmit)} className="form-container">
       <div className="form-group">
         <label htmlFor="titulo">Título</label>
-        <input 
-          type="text" 
-          id="titulo" 
-          name="titulo" 
-          value={formData.titulo} 
-          onChange={handleChange} 
-          required 
-          className="form-input" 
+        <input
+          id="titulo"
+          type="text"
+          {...register("titulo")}
+          className={`form-input ${errors.titulo ? "is-invalid" : ""}`}
         />
+        {errors.titulo && (
+          <p className="form-error-message">{errors.titulo.message}</p>
+        )}
       </div>
-      
+
       <div className="form-group">
         <label htmlFor="conteudo">Conteúdo</label>
-        <textarea 
-          id="conteudo" 
-          name="conteudo" 
-          value={formData.conteudo} 
-          onChange={handleChange} 
-          rows="5" 
-          required 
-          className="form-textarea" 
+        <textarea
+          id="conteudo"
+          rows="5"
+          {...register("conteudo")}
+          className={`form-textarea ${errors.conteudo ? "is-invalid" : ""}`}
         />
+        {errors.conteudo && (
+          <p className="form-error-message">{errors.conteudo.message}</p>
+        )}
       </div>
 
       <div className="form-group">
         <label htmlFor="dataExpiracao">Data de Expiração (opcional)</label>
-        <input 
-          type="date" 
-          id="dataExpiracao" 
-          name="dataExpiracao" 
-          value={formData.dataExpiracao} 
-          onChange={handleChange} 
-          className="form-input" 
+        <input
+          id="dataExpiracao"
+          type="date"
+          {...register("dataExpiracao")}
+          className={`form-input ${errors.dataExpiracao ? "is-invalid" : ""}`}
         />
+        {errors.dataExpiracao && (
+          <p className="form-error-message">{errors.dataExpiracao.message}</p>
+        )}
       </div>
 
       <div className="form-group-inline">
-        <input 
-          type="checkbox" 
-          id="fixado" 
-          name="fixado" 
-          checked={formData.fixado} 
-          onChange={handleChange} 
-        />
+        <input id="fixado" type="checkbox" {...register("fixado")} />
         <label htmlFor="fixado">Fixar este aviso no topo</label>
       </div>
-      
+
       <div className="form-actions">
-        <button type="button" onClick={onCancel} className="btn btn-secondary">Cancelar</button>
-        <button type="submit" className="btn btn-primary">Salvar Aviso</button>
+        <button type="button" onClick={onCancel} className="btn btn-secondary">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "A salvar..." : "Salvar Aviso"}
+        </button>
       </div>
     </form>
   );
