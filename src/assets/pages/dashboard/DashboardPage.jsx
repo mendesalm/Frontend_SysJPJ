@@ -1,52 +1,73 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../../hooks/useAuth';
-import { getDashboardData } from '../../../services/dashboardService';
-import AdminDashboard from './AdminDashboard';
-import MemberDashboard from './MemberDashboard';
-import './DashboardPage.css';
+import React, { useState, useEffect, useCallback } from "react";
+import { useAuth } from "../../../hooks/useAuth";
+import { getDashboardData } from "../../../services/dashboardService";
+import AdminDashboard from "./AdminDashboard";
+import MemberDashboard from "./MemberDashboard";
+import DashboardAvisos from "./components/DashboardAvisos";
+import DashboardEventos from "./components/DashboardEventos";
+import "./DashboardPage.css";
 
-function DashboardPage() {
+const DashboardPage = () => {
   const { user } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await getDashboardData();
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await getDashboardData();
+      if (response && response.data) {
         setDashboardData(response.data);
-      } catch (err) {
-        console.error("Erro ao buscar dados do dashboard:", err);
-        setError('Não foi possível carregar os dados do painel.');
-      } finally {
-        setIsLoading(false);
+      } else {
+        throw new Error("Resposta da API de dashboard inválida.");
       }
-    };
-
-    fetchDashboardData();
+    } catch (err) {
+      console.error("Erro ao buscar dados do dashboard:", err);
+      setError("Não foi possível carregar os dados do painel.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  if (isLoading) {
-    return <div className="dashboard-container"><p>A carregar painel...</p></div>;
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (loading) {
+    return <div className="dashboard-container">A carregar dashboard...</div>;
   }
 
   if (error) {
-    return <div className="dashboard-container"><p className="error-message">{error}</p></div>;
+    return <div className="dashboard-container error-message">{error}</div>;
   }
+
+  // Renderiza o painel apropriado com base no 'tipo' retornado pela API
+  const renderDashboardType = () => {
+    if (!dashboardData) return null;
+
+    switch (dashboardData.tipo) {
+      case "admin":
+        return <AdminDashboard data={dashboardData} />;
+      case "membro":
+        return <MemberDashboard data={dashboardData} />;
+      default:
+        return <p>Tipo de dashboard desconhecido.</p>;
+    }
+  };
 
   return (
     <div className="dashboard-container">
-      <h2 className="dashboard-title">Painel de Controle</h2>
-      <p className="dashboard-welcome-message">
-        Bem-vindo(a) de volta, <strong>{user?.NomeCompleto || 'Membro'}</strong>!
-      </p>
+      {/* Secção superior com as estatísticas */}
+      {renderDashboardType()}
 
-      {dashboardData?.tipo === 'admin' && <AdminDashboard data={dashboardData} />}
-      {dashboardData?.tipo === 'membro' && <MemberDashboard data={dashboardData} />}
-      
+      {/* Nova secção para Avisos e Eventos */}
+      <div className="dashboard-widgets-section">
+        <DashboardAvisos />
+        <DashboardEventos />
+      </div>
     </div>
   );
-}
+};
 
 export default DashboardPage;

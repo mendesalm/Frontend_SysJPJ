@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-// CORREÇÃO: A importação agora usa 'getMemberById'.
 import {
   getMemberById,
   updateMember,
@@ -15,7 +14,6 @@ const MemberEditPage = () => {
 
   const fetchMemberData = useCallback(async () => {
     try {
-      // CORREÇÃO: A função chamada agora é 'getMemberById'.
       const response = await getMemberById(memberId);
       setInitialData(response.data);
     } catch (err) {
@@ -31,7 +29,7 @@ const MemberEditPage = () => {
   const handleSave = async (formData) => {
     try {
       await updateMember(memberId, formData);
-      navigate("/admin/members"); // Redireciona para a lista após salvar
+      navigate("/admin/members");
     } catch (err) {
       console.error("Erro ao atualizar membro:", err);
       setError(
@@ -41,31 +39,23 @@ const MemberEditPage = () => {
     }
   };
 
-  if (error) {
+  if (error)
     return (
       <div className="table-page-container">
         <p className="error-message">{error}</p>
       </div>
     );
-  }
-
-  if (!initialData) {
-    return (
-      <div className="table-page-container">A carregar dados do membro...</div>
-    );
-  }
+  if (!initialData)
+    return <div className="table-page-container">A carregar...</div>;
 
   return (
-    <div className="table-page-container">
-      <div className="table-header">
-        <h1>Editar Membro</h1>
-      </div>
-      <MemberForm
-        initialData={initialData}
-        onSave={handleSave}
-        isCreating={false}
-      />
-    </div>
+    // A página agora simplesmente renderiza o MemberForm, que contém toda a sua própria lógica de layout.
+    <MemberForm
+      initialData={initialData}
+      onSave={handleSave}
+      isCreating={false}
+      onCancel={() => navigate("/admin/members")}
+    />
   );
 };
 

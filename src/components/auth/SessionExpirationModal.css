@@ -1,0 +1,99 @@
+/*
+ * src/components/auth/SessionExpirationModal.css
+ * Estilos para o modal de aviso de expiração e sessão expirada.
+ */
+
+.session-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Garante que fica por cima de tudo */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fade-in 0.3s ease-out;
+}
+
+.session-modal-content {
+  background: #1f2937; /* Cor escura do tema */
+  padding: 2.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  max-width: 450px;
+  width: 90%;
+  color: #f9fafb;
+}
+
+.session-modal-content h2 {
+  font-size: 1.75rem;
+  color: #fbbf24; /* Amarelo/âmbar para aviso */
+  margin-bottom: 1rem;
+}
+
+/* Cor específica para o título de sessão expirada */
+.session-modal-content.expired h2 {
+  color: #f87171; /* Vermelho para alerta */
+}
+
+.session-modal-content p {
+  font-size: 1rem;
+  color: #d1d5db;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+/* Container para os botões */
+.session-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Estilo para todos os botões no modal */
+.session-modal-content .btn {
+  width: auto;
+  flex-grow: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.session-modal-content .btn-primary {
+  background-color: #0ea5e9;
+  color: white;
+}
+.session-modal-content .btn-primary:hover {
+  background-color: #0284c7;
+}
+
+.session-modal-content .btn-secondary {
+  background-color: #4b5563;
+  color: #f9fafb;
+}
+.session-modal-content .btn-secondary:hover {
+  background-color: #6b728047;
+}
+
+/* Animação de entrada */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

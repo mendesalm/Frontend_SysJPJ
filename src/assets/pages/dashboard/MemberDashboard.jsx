@@ -1,28 +1,31 @@
-import React from 'react';
+import React from "react";
 
-// Componente para exibir os dados do dashboard de um Membro comum
 const MemberDashboard = ({ data }) => {
-  const { emprestimosPendentes, proximosEventos } = data;
+  // Valores padrão para evitar erros
+  const { emprestimosPendentes = [] } = data || {};
 
   return (
-    <div className="dashboard-grid">
-      <div className="dashboard-card">
-        <h3>Meus Empréstimos na Biblioteca</h3>
-        <ul>
-          {emprestimosPendentes.length > 0 ? emprestimosPendentes.map(emp => (
-            <li key={emp.id}>"{emp.livro.titulo}" - Devolver até {new Date(emp.dataDevolucaoPrevista).toLocaleDateString()}</li>
-          )) : <p>Você não possui empréstimos pendentes.</p>}
-        </ul>
+    <div className="member-dashboard">
+      <h2>Bem-vindo ao seu Painel</h2>
+      <div className="stat-card">
+        <h3>Empréstimos Pendentes</h3>
+        <p className="stat-value">{emprestimosPendentes.length}</p>
+        {emprestimosPendentes.length > 0 && (
+          <ul
+            style={{
+              fontSize: "0.9rem",
+              listStyle: "none",
+              padding: 0,
+              marginTop: "1rem",
+            }}
+          >
+            {emprestimosPendentes.map((e) => (
+              <li key={e.id}>- {e.livro.titulo}</li>
+            ))}
+          </ul>
+        )}
       </div>
-
-      <div className="dashboard-card">
-        <h3>Próximos Eventos da Loja</h3>
-        <ul>
-          {proximosEventos.length > 0 ? proximosEventos.map(evento => (
-            <li key={evento.id}>{evento.titulo} - {new Date(evento.dataHoraInicio).toLocaleDateString()}</li>
-          )) : <p>Nenhum evento agendado para os próximos dias.</p>}
-        </ul>
-      </div>
+      {/* Adicione outros cartões de estatísticas para o membro aqui */}
     </div>
   );
 };

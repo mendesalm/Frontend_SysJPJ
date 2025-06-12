@@ -158,3 +158,9 @@
   margin-top: 0.25rem;
   font-weight: 500;
 }
+.fixed-button {
+  display: flex;
+  align-items: flex-end;
+  position: static;
+  margin: auto 0;
+}

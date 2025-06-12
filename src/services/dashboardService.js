@@ -1,5 +1,5 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
 export const getDashboardData = () => {
-  return apiClient.get('/dashboard');
+  return apiClient.get("/dashboard");
 };

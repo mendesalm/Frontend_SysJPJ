@@ -1,94 +1,103 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm, useFieldArray } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { memberValidationSchema } from "../../../validators/memberValidator";
 import { useAuth } from "../../../hooks/useAuth";
 import { updateMyProfile } from "../../../services/memberService";
-import { consultarCEP } from "../../../services/cepService.js"; // Importa o serviço de CEP
+import { consultarCEP } from "../../../services/cepService.js";
+import FormPageLayout from "../../../components/layout/FormPageLayout";
 import "../../styles/FormStyles.css";
+import "../../styles/TableStyles.css"; // Para o container da página
 
 const ProfilePage = () => {
   const { user, loading: authLoading, checkUserStatus } = useAuth();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState(null);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [cepStatus, setCepStatus] = useState(""); // Estado para a mensagem de status do CEP
+  const [cepStatus, setCepStatus] = useState("");
 
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    watch,
+    setValue,
+  } = useForm({
+    resolver: yupResolver(memberValidationSchema),
+    context: { isCreating: false },
+    // Inicializa o formulário com uma estrutura vazia para evitar erros
+    defaultValues: {
+      familiares: [],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "familiares",
+  });
+  const cepValue = watch("Endereco_CEP");
+
+  // CORREÇÃO: Este useEffect agora sincroniza o formulário sempre que o 'user' do contexto muda.
   useEffect(() => {
     if (user) {
-      setFormData({ ...user, familiares: user.familiares || [] });
+      const formattedData = {
+        ...user,
+        DataNascimento: user.DataNascimento
+          ? new Date(user.DataNascimento).toISOString().split("T")[0]
+          : "",
+        DataCasamento: user.DataCasamento
+          ? new Date(user.DataCasamento).toISOString().split("T")[0]
+          : "",
+        DataIniciacao: user.DataIniciacao
+          ? new Date(user.DataIniciacao).toISOString().split("T")[0]
+          : "",
+        DataElevacao: user.DataElevacao
+          ? new Date(user.DataElevacao).toISOString().split("T")[0]
+          : "",
+        DataExaltacao: user.DataExaltacao
+          ? new Date(user.DataExaltacao).toISOString().split("T")[0]
+          : "",
+        familiares: (user.familiares || []).map((f) => ({
+          ...f,
+          dataNascimento: f.dataNascimento
+            ? new Date(f.dataNascimento).toISOString().split("T")[0]
+            : "",
+        })),
+      };
+      // A função reset do react-hook-form atualiza todos os campos de forma eficiente.
+      reset(formattedData);
     }
-  }, [user]);
+  }, [user, reset]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFamilyChange = (index, e) => {
-    const updatedFamiliares = formData.familiares.map((familiar, i) => {
-      if (index === i) {
-        return { ...familiar, [e.target.name]: e.target.value };
-      }
-      return familiar;
-    });
-    setFormData((prev) => ({ ...prev, familiares: updatedFamiliares }));
-  };
-
-  const addFamilyMember = () => {
-    setFormData((prev) => ({
-      ...prev,
-      familiares: [
-        ...(prev.familiares || []),
-        { nomeCompleto: "", parentesco: "Filho", dataNascimento: "" },
-      ],
-    }));
-  };
-
-  const removeFamilyMember = (index) => {
-    const familiarToRemove = formData.familiares[index];
-    if (
-      familiarToRemove.id &&
-      !window.confirm(
-        `Tem certeza que deseja remover ${familiarToRemove.nomeCompleto}?`
-      )
-    ) {
-      return;
-    }
-    setFormData((prev) => ({
-      ...prev,
-      familiares: prev.familiares.filter((_, i) => i !== index),
-    }));
-  };
-
-  const handleCepBlur = async (e) => {
-    const cepLimpo = (e.target.value || "").replace(/\D/g, "");
+  const handleCepBlur = async () => {
+    const cepLimpo = (cepValue || "").replace(/\D/g, "");
     if (cepLimpo.length !== 8) {
       setCepStatus("");
       return;
     }
-
     setCepStatus("A consultar...");
     try {
       const data = await consultarCEP(cepLimpo);
-      setFormData((prev) => ({
-        ...prev,
-        Endereco_Rua: data.logradouro,
-        Endereco_Bairro: data.bairro,
-        Endereco_Cidade: data.localidade,
-      }));
+      setValue("Endereco_Rua", data.logradouro, { shouldValidate: true });
+      setValue("Endereco_Bairro", data.bairro, { shouldValidate: true });
+      setValue("Endereco_Cidade", data.localidade, { shouldValidate: true });
       setCepStatus("Endereço preenchido!");
     } catch (error) {
       setCepStatus(error.message);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (formData) => {
     setError("");
     setSuccessMessage("");
     try {
       await updateMyProfile(formData);
+      // Após salvar, chama checkUserStatus para buscar os dados atualizados do backend.
+      // O useEffect acima irá detetar a mudança no 'user' e atualizar o formulário.
       await checkUserStatus();
       setSuccessMessage("Perfil atualizado com sucesso!");
       setTimeout(() => setSuccessMessage(""), 3000);
@@ -100,23 +109,44 @@ const ProfilePage = () => {
     }
   };
 
-  if (authLoading || !formData) {
+  const ActionButtons = () => (
+    <div className="actions-box">
+      <h3>Ações</h3>
+      <p>
+        Mantenha os seus dados sempre atualizados. Clique em "Salvar" para
+        confirmar as alterações.
+      </p>
+      <button
+        type="submit"
+        form="profile-form"
+        className="btn btn-primary"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "A salvar..." : "Salvar Alterações"}
+      </button>
+      <button
+        type="button"
+        onClick={() => navigate("/dashboard")}
+        className="btn btn-secondary"
+      >
+        Voltar ao Dashboard
+      </button>
+    </div>
+  );
+
+  if (authLoading) {
     return <div className="table-page-container">A carregar perfil...</div>;
   }
 
   return (
-    <div className="table-page-container">
-      <div className="table-header">
-        <h1>Meu Perfil</h1>
-      </div>
-
+    <FormPageLayout title="Meu Perfil" actionsComponent={<ActionButtons />}>
       {error && <p className="error-message">{error}</p>}
       {successMessage && <p className="success-message">{successMessage}</p>}
 
       <form
-        onSubmit={handleSubmit}
+        id="profile-form"
+        onSubmit={handleSubmit(onSubmit)}
         className="form-container"
-        style={{ padding: 0 }}
       >
         <fieldset className="form-fieldset">
           <legend>Dados Pessoais</legend>
@@ -125,126 +155,65 @@ const ProfilePage = () => {
               <label>Nome Completo</label>
               <input
                 type="text"
-                name="NomeCompleto"
-                value={formData.NomeCompleto || ""}
-                onChange={handleChange}
-                required
-                className="form-input"
+                {...register("NomeCompleto")}
+                className={`form-input ${
+                  errors.NomeCompleto ? "is-invalid" : ""
+                }`}
               />
+              {errors.NomeCompleto && (
+                <p className="form-error-message">
+                  {errors.NomeCompleto.message}
+                </p>
+              )}
             </div>
             <div className="form-group">
-              <label>CPF (não editável)</label>
+              <label>CPF</label>
               <input
                 type="text"
-                value={formData.CPF || ""}
-                disabled
+                {...register("CPF")}
                 className="form-input"
+                disabled
               />
             </div>
             <div className="form-group">
               <label>Email</label>
               <input
                 type="email"
-                name="Email"
-                value={formData.Email || ""}
-                onChange={handleChange}
-                required
-                className="form-input"
+                {...register("Email")}
+                className={`form-input ${errors.Email ? "is-invalid" : ""}`}
               />
+              {errors.Email && (
+                <p className="form-error-message">{errors.Email.message}</p>
+              )}
             </div>
             <div className="form-group">
               <label>Identidade (RG)</label>
               <input
                 type="text"
-                name="Identidade"
-                value={formData.Identidade || ""}
-                onChange={handleChange}
+                {...register("Identidade")}
                 className="form-input"
               />
             </div>
             <div className="form-group">
-              <label>Data de Nascimento</label>
+              <label>Data de Nasc.</label>
               <input
                 type="date"
-                name="DataNascimento"
-                value={formData.DataNascimento?.split("T")[0] || ""}
-                onChange={handleChange}
-                className="form-input"
+                {...register("DataNascimento")}
+                className={`form-input ${
+                  errors.DataNascimento ? "is-invalid" : ""
+                }`}
               />
+              {errors.DataNascimento && (
+                <p className="form-error-message">
+                  {errors.DataNascimento.message}
+                </p>
+              )}
             </div>
             <div className="form-group">
               <label>Telefone</label>
               <input
                 type="tel"
-                name="Telefone"
-                value={formData.Telefone || ""}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-          </div>
-        </fieldset>
-
-        <fieldset className="form-fieldset">
-          <legend>Endereço</legend>
-          <div className="form-grid" style={{ gridTemplateColumns: "1fr 3fr" }}>
-            <div className="form-group">
-              <label>CEP</label>
-              <input
-                type="text"
-                name="Endereco_CEP"
-                value={formData.Endereco_CEP || ""}
-                onChange={handleChange}
-                onBlur={handleCepBlur}
-                className="form-input"
-              />
-              {cepStatus && (
-                <small
-                  style={{ color: "var(--cor-foco-input)", marginTop: "5px" }}
-                >
-                  {cepStatus}
-                </small>
-              )}
-            </div>
-            <div className="form-group">
-              <label>Rua / Avenida</label>
-              <input
-                type="text"
-                name="Endereco_Rua"
-                value={formData.Endereco_Rua || ""}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Número</label>
-              <input
-                type="text"
-                name="Endereco_Numero"
-                value={formData.Endereco_Numero || ""}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Bairro</label>
-              <input
-                type="text"
-                name="Endereco_Bairro"
-                value={formData.Endereco_Bairro || ""}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Cidade</label>
-              <input
-                type="text"
-                name="Endereco_Cidade"
-                value={formData.Endereco_Cidade || ""}
-                onChange={handleChange}
+                {...register("Telefone")}
                 className="form-input"
               />
             </div>
@@ -253,9 +222,9 @@ const ProfilePage = () => {
 
         <fieldset className="form-fieldset">
           <legend>Familiares</legend>
-          {formData.familiares?.map((familiar, index) => (
+          {fields.map((field, index) => (
             <div
-              key={familiar.id || index}
+              key={field.id}
               className="form-grid"
               style={{
                 alignItems: "flex-end",
@@ -265,44 +234,60 @@ const ProfilePage = () => {
               }}
             >
               <div className="form-group">
-                <label>Nome do Familiar</label>
+                <label>Nome</label>
                 <input
-                  type="text"
-                  name="nomeCompleto"
-                  value={familiar.nomeCompleto}
-                  onChange={(e) => handleFamilyChange(index, e)}
-                  className="form-input"
+                  {...register(`familiares.${index}.nomeCompleto`)}
+                  className={`form-input ${
+                    errors.familiares?.[index]?.nomeCompleto ? "is-invalid" : ""
+                  }`}
                 />
+                {errors.familiares?.[index]?.nomeCompleto && (
+                  <p className="form-error-message">
+                    {errors.familiares[index].nomeCompleto.message}
+                  </p>
+                )}
               </div>
               <div className="form-group">
                 <label>Parentesco</label>
                 <select
-                  name="parentesco"
-                  value={familiar.parentesco}
-                  onChange={(e) => handleFamilyChange(index, e)}
-                  className="form-select"
+                  {...register(`familiares.${index}.parentesco`)}
+                  className={`form-select ${
+                    errors.familiares?.[index]?.parentesco ? "is-invalid" : ""
+                  }`}
                 >
                   <option value="Cônjuge">Cônjuge</option>
                   <option value="Esposa">Esposa</option>
                   <option value="Filho">Filho</option>
                   <option value="Filha">Filha</option>
                 </select>
+                {errors.familiares?.[index]?.parentesco && (
+                  <p className="form-error-message">
+                    {errors.familiares[index].parentesco.message}
+                  </p>
+                )}
               </div>
               <div className="form-group">
                 <label>Data de Nasc.</label>
                 <input
                   type="date"
-                  name="dataNascimento"
-                  value={familiar.dataNascimento?.split("T")[0] || ""}
-                  onChange={(e) => handleFamilyChange(index, e)}
-                  className="form-input"
+                  {...register(`familiares.${index}.dataNascimento`)}
+                  className={`form-input ${
+                    errors.familiares?.[index]?.dataNascimento
+                      ? "is-invalid"
+                      : ""
+                  }`}
                 />
+                {errors.familiares?.[index]?.dataNascimento && (
+                  <p className="form-error-message">
+                    {errors.familiares[index].dataNascimento.message}
+                  </p>
+                )}
               </div>
               <div>
                 <button
                   type="button"
-                  onClick={() => removeFamilyMember(index)}
-                  className="btn btn-secondary"
+                  onClick={() => remove(index)}
+                  className="btn"
                   style={{ backgroundColor: "#b91c1c" }}
                 >
                   Remover
@@ -312,7 +297,13 @@ const ProfilePage = () => {
           ))}
           <button
             type="button"
-            onClick={addFamilyMember}
+            onClick={() =>
+              append({
+                nomeCompleto: "",
+                parentesco: "Filho",
+                dataNascimento: "",
+              })
+            }
             className="btn btn-secondary"
             style={{ marginTop: "1rem" }}
           >
@@ -320,20 +311,187 @@ const ProfilePage = () => {
           </button>
         </fieldset>
 
-        <div className="form-actions">
-          <button
-            type="button"
-            onClick={() => navigate("/dashboard")}
-            className="btn btn-secondary"
-          >
-            Voltar
-          </button>
-          <button type="submit" className="btn btn-primary">
-            Salvar Alterações
-          </button>
-        </div>
+        <fieldset className="form-fieldset">
+          <legend>Endereço</legend>
+          <div className="form-grid" style={{ gridTemplateColumns: "1fr 3fr" }}>
+            <div className="form-group">
+              <label>CEP</label>
+              <div>
+                <input
+                  type="text"
+                  {...register("Endereco_CEP")}
+                  className="form-input"
+                  onBlur={handleCepBlur}
+                />
+                {cepStatus && (
+                  <small
+                    style={{ color: "var(--cor-foco-input)", marginTop: "5px" }}
+                  >
+                    {cepStatus}
+                  </small>
+                )}
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Rua</label>
+              <input
+                type="text"
+                {...register("Endereco_Rua")}
+                className="form-input"
+              />
+            </div>
+          </div>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Número</label>
+              <input
+                type="text"
+                {...register("Endereco_Numero")}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Bairro</label>
+              <input
+                type="text"
+                {...register("Endereco_Bairro")}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Cidade</label>
+              <input
+                type="text"
+                {...register("Endereco_Cidade")}
+                className="form-input"
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset className="form-fieldset">
+          <legend>Dados Maçônicos</legend>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>CIM</label>
+              <input
+                type="text"
+                {...register("CIM")}
+                disabled
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Situação</label>
+              <input
+                type="text"
+                {...register("Situacao")}
+                disabled
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Grau</label>
+              <input
+                type="text"
+                {...register("Graduacao")}
+                disabled
+                className="form-input"
+              />
+            </div>
+          </div>
+          {/* --- AGRUPAMENTO INLINE ATUALIZADO --- */}
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Data de Iniciação</label>
+              <input
+                type="date"
+                {...register("DataIniciacao")}
+                disabled
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Data de Elevação</label>
+              <input
+                type="date"
+                {...register("DataElevacao")}
+                disabled
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Data de Exaltação</label>
+              <input
+                type="date"
+                {...register("DataExaltacao")}
+                disabled
+                className="form-input"
+              />
+            </div>
+          </div>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Data de Filiação</label>
+              <input
+                type="date"
+                {...register("DataFiliacao")}
+                disabled
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Data de Regularização</label>
+              <input
+                type="date"
+                {...register("DataRegularizacao")}
+                disabled
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Grau Filosófico</label>
+              <input
+                type="text"
+                {...register("grauFilosofico")}
+                className="form-input"
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        {/* --- Dados Profissionais --- */}
+        <fieldset className="form-fieldset">
+          <legend>Dados Profissionais</legend>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Formação Académica</label>
+              <input
+                type="text"
+                {...register("FormacaoAcademica")}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Ocupação/Profissão</label>
+              <input
+                type="text"
+                {...register("Ocupacao")}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Local de Trabalho</label>
+              <input
+                type="text"
+                {...register("LocalTrabalho")}
+                className="form-input"
+              />
+            </div>
+          </div>
+        </fieldset>
       </form>
-    </div>
+    </FormPageLayout>
   );
 };
 
