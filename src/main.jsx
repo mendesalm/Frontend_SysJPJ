@@ -8,6 +8,10 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 // CORREÇÃO: Adicionadas as importações de CSS para a biblioteca do slider (react-slick)
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import moment from "moment";
+import "moment/locale/pt-br";
+
+moment.locale("pt-br");
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

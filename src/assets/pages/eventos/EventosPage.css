@@ -1,38 +1,114 @@
-.eventos-container { width: 100%; max-width: 900px; margin: 2rem auto; padding: 1rem; }
-.eventos-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-.eventos-list { display: flex; flex-direction: column; gap: 1rem; }
-.evento-card {
-  display: flex;
-  align-items: center;
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  gap: 1.5rem;
+/*
+ * src/assets/pages/eventos/EventosPage.css
+ * Estilos para a página e os cartões da agenda de eventos.
+ */
+
+/* O container geral da página já é estilizado pela classe .table-page-container */
+/* importada de TableStyles.css, então não precisamos de a redefinir. */
+
+.eventos-list {
+  display: grid;
+  /* Cria uma coluna para cada cartão, mas permite que se ajustem */
+  grid-template-columns: 1fr;
+  gap: 1.5rem; /* Espaçamento entre os cartões de evento */
 }
-.evento-date {
+
+.evento-card {
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: #d1d5db; /* Cor do texto secundário */
   display: flex;
   flex-direction: column;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.evento-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.evento-card-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  background-color: #f0f0f0;
-  border-radius: 8px;
-  padding: 10px;
-  min-width: 70px;
-  text-align: center;
+  border-bottom: 1px solid #374151;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
 }
-.evento-day { font-size: 2rem; font-weight: bold; color: #333; }
-.evento-month { font-size: 1rem; text-transform: uppercase; color: #007bff; }
-.evento-details { flex-grow: 1; }
-.evento-details h3 { margin: 0 0 5px 0; font-size: 1.4rem; }
-.evento-time-local, .evento-tipo { margin: 0 0 5px 0; color: #666; }
-.evento-actions .btn-confirmar {
-  background-color: #28a745;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+
+.evento-card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #f9fafb;
 }
-.evento-actions .btn-confirmar:hover { background-color: #218838; }
+
+.evento-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.evento-card-body {
+  flex-grow: 1; /* Faz o corpo do cartão ocupar o espaço disponível */
+}
+
+.evento-card-body p {
+  margin: 0 0 1.5rem 0;
+  line-height: 1.6;
+}
+
+.evento-card-footer {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.evento-card-footer strong {
+  color: #e5e7eb;
+}
+
+/* --- Secção de Confirmação de Presença --- */
+.presenca-actions {
+  border-top: 1px solid #374151;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.presenca-actions p {
+  margin: 0;
+  font-weight: 500;
+  color: #9ca3af;
+}
+
+/* --- Badges de Tipo de Evento --- */
+.evento-badge {
+  padding: 4px 12px;
+  border-radius: 15px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Cores específicas para cada tipo de evento */
+.tipo-sessão-maçônica {
+  background-color: #9333ea;
+}
+.tipo-evento-social {
+  background-color: #059669;
+}
+.tipo-evento-filantrópico {
+  background-color: #d97706;
+}
+.tipo-outro {
+  background-color: #64748b;
+}

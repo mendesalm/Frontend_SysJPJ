@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useAuth } from "../../../hooks/useAuth";
+// CORREÇÃO: A importação de 'useAuth' foi removida pois não era utilizada.
 import { getDashboardData } from "../../../services/dashboardService";
 import AdminDashboard from "./AdminDashboard";
 import MemberDashboard from "./MemberDashboard";
 import DashboardAvisos from "./components/DashboardAvisos";
-import DashboardEventos from "./components/DashboardEventos";
+import EventCalendar from "./components/EventCalendar";
 import "./DashboardPage.css";
 
 const DashboardPage = () => {
-  const { user } = useAuth();
+  // CORREÇÃO: A chamada ao hook `useAuth` e a variável 'user' foram removidas.
+  // A autenticação é garantida pelo ProtectedRoute e a API usa o token do localStorage.
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -42,7 +43,6 @@ const DashboardPage = () => {
     return <div className="dashboard-container error-message">{error}</div>;
   }
 
-  // Renderiza o painel apropriado com base no 'tipo' retornado pela API
   const renderDashboardType = () => {
     if (!dashboardData) return null;
 
@@ -61,10 +61,14 @@ const DashboardPage = () => {
       {/* Secção superior com as estatísticas */}
       {renderDashboardType()}
 
-      {/* Nova secção para Avisos e Eventos */}
-      <div className="dashboard-widgets-section">
-        <DashboardAvisos />
-        <DashboardEventos />
+      {/* Nova secção em grelha para Avisos e Calendário */}
+      <div className="dashboard-bottom-section">
+        <div className="avisos-widget-container">
+          <DashboardAvisos />
+        </div>
+        <div className="calendar-widget-container">
+          <EventCalendar />
+        </div>
       </div>
     </div>
   );

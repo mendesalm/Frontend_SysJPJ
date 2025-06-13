@@ -1,0 +1,152 @@
+/* src/assets/pages/dashboard/components/EventCalendar.css */
+
+.event-calendar-container {
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+/* Sobrescreve os estilos padrão da biblioteca react-big-calendar */
+.rbc-calendar {
+  color: #e5e7eb;
+}
+
+.rbc-toolbar {
+  margin-bottom: 1.5rem;
+  color: #f9fafb;
+}
+
+.rbc-toolbar button {
+  color: #d1d5db;
+  background-color: #374151;
+  border: 1px solid #4b5563;
+}
+
+.rbc-toolbar button:hover,
+.rbc-toolbar button:focus {
+  color: #fff;
+  background-color: #4b5563;
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #0ea5e9;
+  color: white;
+  border-color: #0ea5e9;
+}
+
+.rbc-header {
+  border-bottom: 1px solid #4b5563;
+  padding: 10px 5px;
+}
+
+.rbc-month-view,
+.rbc-time-view {
+  border: 1px solid #4b5563;
+}
+
+.rbc-day-bg {
+  border-left: 1px solid #374151;
+}
+
+.rbc-today {
+  background-color: rgba(14, 165, 233, 0.1);
+}
+
+.rbc-event {
+  background-color: #0ea5e9;
+  border-color: #0284c7;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
+
+/* --- Estilos para o Modal de Detalhes do Evento --- */
+
+.event-details-modal {
+  color: #d1d5db;
+}
+
+.event-details-modal p {
+  margin: 0.5rem 0 1rem 0;
+  line-height: 1.6;
+}
+
+.event-details-modal .event-description {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 1.5rem;
+}
+
+.participants-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #374151;
+}
+
+.participants-section strong {
+  color: #e5e7eb;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.participants-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.participant-tag {
+  background-color: #374151;
+  color: #d1d5db;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+}
+
+.presenca-actions {
+  border-top: 1px solid #374151;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.presenca-actions p {
+  margin: 0;
+  font-weight: 500;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.acompanhantes-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #374151;
+  padding: 5px 10px;
+  border-radius: 6px;
+}
+
+.acompanhantes-input label {
+  font-size: 0.9rem;
+}
+
+.acompanhantes-input input {
+  width: 60px;
+  background-color: #1f2937;
+  border: 1px solid #4b5563;
+  color: #f9fafb;
+  border-radius: 4px;
+  padding: 5px;
+  text-align: center;
+}
+
+.rbc-off-range-bg {
+  background: #2b3a53;
+}

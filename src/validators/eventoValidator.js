@@ -13,7 +13,13 @@ export const eventoValidationSchema = yup.object().shape({
 
   local: yup.string().required("O local do evento é obrigatório."),
 
-  tipo: yup.string().required("O tipo de evento é obrigatório."),
+  tipo: yup
+    .string()
+    .required("O tipo de evento é obrigatório.")
+    .oneOf(
+      ["Sessão Maçônica", "Evento Social", "Evento Filantrópico", "Outro"],
+      "Tipo de evento inválido."
+    ),
 
   dataHoraInicio: yup
     .date()

@@ -95,9 +95,10 @@ const EventoForm = ({ eventoToEdit, onSave, onCancel }) => {
             {...register("tipo")}
             className={`form-select ${errors.tipo ? "is-invalid" : ""}`}
           >
-            <option value="Público">Público</option>
-            <option value="Privado">Privado</option>
-            <option value="Ritualístico">Ritualístico</option>
+            <option value="Sessão Maçônica">Sessão Maçônica</option>
+            <option value="Evento Social">Evento Social</option>
+            <option value="Evento Filantrópico">Evento Filantrópico</option>
+            <option value="Outro">Outro</option>
           </select>
           {errors.tipo && (
             <p className="form-error-message">{errors.tipo.message}</p>

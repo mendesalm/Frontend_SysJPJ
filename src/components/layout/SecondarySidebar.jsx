@@ -26,7 +26,10 @@ const menuData = {
     items: [
       { label: "Dados de Membros", path: "/admin/members" },
       { label: "Gestão de Sessões", path: "/sessoes" },
-      { label: "Controle de Frequência", path: "/relatorios" }, // Link para a página geral de relatórios
+      { label: "Controle de Frequência", path: "/relatorios" },
+      { label: "Controle de Visitações", path: "/visitacoes" },
+      // CORREÇÃO: Adicionado o novo item de menu para eventos.
+      { label: "Gestão de Eventos", path: "/eventos" },
     ],
   },
   "menu-tesouraria": {
