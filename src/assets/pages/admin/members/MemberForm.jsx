@@ -3,8 +3,16 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { memberValidationSchema } from "../../../../validators/memberValidator.js";
 import { consultarCEP } from "../../../../services/cepService.js";
-import FormPageLayout from "../../../../components/layout/FormPageLayout.jsx"; // Importa o novo layout
+import FormPageLayout from "../../../../components/layout/FormPageLayout.jsx";
 import "../../../styles/FormStyles.css";
+
+// Constantes importadas para popular os menus de seleção
+import { PARENTESCO_OPTIONS } from "../../../../constants/formConstants";
+import {
+  CREDENCIAIS,
+  STATUS_CADASTRO,
+  GRAU_OPTIONS,
+} from "../../../../constants/userConstants";
 
 const MemberForm = ({
   initialData = {},
@@ -17,7 +25,7 @@ const MemberForm = ({
     register,
     control,
     handleSubmit,
-    formState: { errors, isSubmitting }, // isSubmitting agora está disponível aqui
+    formState: { errors, isSubmitting },
     reset,
     watch,
     setValue,
@@ -85,7 +93,6 @@ const MemberForm = ({
     reset(formattedData);
   }, [initialData, reset]);
 
-  // Componente para os botões de ação, agora definido dentro do MemberForm
   const ActionButtons = () => (
     <div className="actions-box">
       <h3>Ações</h3>
@@ -95,9 +102,9 @@ const MemberForm = ({
       </p>
       <button
         type="submit"
-        form="member-form" // O ID do form a ser submetido
+        form="member-form"
         className="btn btn-primary"
-        disabled={isSubmitting} // Agora 'isSubmitting' está no escopo correto
+        disabled={isSubmitting}
       >
         {isSubmitting ? "A salvar..." : "Salvar Alterações"}
       </button>
@@ -260,10 +267,11 @@ const MemberForm = ({
                     errors.familiares?.[index]?.parentesco ? "is-invalid" : ""
                   }`}
                 >
-                  <option value="Cônjuge">Cônjuge</option>
-                  <option value="Esposa">Esposa</option>
-                  <option value="Filho">Filho</option>
-                  <option value="Filha">Filha</option>
+                  {PARENTESCO_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="form-group">
@@ -389,15 +397,23 @@ const MemberForm = ({
             </div>
             <div className="form-group">
               <label>Grau</label>
-              <input
-                type="text"
+              <select
                 {...register("Graduacao")}
-                disabled
-                className="form-input"
-              />
+                className={`form-select ${
+                  errors.Graduacao ? "is-invalid" : ""
+                }`}
+              >
+                {GRAU_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+              {errors.Graduacao && (
+                <p className="form-error-message">{errors.Graduacao.message}</p>
+              )}
             </div>
           </div>
-          {/* --- AGRUPAMENTO INLINE ATUALIZADO --- */}
           <div className="form-grid">
             <div className="form-group">
               <label>Data de Iniciação</label>
@@ -428,7 +444,6 @@ const MemberForm = ({
             </div>
           </div>
           <div className="form-grid">
-            {/* CORREÇÃO: Campos de data opcionais adicionados */}
             <div className="form-group">
               <label>Data de Filiação</label>
               <input
@@ -524,17 +539,21 @@ const MemberForm = ({
             <div className="form-group">
               <label>Credencial</label>
               <select {...register("credencialAcesso")} className="form-select">
-                <option value="Membro">Membro</option>
-                <option value="Diretoria">Diretoria</option>
-                <option value="Webmaster">Webmaster</option>
+                {CREDENCIAIS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="form-group">
               <label>Status</label>
               <select {...register("statusCadastro")} className="form-select">
-                <option value="Pendente">Pendente</option>
-                <option value="Aprovado">Aprovado</option>
-                <option value="Rejeitado">Rejeitado</option>
+                {STATUS_CADASTRO.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

@@ -8,7 +8,11 @@ import { updateMyProfile } from "../../../services/memberService";
 import { consultarCEP } from "../../../services/cepService.js";
 import FormPageLayout from "../../../components/layout/FormPageLayout";
 import "../../styles/FormStyles.css";
-import "../../styles/TableStyles.css"; // Para o container da página
+import "../../styles/TableStyles.css";
+
+// --- INÍCIO DA MODIFICAÇÃO: Importando a constante de parentesco ---
+import { PARENTESCO_OPTIONS } from "../../../constants/formConstants";
+// --- FIM DA MODIFICAÇÃO ---
 
 const ProfilePage = () => {
   const { user, loading: authLoading, checkUserStatus } = useAuth();
@@ -29,7 +33,6 @@ const ProfilePage = () => {
   } = useForm({
     resolver: yupResolver(memberValidationSchema),
     context: { isCreating: false },
-    // Inicializa o formulário com uma estrutura vazia para evitar erros
     defaultValues: {
       familiares: [],
     },
@@ -41,7 +44,6 @@ const ProfilePage = () => {
   });
   const cepValue = watch("Endereco_CEP");
 
-  // CORREÇÃO: Este useEffect agora sincroniza o formulário sempre que o 'user' do contexto muda.
   useEffect(() => {
     if (user) {
       const formattedData = {
@@ -68,7 +70,6 @@ const ProfilePage = () => {
             : "",
         })),
       };
-      // A função reset do react-hook-form atualiza todos os campos de forma eficiente.
       reset(formattedData);
     }
   }, [user, reset]);
@@ -96,8 +97,6 @@ const ProfilePage = () => {
     setSuccessMessage("");
     try {
       await updateMyProfile(formData);
-      // Após salvar, chama checkUserStatus para buscar os dados atualizados do backend.
-      // O useEffect acima irá detetar a mudança no 'user' e atualizar o formulário.
       await checkUserStatus();
       setSuccessMessage("Perfil atualizado com sucesso!");
       setTimeout(() => setSuccessMessage(""), 3000);
@@ -148,6 +147,7 @@ const ProfilePage = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="form-container"
       >
+        {/* --- Dados Pessoais --- */}
         <fieldset className="form-fieldset">
           <legend>Dados Pessoais</legend>
           <div className="form-grid">
@@ -220,6 +220,7 @@ const ProfilePage = () => {
           </div>
         </fieldset>
 
+        {/* --- Dados Familiares --- */}
         <fieldset className="form-fieldset">
           <legend>Familiares</legend>
           {fields.map((field, index) => (
@@ -249,16 +250,18 @@ const ProfilePage = () => {
               </div>
               <div className="form-group">
                 <label>Parentesco</label>
+                {/* --- MODIFICAÇÃO: Usando a constante para Parentesco --- */}
                 <select
                   {...register(`familiares.${index}.parentesco`)}
                   className={`form-select ${
                     errors.familiares?.[index]?.parentesco ? "is-invalid" : ""
                   }`}
                 >
-                  <option value="Cônjuge">Cônjuge</option>
-                  <option value="Esposa">Esposa</option>
-                  <option value="Filho">Filho</option>
-                  <option value="Filha">Filha</option>
+                  {PARENTESCO_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
                 </select>
                 {errors.familiares?.[index]?.parentesco && (
                   <p className="form-error-message">
@@ -311,6 +314,7 @@ const ProfilePage = () => {
           </button>
         </fieldset>
 
+        {/* --- Endereço --- */}
         <fieldset className="form-fieldset">
           <legend>Endereço</legend>
           <div className="form-grid" style={{ gridTemplateColumns: "1fr 3fr" }}>
@@ -369,6 +373,7 @@ const ProfilePage = () => {
           </div>
         </fieldset>
 
+        {/* --- Dados Maçônicos (A maioria desabilitada para o usuário) --- */}
         <fieldset className="form-fieldset">
           <legend>Dados Maçônicos</legend>
           <div className="form-grid">
@@ -400,7 +405,6 @@ const ProfilePage = () => {
               />
             </div>
           </div>
-          {/* --- AGRUPAMENTO INLINE ATUALIZADO --- */}
           <div className="form-grid">
             <div className="form-group">
               <label>Data de Iniciação</label>

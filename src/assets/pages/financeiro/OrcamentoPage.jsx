@@ -1,71 +1,77 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { getRelatorioOrcamentario, setOrcamento } from '../../../services/financeService';
-import '../../styles/TableStyles.css'
+import React, { useState, useMemo } from "react";
+import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o hook
+import {
+  getRelatorioOrcamentario,
+  setOrcamento,
+} from "../../../services/financeService";
+import "../../styles/TableStyles.css";
+import "./OrcamentoPage.css"; // Mantém os estilos específicos da página
 
 const OrcamentoPage = () => {
-  const [relatorio, setRelatorio] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
   const [ano, setAno] = useState(new Date().getFullYear());
+  const [actionError, setActionError] = useState("");
 
-  const fetchRelatorio = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError('');
-      const response = await getRelatorioOrcamentario(ano);
-      setRelatorio(response.data);
-    } catch (err) {
-      console.error("Erro ao buscar relatório orçamentário:", err);
-      setError('Falha ao carregar o relatório.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [ano]);
+  // 2. O hook busca os dados e refaz a busca automaticamente quando `ano` muda.
+  // Usamos useMemo para garantir que o array de parâmetros seja estável.
+  const params = useMemo(() => [ano], [ano]);
+  const {
+    data: relatorio,
+    setData: setRelatorio, // Pegamos o `setData` para atualizações otimistas
+    isLoading,
+    error: fetchError,
+    refetch,
+  } = useDataFetching(getRelatorioOrcamentario, params);
 
-  useEffect(() => {
-    fetchRelatorio();
-  }, [fetchRelatorio]);
-  
   const handleOrcamentoChange = (contaId, novoValor) => {
-    // Atualiza o estado localmente para feedback imediato
     const valorNumerico = parseFloat(novoValor) || 0;
-    setRelatorio(prevRelatorio =>
-      prevRelatorio.map(item =>
-        item.contaId === contaId ? { ...item, valorOrcado: valorNumerico } : item
+    // Atualiza o estado localmente para feedback imediato na UI (Atualização Otimista)
+    setRelatorio((prevRelatorio) =>
+      prevRelatorio.map((item) =>
+        item.contaId === contaId
+          ? { ...item, valorOrcado: valorNumerico }
+          : item
       )
     );
   };
-  
+
   const handleSaveOrcamento = async (contaId, valorOrcado) => {
     try {
+      setActionError("");
       await setOrcamento({ ano, contaId, valorOrcado });
-      // Opcional: mostrar uma notificação de sucesso
+      // Podemos exibir uma notificação de sucesso aqui no futuro.
+      // Opcionalmente, pode-se chamar refetch() para garantir 100% de consistência,
+      // mas a atualização otimista já melhora a UX.
     } catch (err) {
       console.error("Erro ao salvar orçamento:", err);
-      setError(`Erro ao salvar orçamento para a conta ID ${contaId}.`);
-      fetchRelatorio(); // Recarrega os dados para reverter a alteração otimista
+      setActionError(`Erro ao salvar orçamento para a conta ID ${contaId}.`);
+      refetch(); // Recarrega os dados para reverter a alteração otimista em caso de erro.
     }
   };
 
   return (
-    <div className="orcamento-container">
-      <div className="orcamento-header">
+    <div className="table-page-container">
+      <div className="table-header">
         <h1>Gestão de Orçamento</h1>
         <div className="filter-container">
           <label htmlFor="ano">Ano:</label>
           <input
             type="number"
             id="ano"
+            className="form-input" // Usando classe de estilo padronizada
             value={ano}
             onChange={(e) => setAno(parseInt(e.target.value, 10))}
           />
         </div>
       </div>
 
-      {error && <p className="error-message">{error}</p>}
+      {(fetchError || actionError) && (
+        <p className="error-message" onClick={() => setActionError("")}>
+          {fetchError || actionError}
+        </p>
+      )}
 
       <div className="table-responsive">
-        <table>
+        <table className="custom-table">
           <thead>
             <tr>
               <th>Conta</th>
@@ -77,24 +83,66 @@ const OrcamentoPage = () => {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan="5">A carregar...</td></tr>
-            ) : relatorio.map(item => (
-              <tr key={item.contaId}>
-                <td>{item.nomeConta}</td>
-                <td><span className={`status-badge ${item.tipo === 'Receita' ? 'status-aprovado' : 'status-rejeitado'}`}>{item.tipo}</span></td>
-                <td>
-                  <input
-                    type="number"
-                    className="orcamento-input"
-                    value={item.valorOrcado}
-                    onChange={(e) => handleOrcamentoChange(item.contaId, e.target.value)}
-                    onBlur={(e) => handleSaveOrcamento(item.contaId, parseFloat(e.target.value) || 0)}
-                  />
+              <tr>
+                <td colSpan="5" style={{ textAlign: "center" }}>
+                  A carregar...
                 </td>
-                <td style={{color: item.tipo === 'Receita' ? 'green' : 'red'}}>{item.valorRealizado.toFixed(2)}</td>
-                <td style={{color: item.diferenca >= 0 ? 'green' : 'red'}}>{item.diferenca.toFixed(2)}</td>
               </tr>
-            ))}
+            ) : relatorio.length === 0 ? (
+              // 3. Tratamento para estado vazio
+              <tr>
+                <td colSpan="5" style={{ textAlign: "center" }}>
+                  Nenhum dado orçamentário encontrado para o ano selecionado.
+                </td>
+              </tr>
+            ) : (
+              relatorio.map((item) => (
+                <tr key={item.contaId}>
+                  <td>{item.nomeConta}</td>
+                  <td>
+                    <span
+                      className={`status-badge ${
+                        item.tipo === "Receita"
+                          ? "status-aprovado"
+                          : "status-rejeitado"
+                      }`}
+                    >
+                      {item.tipo}
+                    </span>
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      className="orcamento-input"
+                      value={item.valorOrcado}
+                      onChange={(e) =>
+                        handleOrcamentoChange(item.contaId, e.target.value)
+                      }
+                      onBlur={(e) =>
+                        handleSaveOrcamento(
+                          item.contaId,
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                    />
+                  </td>
+                  <td
+                    style={{
+                      color: item.tipo === "Receita" ? "#22c55e" : "#ef4444",
+                    }}
+                  >
+                    {item.valorRealizado.toFixed(2)}
+                  </td>
+                  <td
+                    style={{
+                      color: item.diferenca >= 0 ? "#22c55e" : "#ef4444",
+                    }}
+                  >
+                    {item.diferenca.toFixed(2)}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

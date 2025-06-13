@@ -1,99 +1,177 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { getLancamentos, createLancamento } from '../../../services/financeService';
-import Modal from '../../../components/modal/Modal';
-import LancamentoForm from './LancamentoForm';
-import '../../styles/TableStyles.css';
-
+import React, { useState } from "react";
+import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o hook
+import {
+  getLancamentos,
+  createLancamento,
+} from "../../../services/financeService";
+import Modal from "../../../components/modal/Modal";
+import LancamentoForm from "./LancamentoForm";
+import "../../styles/TableStyles.css";
 
 const LancamentosPage = () => {
-  const [lancamentos, setLancamentos] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // Estado para os filtros
+  const [actionError, setActionError] = useState("");
+
+  // Estado para os filtros permanece o mesmo
   const [filter, setFilter] = useState({
     mes: new Date().getMonth() + 1,
     ano: new Date().getFullYear(),
   });
 
-  const fetchLancamentos = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await getLancamentos(filter);
-      setLancamentos(response.data);
-    } catch (err) {
-      setError('Falha ao carregar os lançamentos.');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [filter]);
-
-  useEffect(() => {
-    fetchLancamentos();
-  }, [fetchLancamentos]);
+  // 2. O hook agora recebe a função de serviço E um array com seus parâmetros.
+  // O hook irá refazer a busca automaticamente sempre que o `filter` mudar.
+  const {
+    data: lancamentos,
+    isLoading,
+    error: fetchError,
+    refetch,
+  } = useDataFetching(getLancamentos, [filter]);
 
   const handleSave = async (formData) => {
     try {
+      setActionError("");
       await createLancamento(formData);
-      fetchLancamentos();
+      refetch(); // 3. Usa o refetch para atualizar a lista após um novo lançamento
       setIsModalOpen(false);
     } catch (err) {
-      setError(err.response?.data?.message || 'Erro ao salvar o lançamento.');
+      setActionError(
+        err.response?.data?.message || "Erro ao salvar o lançamento."
+      );
+      console.error(err);
     }
   };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilter(prev => ({ ...prev, [name]: value }));
+    setFilter((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
-    <div className="member-list-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+    <div className="table-page-container">
+      <div className="table-header" style={{ flexWrap: "wrap", gap: "1rem" }}>
         <h1>Lançamentos Financeiros</h1>
         <div>
-          <select name="mes" value={filter.mes} onChange={handleFilterChange} style={{marginRight: '10px', padding: '8px'}}>
-            {Array.from({length: 12}, (_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
+          <select
+            name="mes"
+            value={filter.mes}
+            onChange={handleFilterChange}
+            style={{
+              marginRight: "10px",
+              padding: "8px",
+              borderRadius: "6px",
+              border: "1px solid #4b5563",
+              backgroundColor: "#1f2937",
+              color: "white",
+            }}
+          >
+            {Array.from({ length: 12 }, (_, i) => (
+              <option key={i + 1} value={i + 1}>
+                {i + 1}
+              </option>
+            ))}
           </select>
-          <input type="number" name="ano" value={filter.ano} onChange={handleFilterChange} style={{padding: '8px', width: '100px'}}/>
+          <input
+            type="number"
+            name="ano"
+            value={filter.ano}
+            onChange={handleFilterChange}
+            style={{
+              padding: "8px",
+              width: "100px",
+              borderRadius: "6px",
+              border: "1px solid #4b5563",
+              backgroundColor: "#1f2937",
+              color: "white",
+            }}
+          />
         </div>
-        <button onClick={() => setIsModalOpen(true)} className="btn-action btn-approve" style={{height: 'fit-content'}}>Novo Lançamento</button>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="btn-action btn-approve"
+          style={{ height: "fit-content" }}
+        >
+          Novo Lançamento
+        </button>
       </div>
-      
-      {error && <p className="error-message" onClick={() => setError('')} style={{cursor: 'pointer'}}>{error}</p>}
-      
+
+      {(fetchError || actionError) && (
+        <p className="error-message" onClick={() => setActionError("")}>
+          {fetchError || actionError}
+        </p>
+      )}
+
       <div className="table-responsive">
-        <table>
+        <table className="custom-table">
           <thead>
             <tr>
               <th>Data</th>
               <th>Descrição</th>
               <th>Conta</th>
+              <th>Tipo</th>
               <th>Valor (R$)</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan="4">A carregar...</td></tr>
-            ) : lancamentos.map(lanc => (
-              <tr key={lanc.id}>
-                <td>{new Date(lanc.dataLancamento).toLocaleDateString()}</td>
-                <td>{lanc.descricao}</td>
-                <td>{lanc.conta?.nome}</td>
-                <td style={{color: lanc.conta?.tipo === 'Receita' ? 'green' : 'red'}}>
-                  {lanc.conta?.tipo === 'Despesa' && '- '}
-                  {parseFloat(lanc.valor).toFixed(2)}
+              <tr>
+                <td colSpan="5" style={{ textAlign: "center" }}>
+                  A carregar...
                 </td>
               </tr>
-            ))}
+            ) : lancamentos.length === 0 ? (
+              // 4. Tratamento para estado vazio
+              <tr>
+                <td colSpan="5" style={{ textAlign: "center" }}>
+                  Nenhum lançamento encontrado para este período.
+                </td>
+              </tr>
+            ) : (
+              lancamentos.map((lanc) => (
+                <tr key={lanc.id}>
+                  <td>
+                    {new Date(lanc.dataLancamento).toLocaleDateString("pt-BR", {
+                      timeZone: "UTC",
+                    })}
+                  </td>
+                  <td>{lanc.descricao}</td>
+                  <td>{lanc.conta?.nome}</td>
+                  <td>
+                    <span
+                      className={`status-badge ${
+                        lanc.conta?.tipo === "Receita"
+                          ? "status-aprovado"
+                          : "status-rejeitado"
+                      }`}
+                    >
+                      {lanc.conta?.tipo}
+                    </span>
+                  </td>
+                  <td
+                    style={{
+                      color:
+                        lanc.conta?.tipo === "Receita" ? "#22c55e" : "#ef4444",
+                      fontWeight: "500",
+                    }}
+                  >
+                    {lanc.conta?.tipo === "Despesa" && "- "}
+                    {parseFloat(lanc.valor).toFixed(2)}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Novo Lançamento">
-        <LancamentoForm onSave={handleSave} onCancel={() => setIsModalOpen(false)} />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Novo Lançamento"
+      >
+        <LancamentoForm
+          onSave={handleSave}
+          onCancel={() => setIsModalOpen(false)}
+        />
       </Modal>
     </div>
   );

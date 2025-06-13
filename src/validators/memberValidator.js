@@ -86,8 +86,8 @@ export const memberValidationSchema = yup.object().shape({
       "O CEP deve ter 8 dígitos (apenas números), se informado."
     ),
 
-  // --- Dados Maçónicos ---
-  // CORREÇÃO: Data de Iniciação agora é obrigatória.
+  // --- Dados Maçônicos ---
+  Graduacao: yup.string().required("O grau é obrigatório."),
   DataIniciacao: yup
     .date()
     .required("A data de iniciação é obrigatória.")

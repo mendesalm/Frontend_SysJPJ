@@ -1,78 +1,127 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { getHarmoniaItens, createHarmoniaItem, deleteHarmoniaItem } from '../../../services/harmoniaService';
-import { useAuth } from '../../../hooks/useAuth';
-import Modal from '../../../components/modal/Modal';
-import HarmoniaForm from './HarmoniaForm';
-import '../../styles/TableStyles.css';
-
+import React, { useState } from "react";
+import { useAuth } from "../../../hooks/useAuth";
+import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o hook
+import {
+  getHarmoniaItens,
+  createHarmoniaItem,
+  deleteHarmoniaItem,
+} from "../../../services/harmoniaService";
+import Modal from "../../../components/modal/Modal";
+import HarmoniaForm from "./HarmoniaForm";
+import "../../styles/TableStyles.css";
 
 const HarmoniaPage = () => {
-  const [itens, setItens] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  // 2. Lógica de busca de dados simplificada com o hook
+  const {
+    data: itens,
+    isLoading,
+    error: fetchError,
+    refetch,
+  } = useDataFetching(getHarmoniaItens);
+
+  const [actionError, setActionError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
 
-  const canManage = user?.credencialAcesso === 'Diretoria' || user?.credencialAcesso === 'Webmaster';
-
-  const fetchItens = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await getHarmoniaItens();
-      setItens(response.data);
-    } catch (err) {
-      setError('Falha ao carregar o acervo de harmonia.');
-      console.error(err);
-    } finally { setIsLoading(false); }
-  }, []);
-
-  useEffect(() => { fetchItens(); }, [fetchItens]);
+  const canManage =
+    user?.credencialAcesso === "Diretoria" ||
+    user?.credencialAcesso === "Webmaster";
 
   const handleSave = async (formData) => {
     try {
+      setActionError("");
       await createHarmoniaItem(formData);
-      fetchItens();
+      refetch(); // 3. Atualiza a lista com `refetch`
       setIsModalOpen(false);
-    } catch (err) { setError(err.response?.data?.message || 'Erro ao salvar o item.'); }
+    } catch (err) {
+      setActionError(err.response?.data?.message || "Erro ao salvar o item.");
+      console.error(err);
+    }
   };
 
   const handleDelete = async (id) => {
-    if(window.confirm('Tem a certeza que deseja apagar este item?')){
-        try {
-            await deleteHarmoniaItem(id);
-            fetchItens();
-        } catch(err) { setError(err.response?.data?.message || 'Erro ao apagar o item.'); }
+    if (window.confirm("Tem a certeza que deseja apagar este item?")) {
+      try {
+        setActionError("");
+        await deleteHarmoniaItem(id);
+        refetch(); // 3. Atualiza a lista com `refetch`
+      } catch (err) {
+        setActionError(err.response?.data?.message || "Erro ao apagar o item.");
+        console.error(err);
+      }
     }
-  }
+  };
 
-  if (isLoading) return <div className="member-list-container">A carregar...</div>;
+  if (isLoading)
+    return <div className="table-page-container">A carregar...</div>;
 
   return (
-    <div className="member-list-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="table-page-container">
+      <div className="table-header">
         <h1>Gestão de Harmonia</h1>
-        {canManage && <button onClick={() => setIsModalOpen(true)} className="btn-action btn-approve">Adicionar Áudio</button>}
+        {canManage && (
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn-action btn-approve"
+          >
+            Adicionar Áudio
+          </button>
+        )}
       </div>
-      {error && <p className="error-message">{error}</p>}
+
+      {(fetchError || actionError) && (
+        <p className="error-message">{fetchError || actionError}</p>
+      )}
+
       <div className="table-responsive">
-        <table>
-          <thead><tr><th>Título</th><th>Autor</th><th>Categoria</th><th>Ações</th></tr></thead>
+        <table className="custom-table">
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Autor</th>
+              <th>Categoria</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
           <tbody>
-            {itens.map(item => (
-              <tr key={item.id}>
-                <td>{item.titulo}</td>
-                <td>{item.autor}</td>
-                <td>{item.categoria}</td>
-                <td className="actions-cell">
-                  {canManage && <button onClick={() => handleDelete(item.id)} className="btn-action" style={{backgroundColor: '#dc3545', color: 'white'}}>Apagar</button>}
+            {/* 4. Tratamento para estado vazio */}
+            {!isLoading && itens.length === 0 ? (
+              <tr>
+                <td colSpan="4" style={{ textAlign: "center" }}>
+                  Nenhum item de harmonia cadastrado.
                 </td>
               </tr>
-            ))}
+            ) : (
+              itens.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.titulo}</td>
+                  <td>{item.autor}</td>
+                  <td>{item.categoria}</td>
+                  <td className="actions-cell">
+                    {canManage && (
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="btn-action btn-delete"
+                      >
+                        Apagar
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Novo Item de Harmonia">
-        <HarmoniaForm onSave={handleSave} onCancel={() => setIsModalOpen(false)} />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Novo Item de Harmonia"
+      >
+        <HarmoniaForm
+          onSave={handleSave}
+          onCancel={() => setIsModalOpen(false)}
+        />
       </Modal>
     </div>
   );
