@@ -1,26 +1,61 @@
-.comissoes-container { width: 100%; max-width: 1200px; margin: 2rem auto; padding: 1rem; }
-.comissoes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-.comissoes-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
-.comissao-card {
-  background: #fff;
-  border-left: 5px solid #007bff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  padding: 1.5rem;
+/* src/assets/pages/comissoes/ComissoesPage.css */
+
+.comissoes-header h1 {
+  font-size: var(--font-size-4xl);
 }
-.comissao-card h3 { margin-top: 0; }
+
+.comissoes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.comissao-card {
+  background: var(--cor-conteudo-fundo);
+  border-left: 5px solid var(--cor-active-icon);
+  border-radius: 8px;
+  box-shadow: var(--sombra);
+  padding: 1.5rem;
+  color: var(--cor-texto-primario);
+}
+
+.comissao-card h3 {
+  margin-top: 0;
+  font-size: var(--font-size-xl); /* ADICIONADO */
+}
+
 .tipo-badge {
   padding: 3px 8px;
   border-radius: 12px;
-  font-size: 0.8em;
+  /* ANTES: font-size: 0.8em; */
+  font-size: var(--font-size-xs); /* DEPOIS */
   color: #fff;
 }
-.tipo-permanente { background-color: #28a745; }
-.tipo-temporária { background-color: #ffc107; color: #333; }
-.datas { color: #666; font-style: italic; margin: 10px 0; }
+
+.tipo-permanente {
+  background-color: #28a745;
+}
+.tipo-temporária {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.datas {
+  color: var(--cor-texto-secundario);
+  font-style: italic;
+  margin: 10px 0;
+  font-size: var(--font-size-sm); /* ADICIONADO */
+}
+.membros-list strong {
+  font-size: var(--font-size-base); /* ADICIONADO */
+}
 .membros-list ul {
   list-style-type: none;
   padding-left: 10px;
   margin-top: 5px;
 }
-.membros-list li { padding: 2px 0; }
+
+.membros-list li {
+  padding: 2px 0;
+  font-size: var(--font-size-sm); /* ADICIONADO */
+}

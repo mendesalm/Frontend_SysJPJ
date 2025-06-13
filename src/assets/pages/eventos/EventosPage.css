@@ -1,26 +1,19 @@
-/*
- * src/assets/pages/eventos/EventosPage.css
- * Estilos para a página e os cartões da agenda de eventos.
- */
-
-/* O container geral da página já é estilizado pela classe .table-page-container */
-/* importada de TableStyles.css, então não precisamos de a redefinir. */
+/* src/assets/pages/eventos/EventosPage.css */
 
 .eventos-list {
   display: grid;
-  /* Cria uma coluna para cada cartão, mas permite que se ajustem */
   grid-template-columns: 1fr;
-  gap: 1.5rem; /* Espaçamento entre os cartões de evento */
+  gap: 1.5rem;
 }
 
 .evento-card {
-  background: rgba(31, 41, 55, 0.6);
+  background: var(--cor-conteudo-fundo);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--cor-borda-vidro);
   border-radius: 12px;
   padding: 1.5rem;
-  color: #d1d5db; /* Cor do texto secundário */
+  color: var(--cor-texto-secundario);
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -35,15 +28,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid var(--cor-borda-sidebar);
   padding-bottom: 1rem;
   margin-bottom: 1rem;
 }
 
 .evento-card-header h3 {
   margin: 0;
-  font-size: 1.25rem;
-  color: #f9fafb;
+  /* ANTES: font-size: 1.25rem; */
+  font-size: var(--font-size-xl); /* DEPOIS */
+  color: var(--cor-texto-cabecalho);
 }
 
 .evento-actions {
@@ -52,12 +46,12 @@
 }
 
 .evento-card-body {
-  flex-grow: 1; /* Faz o corpo do cartão ocupar o espaço disponível */
+  flex-grow: 1;
 }
-
 .evento-card-body p {
   margin: 0 0 1.5rem 0;
   line-height: 1.6;
+  font-size: var(--font-size-base); /* ADICIONADO */
 }
 
 .evento-card-footer {
@@ -65,17 +59,17 @@
   gap: 1.5rem;
   flex-wrap: wrap;
   align-items: center;
-  font-size: 0.9rem;
-  color: #9ca3af;
+  /* ANTES: font-size: 0.9rem; */
+  font-size: var(--font-size-sm); /* DEPOIS */
+  color: var(--cor-texto-secundario);
 }
 
 .evento-card-footer strong {
-  color: #e5e7eb;
+  color: var(--cor-texto-primario);
 }
 
-/* --- Secção de Confirmação de Presença --- */
 .presenca-actions {
-  border-top: 1px solid #374151;
+  border-top: 1px solid var(--cor-borda-sidebar);
   margin-top: 1.5rem;
   padding-top: 1.5rem;
   display: flex;
@@ -86,20 +80,20 @@
 .presenca-actions p {
   margin: 0;
   font-weight: 500;
-  color: #9ca3af;
+  font-size: var(--font-size-base); /* ADICIONADO */
+  color: var(--cor-texto-secundario);
 }
 
-/* --- Badges de Tipo de Evento --- */
 .evento-badge {
   padding: 4px 12px;
   border-radius: 15px;
   color: #fff;
-  font-size: 0.8rem;
+  /* ANTES: font-size: 0.8rem; */
+  font-size: var(--font-size-xs); /* DEPOIS */
   font-weight: 500;
   text-transform: capitalize;
 }
 
-/* Cores específicas para cada tipo de evento */
 .tipo-sessão-maçônica {
   background-color: #9333ea;
 }

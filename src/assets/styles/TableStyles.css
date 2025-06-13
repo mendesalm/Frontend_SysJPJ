@@ -1,118 +1,122 @@
 /*
  * src/assets/styles/TableStyles.css
- * Estilos centralizados para tabelas, com tema escuro e glassmorphism.
+ * Estilos centralizados para tabelas, agora usando a escala de tipografia do tema.
  */
-
-:root {
-    /* Cores do tema (pode ajustar ou importar de um ficheiro global) */
-    --cor-fundo-app: #111827;
-    --cor-texto-primario: #F9FAFB;
-    --cor-texto-secundario: #9CA3AF;
-    --cor-borda-vidro: rgba(255, 255, 255, 0.1);
-    --cor-fundo-tabela: rgba(17, 24, 39, 0.75);
-    --cor-borda-linha: #374151;
-    --cor-hover-linha: rgba(55, 65, 81, 0.6);
-    --cor-cabecalho-tabela: rgba(31, 41, 55, 0.8);
-}
 
 /* Container que envolve o título da página e a tabela */
 .table-page-container {
-    padding: 1rem;
+  padding: 1rem;
 }
 
 .table-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
 }
 
 .table-header h1 {
-    font-size: 1.8rem;
-    color: var(--cor-texto-primario);
+  /* ANTES: font-size: 1.8rem; */
+  font-size: var(--font-size-3xl); /* DEPOIS */
+  color: var(--cor-texto-primario);
 }
 
 .table-responsive {
-    overflow-x: auto;
-    border-radius: 12px;
-    border: 1px solid var(--cor-borda-vidro);
-    background: var(--cor-fundo-tabela);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--cor-borda-vidro);
+  background: var(--cor-fundo-tabela);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .custom-table {
-    width: 100%;
-    border-collapse: collapse;
-    color: var(--cor-texto-secundario);
-    font-size: 0.9rem;
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--cor-texto-secundario);
+  /* ANTES: font-size: 0.9rem; */
+  font-size: var(
+    --font-size-base
+  ); /* DEPOIS: Aumentando a fonte base da tabela */
 }
 
 .custom-table thead {
-    background-color: var(--cor-cabecalho-tabela);
+  background-color: var(--cor-cabecalho-tabela);
 }
 
 .custom-table th {
-    padding: 12px 15px; /* Padding ligeiramente reduzido */
-    text-align: left;
-    font-weight: 600;
-    color: var(--cor-texto-primario);
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    border-bottom: 1px solid var(--cor-borda-linha);
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--cor-texto-primario);
+  text-transform: uppercase;
+  /* ANTES: font-size: 0.8rem; */
+  font-size: var(--font-size-sm); /* DEPOIS */
+  border-bottom: 1px solid var(--cor-borda-linha);
 }
 
 .custom-table tbody tr {
-    border-bottom: 1px solid var(--cor-borda-linha);
-    transition: background-color 0.2s ease-in-out;
+  border-bottom: 1px solid var(--cor-borda-linha);
+  transition: background-color 0.2s ease-in-out;
 }
 
 .custom-table tbody tr:last-of-type {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .custom-table tbody tr:hover {
-    background-color: var(--cor-hover-linha);
+  background-color: var(--cor-hover-linha);
 }
 
 .custom-table td {
-    padding: 10px 15px; /* Padding vertical reduzido para linhas mais compactas */
-    color: var(--cor-texto-primario); /* CORRIGIDO: Texto das células agora é claro */
+  padding: 12px 15px; /* Aumentei o padding para mais respiro */
+  color: var(--cor-texto-primario);
 }
 
 /* --- Estilos para Células Específicas --- */
 .actions-cell {
-    white-space: nowrap;
-    display: flex;
-    gap: 0.5rem;
+  white-space: nowrap;
+  display: flex;
+  gap: 0.75rem; /* Aumentei o espaçamento */
 }
 
 .btn-action {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: opacity 0.2s, transform 0.2s;
+  padding: 8px 14px; /* Botões um pouco maiores */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  /* ANTES: font-size: 0.85rem; */
+  font-size: var(--font-size-sm); /* DEPOIS */
+  font-weight: 500;
+  transition: opacity 0.2s, transform 0.2s;
 }
 
 .btn-action:hover {
-    opacity: 0.9;
-    transform: scale(1.05);
+  opacity: 0.9;
+  transform: scale(1.05);
 }
 
-.btn-approve { background-color: #011508; color: white; }
-.btn-edit { background-color: #02153c; color: white; }
-.btn-delete { background-color: hsl(0, 75%, 13%); color: white; }
+.btn-approve {
+  background-color: #011508;
+  color: white;
+}
+.btn-edit {
+  background-color: #02153c;
+  color: white;
+}
+.btn-delete {
+  background-color: hsl(0, 75%, 13%);
+  color: white;
+}
 
 /* --- Badges de Status --- */
 .status-badge {
   padding: 4px 10px;
   border-radius: 15px;
   color: #fff;
-  font-size: 0.8rem;
+  /* ANTES: font-size: 0.8rem; */
+  font-size: var(--font-size-xs); /* DEPOIS */
   font-weight: 500;
   text-transform: capitalize;
   display: inline-block;
@@ -120,7 +124,20 @@
   min-width: 80px;
 }
 
-.status-aprovado, .status-disponível, .status-ativa { background-color: #15803d; }
-.status-pendente, .status-emprestado { background-color: #ca8a04; color: #1f2937; }
-.status-rejeitado, .status-inservível { background-color: #b91c1c; }
-.status-regular { background-color: #0e7490; }
+.status-aprovado,
+.status-disponível,
+.status-ativa {
+  background-color: #15803d;
+}
+.status-pendente,
+.status-emprestado {
+  background-color: #ca8a04;
+  color: #1f2937;
+}
+.status-rejeitado,
+.status-inservível {
+  background-color: #b91c1c;
+}
+.status-regular {
+  background-color: #0e7490;
+}

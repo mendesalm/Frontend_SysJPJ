@@ -1,3 +1,4 @@
+// src/assets/pages/admin/members/components/FamilyDataFields.jsx
 import React from "react";
 import { PARENTESCO_OPTIONS } from "../../../../../constants/formConstants";
 
@@ -18,19 +19,26 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
         >
           <div className="form-group">
             <label>Nome do Familiar</label>
+            {/* --- MUDANÇA AQUI --- */}
             <input
-              {...register(`familiares.${index}.nomeCompleto`)}
+              {...register(`familiares.${index}.Nome`)}
               className={`form-input ${
-                errors.familiares?.[index]?.nomeCompleto ? "is-invalid" : ""
+                errors.familiares?.[index]?.Nome ? "is-invalid" : ""
               }`}
             />
+            {errors.familiares?.[index]?.Nome && (
+              <p className="form-error-message">
+                {errors.familiares[index].Nome.message}
+              </p>
+            )}
           </div>
           <div className="form-group">
             <label>Parentesco</label>
+            {/* --- MUDANÇA AQUI --- */}
             <select
-              {...register(`familiares.${index}.parentesco`)}
+              {...register(`familiares.${index}.Parentesco`)}
               className={`form-select ${
-                errors.familiares?.[index]?.parentesco ? "is-invalid" : ""
+                errors.familiares?.[index]?.Parentesco ? "is-invalid" : ""
               }`}
             >
               {PARENTESCO_OPTIONS.map((opt) => (
@@ -39,16 +47,27 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
                 </option>
               ))}
             </select>
+            {errors.familiares?.[index]?.Parentesco && (
+              <p className="form-error-message">
+                {errors.familiares[index].Parentesco.message}
+              </p>
+            )}
           </div>
           <div className="form-group">
             <label>Data de Nasc.</label>
+            {/* --- MUDANÇA AQUI --- */}
             <input
               type="date"
-              {...register(`familiares.${index}.dataNascimento`)}
+              {...register(`familiares.${index}.DataNascimento`)}
               className={`form-input ${
-                errors.familiares?.[index]?.dataNascimento ? "is-invalid" : ""
+                errors.familiares?.[index]?.DataNascimento ? "is-invalid" : ""
               }`}
             />
+            {errors.familiares?.[index]?.DataNascimento && (
+              <p className="form-error-message">
+                {errors.familiares[index].DataNascimento.message}
+              </p>
+            )}
           </div>
           <div>
             <button
@@ -64,8 +83,9 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
       ))}
       <button
         type="button"
+        // --- MUDANÇA AQUI ---
         onClick={() =>
-          append({ nomeCompleto: "", parentesco: "Filho", dataNascimento: "" })
+          append({ Nome: "", Parentesco: "Filho", DataNascimento: "" })
         }
         className="btn btn-secondary"
         style={{ marginTop: "1rem" }}

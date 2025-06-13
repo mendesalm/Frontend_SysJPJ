@@ -4,7 +4,7 @@
   background: rgba(31, 41, 55, 0.6);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--cor-borda-vidro);
   border-radius: 12px;
   padding: 1.5rem;
   display: flex;
@@ -13,11 +13,12 @@
 }
 
 .widget-title {
-  font-size: 1.25rem;
-  color: #e5e7eb;
+  /* ANTES: font-size: 1.25rem; */
+  font-size: var(--font-size-xl); /* DEPOIS */
+  color: var(--cor-texto-cabecalho);
   margin-bottom: 1.5rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--cor-borda-vidro);
 }
 
 .widget-content {
@@ -27,37 +28,37 @@
   gap: 1rem;
   background-color: transparent;
 }
-.widget-card.aviso-card {
-  background-color: rgba(
-    17,
-    24,
-    39,
-    0.8
-  ); /* Exemplo: um fundo mais escuro e opaco */
-  border-left-color: #facc15; /* Exemplo: muda a cor da borda para amarelo */
-}
+
 .widget-card {
   background-color: transparent;
   padding: 1rem;
   border-radius: 8px;
-  border-left: 4px solid #38bdf8;
+  border-left: 4px solid var(--cor-hover-icon);
+}
+
+.widget-card.aviso-card {
+  background-color: rgba(17, 24, 39, 0.8);
+  border-left-color: #facc15;
 }
 
 .widget-card h4 {
   margin: 0 0 0.5rem 0;
-  color: #f9fafb;
+  color: var(--cor-texto-primario);
+  font-size: var(--font-size-lg); /* ADICIONADO */
 }
 
 .widget-card p {
   margin: 0.25rem 0;
-  font-size: 0.9rem;
-  color: #d1d5db;
+  /* ANTES: font-size: 0.9rem; */
+  font-size: var(--font-size-sm); /* DEPOIS */
+  color: var(--cor-texto-secundario);
   line-height: 1.5;
 }
 
 .widget-card small {
-  font-size: 0.8rem;
-  color: transparent;
+  /* ANTES: font-size: 0.8rem; */
+  font-size: var(--font-size-xs); /* DEPOIS */
+  color: var(--cor-texto-secundario);
 }
 
 .widget-footer {
@@ -66,12 +67,13 @@
 }
 
 .widget-link {
-  color: #38bdf8;
+  color: var(--cor-hover-icon);
   text-decoration: none;
   font-weight: 500;
+  font-size: var(--font-size-sm); /* ADICIONADO */
   transition: color 0.2s;
 }
 
 .widget-link:hover {
-  color: #7dd3fc;
+  filter: brightness(1.2);
 }

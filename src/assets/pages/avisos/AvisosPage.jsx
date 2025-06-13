@@ -10,6 +10,7 @@ import {
 import Modal from "../../../components/modal/Modal";
 import AvisoForm from "./AvisoForm";
 import "./AvisosPage.css";
+import "../../styles/TableStyles.css";
 
 // 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";

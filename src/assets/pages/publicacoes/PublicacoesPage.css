@@ -1,52 +1,48 @@
-.publicacoes-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 1rem;
-}
-.publicacoes-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
+/* src/assets/pages/publicacoes/PublicacoesPage.css */
+
 .publicacoes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 }
+
 .publicacao-card {
-  background: #fff;
+  background: var(--cor-conteudo-fundo);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: var(--sombra);
   padding: 1.5rem;
   text-align: center;
   display: flex;
   flex-direction: column;
+  color: var(--cor-texto-primario);
 }
 .publicacao-icon {
-  font-size: 3rem;
+  /* ANTES: font-size: 3rem; */
+  font-size: var(--font-size-4xl); /* DEPOIS */
   margin-bottom: 1rem;
 }
 .publicacao-card h3 {
-  font-size: 1.2rem;
+  /* ANTES: font-size: 1.2rem; */
+  font-size: var(--font-size-xl); /* DEPOIS */
   margin-bottom: 0.5rem;
 }
 .publicacao-card p {
   margin: 0.25rem 0;
-  color: #555;
+  color: var(--cor-texto-secundario);
   flex-grow: 1;
+  font-size: var(--font-size-sm); /* ADICIONADO */
 }
 .btn-download {
   margin-top: 1rem;
   display: inline-block;
   padding: 10px 15px;
-  background-color: #007bff;
+  background-color: var(--cor-active-icon);
   color: white;
   text-decoration: none;
   border-radius: 5px;
   transition: background-color 0.3s;
+  font-size: var(--font-size-base); /* ADICIONADO */
 }
 .btn-download:hover {
-  background-color: #0056b3;
+  filter: brightness(1.2);
 }
