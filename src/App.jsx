@@ -2,7 +2,8 @@ import React, { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import SessionExpirationManager from "./components/auth/SessionExpirationManager.jsx";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // Layouts e Componentes Estruturais (carregados imediatamente)
 import Header from "./components/header/Header.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
@@ -96,6 +97,18 @@ function App() {
   return (
     <AuthProvider>
       <SessionExpirationManager />
+      <ToastContainer
+        position="top-right"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       <div className="App">
         {/* O Suspense deve envolver as rotas que usam componentes lazy-loaded */}
         <Suspense fallback={<LoadingFallback />}>

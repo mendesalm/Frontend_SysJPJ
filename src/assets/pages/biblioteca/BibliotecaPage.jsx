@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
-import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o hook
+import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   getLivros,
   createLivro,
@@ -14,8 +14,10 @@ import LivroForm from "./LivroForm";
 import EmprestimoForm from "./EmprestimoForm";
 import "../../styles/TableStyles.css";
 
+// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
+import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
+
 const BibliotecaPage = () => {
-  // 2. Lógica de busca de dados centralizada no hook
   const {
     data: livros,
     isLoading,
@@ -23,7 +25,9 @@ const BibliotecaPage = () => {
     refetch,
   } = useDataFetching(getLivros);
 
-  const [actionError, setActionError] = useState(""); // Erro para ações do usuário
+  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
+  // const [actionError, setActionError] = useState('');
+
   const { user } = useAuth();
 
   const [isLivroModalOpen, setIsLivroModalOpen] = useState(false);
@@ -36,29 +40,36 @@ const BibliotecaPage = () => {
 
   const handleSaveLivro = async (formData) => {
     try {
-      setActionError("");
-      if (currentLivro && currentLivro.id) {
+      const isUpdating = !!(currentLivro && currentLivro.id);
+      if (isUpdating) {
         await updateLivro(currentLivro.id, formData);
       } else {
         await createLivro(formData);
       }
-      refetch(); // 3. Atualiza a lista com `refetch`
+      refetch();
       setIsLivroModalOpen(false);
+      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+      showSuccessToast(
+        `Livro ${isUpdating ? "atualizado" : "adicionado"} com sucesso!`
+      );
     } catch (err) {
       console.error("Erro ao salvar o livro:", err);
-      setActionError(err.response?.data?.message || "Erro ao salvar o livro.");
+      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+      showErrorToast(err.response?.data?.message || "Erro ao salvar o livro.");
     }
   };
 
   const handleRegistrarEmprestimo = async (emprestimoData) => {
     try {
-      setActionError("");
       await registrarEmprestimo(emprestimoData);
-      refetch(); // 3. Atualiza a lista com `refetch`
+      refetch();
       setIsEmprestimoModalOpen(false);
+      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+      showSuccessToast("Empréstimo registrado com sucesso!");
     } catch (err) {
       console.error("Erro ao registar empréstimo:", err);
-      setActionError(
+      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+      showErrorToast(
         err.response?.data?.message || "Erro ao registar o empréstimo."
       );
     }
@@ -69,6 +80,7 @@ const BibliotecaPage = () => {
       (e) => e.dataDevolucaoReal === null
     );
     if (!emprestimoAtivo) {
+      // O alert aqui é aceitável pois é um erro de lógica/validação, não de API.
       alert(
         "Erro: Não foi possível encontrar um empréstimo ativo para este livro."
       );
@@ -76,12 +88,14 @@ const BibliotecaPage = () => {
     }
     if (window.confirm(`Confirma a devolução do livro "${livro.titulo}"?`)) {
       try {
-        setActionError("");
         await registrarDevolucao(emprestimoAtivo.id);
-        refetch(); // 3. Atualiza a lista com `refetch`
+        refetch();
+        // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+        showSuccessToast("Devolução registrada com sucesso!");
       } catch (err) {
         console.error("Erro ao registar devolução:", err);
-        setActionError(
+        // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+        showErrorToast(
           err.response?.data?.message || "Erro ao registar a devolução."
         );
       }
@@ -91,13 +105,14 @@ const BibliotecaPage = () => {
   const handleReservarLivro = async (livroId) => {
     if (window.confirm("Deseja entrar na fila de reserva para este livro?")) {
       try {
-        setActionError("");
         await reservarLivro(livroId);
-        alert("Reserva realizada com sucesso!");
-        refetch(); // 3. Atualiza a lista com `refetch`
+        refetch();
+        // 3. SUBSTITUÍMOS O alert() PELA NOTIFICAÇÃO DE SUCESSO
+        showSuccessToast("Reserva realizada com sucesso!");
       } catch (err) {
         console.error("Erro ao realizar reserva:", err);
-        setActionError(
+        // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+        showErrorToast(
           err.response?.data?.message || "Não foi possível realizar a reserva."
         );
       }
@@ -131,11 +146,8 @@ const BibliotecaPage = () => {
         )}
       </div>
 
-      {(fetchError || actionError) && (
-        <p className="error-message" onClick={() => setActionError("")}>
-          {fetchError || actionError}
-        </p>
-      )}
+      {/* 5. A EXIBIÇÃO DE ERRO DE AÇÃO FOI REMOVIDA DAQUI */}
+      {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="table-responsive">
         <table className="custom-table">
@@ -148,7 +160,6 @@ const BibliotecaPage = () => {
             </tr>
           </thead>
           <tbody>
-            {/* 4. Adicionado tratamento para estado vazio */}
             {!isLoading && livros.length === 0 ? (
               <tr>
                 <td colSpan="4" style={{ textAlign: "center" }}>

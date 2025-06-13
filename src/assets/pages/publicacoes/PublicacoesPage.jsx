@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
-import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o hook
+import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   getPublicacoes,
   createPublicacao,
@@ -8,10 +8,12 @@ import {
 import Modal from "../../../components/modal/Modal";
 import PublicacaoForm from "./PublicacaoForm";
 import "./PublicacoesPage.css";
-import "../../styles/TableStyles.css"; // Importando para ter o estilo do cabeçalho
+import "../../styles/TableStyles.css";
+
+// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
+import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
 const PublicacoesPage = () => {
-  // 2. Lógica de busca de dados substituída pela chamada ao hook
   const {
     data: publicacoes,
     isLoading,
@@ -19,8 +21,10 @@ const PublicacoesPage = () => {
     refetch,
   } = useDataFetching(getPublicacoes);
 
+  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
+  // const [error, setError] = useState('');
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [actionError, setActionError] = useState("");
   const { user } = useAuth();
 
   const canManage =
@@ -29,15 +33,17 @@ const PublicacoesPage = () => {
 
   const handleSave = async (formData) => {
     try {
-      setActionError("");
       await createPublicacao(formData);
-      refetch(); // 3. Atualiza a lista com `refetch`
+      refetch();
       setIsModalOpen(false);
+      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+      showSuccessToast("Publicação salva com sucesso!");
     } catch (err) {
-      setActionError(
-        err.response?.data?.message || "Erro ao salvar a publicação."
-      );
-      console.error(err);
+      console.error("Erro ao salvar a publicação:", err);
+      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+      const errorMsg =
+        err.response?.data?.message || "Erro ao salvar a publicação.";
+      showErrorToast(errorMsg);
     }
   };
 
@@ -58,12 +64,10 @@ const PublicacoesPage = () => {
         )}
       </div>
 
-      {(fetchError || actionError) && (
-        <p className="error-message">{fetchError || actionError}</p>
-      )}
+      {/* 5. A EXIBIÇÃO DE ERRO É SIMPLIFICADA */}
+      {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="publicacoes-grid">
-        {/* 4. Adicionado tratamento para estado vazio */}
         {!isLoading && publicacoes.length === 0 ? (
           <p>Nenhuma publicação ou trabalho encontrado.</p>
         ) : (

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o hook
+import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   getLancamentos,
   createLancamento,
@@ -8,18 +8,20 @@ import Modal from "../../../components/modal/Modal";
 import LancamentoForm from "./LancamentoForm";
 import "../../styles/TableStyles.css";
 
+// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
+import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
+
 const LancamentosPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [actionError, setActionError] = useState("");
 
-  // Estado para os filtros permanece o mesmo
+  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
+  // const [actionError, setActionError] = useState('');
+
   const [filter, setFilter] = useState({
     mes: new Date().getMonth() + 1,
     ano: new Date().getFullYear(),
   });
 
-  // 2. O hook agora recebe a função de serviço E um array com seus parâmetros.
-  // O hook irá refazer a busca automaticamente sempre que o `filter` mudar.
   const {
     data: lancamentos,
     isLoading,
@@ -29,15 +31,20 @@ const LancamentosPage = () => {
 
   const handleSave = async (formData) => {
     try {
-      setActionError("");
+      // 3. REMOVEMOS A LIMPEZA DO ESTADO DE ERRO ANTIGO
+      // setActionError('');
       await createLancamento(formData);
-      refetch(); // 3. Usa o refetch para atualizar a lista após um novo lançamento
+      refetch();
       setIsModalOpen(false);
+
+      // 4. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+      showSuccessToast("Lançamento registrado com sucesso!");
     } catch (err) {
-      setActionError(
-        err.response?.data?.message || "Erro ao salvar o lançamento."
-      );
       console.error(err);
+      // 5. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+      const errorMsg =
+        err.response?.data?.message || "Erro ao salvar o lançamento.";
+      showErrorToast(errorMsg);
     }
   };
 
@@ -94,11 +101,8 @@ const LancamentosPage = () => {
         </button>
       </div>
 
-      {(fetchError || actionError) && (
-        <p className="error-message" onClick={() => setActionError("")}>
-          {fetchError || actionError}
-        </p>
-      )}
+      {/* 6. A EXIBIÇÃO DE ERRO É SIMPLIFICADA (APENAS PARA O FETCH INICIAL) */}
+      {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="table-responsive">
         <table className="custom-table">
@@ -119,7 +123,6 @@ const LancamentosPage = () => {
                 </td>
               </tr>
             ) : lancamentos.length === 0 ? (
-              // 4. Tratamento para estado vazio
               <tr>
                 <td colSpan="5" style={{ textAlign: "center" }}>
                   Nenhum lançamento encontrado para este período.

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
-import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o nosso hook
+import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   getEventos,
   createEvento,
@@ -13,8 +13,10 @@ import EventoForm from "./EventoForm";
 import "./EventosPage.css";
 import "../../styles/TableStyles.css";
 
+// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
+import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
+
 const EventosPage = () => {
-  // 2. A lógica de state e fetching é substituída por esta única linha
   const {
     data: eventos,
     isLoading,
@@ -22,8 +24,10 @@ const EventosPage = () => {
     refetch,
   } = useDataFetching(getEventos);
 
-  const [actionError, setActionError] = useState(""); // Erro para ações como salvar/apagar
-  const [successMessage, setSuccessMessage] = useState("");
+  // 2. OS ESTADOS DE ERRO E SUCESSO PARA AÇÕES NÃO SÃO MAIS NECESSÁRIOS
+  // const [error, setError] = useState("");
+  // const [successMessage, setSuccessMessage] = useState("");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentEvento, setCurrentEvento] = useState(null);
   const { user } = useAuth();
@@ -34,17 +38,22 @@ const EventosPage = () => {
 
   const handleSave = async (formData) => {
     try {
-      setActionError("");
-      if (currentEvento) {
+      const isUpdating = !!currentEvento;
+      if (isUpdating) {
         await updateEvento(currentEvento.id, formData);
       } else {
         await createEvento(formData);
       }
-      refetch(); // 3. Usa a função `refetch` do hook para atualizar a lista
+      refetch();
       setIsModalOpen(false);
+      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+      showSuccessToast(
+        `Evento ${isUpdating ? "atualizado" : "criado"} com sucesso!`
+      );
     } catch (err) {
       console.error("Erro ao salvar evento:", err);
-      setActionError(
+      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+      showErrorToast(
         err.response?.data?.message || "Ocorreu um erro ao salvar o evento."
       );
     }
@@ -53,29 +62,30 @@ const EventosPage = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Tem a certeza que deseja apagar este evento?")) {
       try {
-        setActionError("");
         await deleteEvento(id);
-        refetch(); // 3. Usa a função `refetch` do hook para atualizar a lista
+        refetch();
+        // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+        showSuccessToast("Evento apagado com sucesso!");
       } catch (err) {
         console.error("Erro ao apagar evento:", err);
-        setActionError("Não foi possível apagar o evento.");
+        // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+        showErrorToast("Não foi possível apagar o evento.");
       }
     }
   };
 
   const handleConfirmarPresenca = async (eventoId, status) => {
     try {
-      setActionError("");
-      setSuccessMessage("");
       await confirmarPresenca(eventoId, { statusConfirmacao: status });
-      setSuccessMessage(
+      // 3. SUBSTITUÍMOS A MENSAGEM DE SUCESSO PELA NOTIFICAÇÃO
+      showSuccessToast(
         `Sua presença foi registrada como "${status}" com sucesso!`
       );
-      refetch(); // 3. Usa a função `refetch` do hook para atualizar a lista
-      setTimeout(() => setSuccessMessage(""), 4000);
+      refetch();
     } catch (err) {
       console.error("Erro ao confirmar presença:", err);
-      setActionError(
+      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+      showErrorToast(
         err.response?.data?.message ||
           "Não foi possível registar a sua presença."
       );
@@ -108,16 +118,10 @@ const EventosPage = () => {
         )}
       </div>
 
-      {/* Exibe o erro de carregamento inicial ou o erro de uma ação de API */}
-      {(fetchError || actionError) && (
-        <p className="error-message" onClick={() => setActionError("")}>
-          {fetchError || actionError}
-        </p>
-      )}
-      {successMessage && <p className="success-message">{successMessage}</p>}
+      {/* 5. A EXIBIÇÃO DE ERRO/SUCESSO DE AÇÃO FOI REMOVIDA DAQUI */}
+      {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="eventos-list">
-        {/* 4. Adicionada uma verificação para estado vazio */}
         {!isLoading && eventos.length === 0 ? (
           <p>Nenhum evento agendado no momento.</p>
         ) : (

@@ -10,9 +10,15 @@ import FormPageLayout from "../../../components/layout/FormPageLayout";
 import "../../styles/FormStyles.css";
 import "../../styles/TableStyles.css";
 
-// --- INÍCIO DA MODIFICAÇÃO: Importando a constante de parentesco ---
-import { PARENTESCO_OPTIONS } from "../../../constants/formConstants";
-// --- FIM DA MODIFICAÇÃO ---
+// 1. IMPORTAMOS OS NOSSOS COMPONENTES DE FORMULÁRIO
+import PersonalDataFields from "../admin/members/components/PersonalDataFields.jsx";
+import FamilyDataFields from "../admin/members/components/FamilyDataFields.jsx";
+import AddressFields from "../admin/members/components/AddressFields.jsx";
+import MasonicDataFields from "../admin/members/components/MasonicDataFields.jsx";
+import ProfessionalDataFields from "../admin/members/components/ProfessionalDataFields.jsx";
+
+// A importação de constantes de formulário não é mais necessária aqui
+// import { PARENTESCO_OPTIONS } from "../../../constants/formConstants";
 
 const ProfilePage = () => {
   const { user, loading: authLoading, checkUserStatus } = useAuth();
@@ -147,353 +153,37 @@ const ProfilePage = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="form-container"
       >
-        {/* --- Dados Pessoais --- */}
-        <fieldset className="form-fieldset">
-          <legend>Dados Pessoais</legend>
-          <div className="form-grid">
-            <div className="form-group full-width">
-              <label>Nome Completo</label>
-              <input
-                type="text"
-                {...register("NomeCompleto")}
-                className={`form-input ${
-                  errors.NomeCompleto ? "is-invalid" : ""
-                }`}
-              />
-              {errors.NomeCompleto && (
-                <p className="form-error-message">
-                  {errors.NomeCompleto.message}
-                </p>
-              )}
-            </div>
-            <div className="form-group">
-              <label>CPF</label>
-              <input
-                type="text"
-                {...register("CPF")}
-                className="form-input"
-                disabled
-              />
-            </div>
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                {...register("Email")}
-                className={`form-input ${errors.Email ? "is-invalid" : ""}`}
-              />
-              {errors.Email && (
-                <p className="form-error-message">{errors.Email.message}</p>
-              )}
-            </div>
-            <div className="form-group">
-              <label>Identidade (RG)</label>
-              <input
-                type="text"
-                {...register("Identidade")}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Data de Nasc.</label>
-              <input
-                type="date"
-                {...register("DataNascimento")}
-                className={`form-input ${
-                  errors.DataNascimento ? "is-invalid" : ""
-                }`}
-              />
-              {errors.DataNascimento && (
-                <p className="form-error-message">
-                  {errors.DataNascimento.message}
-                </p>
-              )}
-            </div>
-            <div className="form-group">
-              <label>Telefone</label>
-              <input
-                type="tel"
-                {...register("Telefone")}
-                className="form-input"
-              />
-            </div>
-          </div>
-        </fieldset>
+        {/* 2. OS BLOCOS DE FORMULÁRIO SÃO SUBSTITUÍDOS PELOS COMPONENTES */}
+        {/* Note o uso da prop `isReadOnly={true}` nos componentes que precisam ter campos desabilitados */}
 
-        {/* --- Dados Familiares --- */}
-        <fieldset className="form-fieldset">
-          <legend>Familiares</legend>
-          {fields.map((field, index) => (
-            <div
-              key={field.id}
-              className="form-grid"
-              style={{
-                alignItems: "flex-end",
-                marginBottom: "1rem",
-                borderBottom: "1px solid var(--cor-borda-input)",
-                paddingBottom: "1rem",
-              }}
-            >
-              <div className="form-group">
-                <label>Nome</label>
-                <input
-                  {...register(`familiares.${index}.nomeCompleto`)}
-                  className={`form-input ${
-                    errors.familiares?.[index]?.nomeCompleto ? "is-invalid" : ""
-                  }`}
-                />
-                {errors.familiares?.[index]?.nomeCompleto && (
-                  <p className="form-error-message">
-                    {errors.familiares[index].nomeCompleto.message}
-                  </p>
-                )}
-              </div>
-              <div className="form-group">
-                <label>Parentesco</label>
-                {/* --- MODIFICAÇÃO: Usando a constante para Parentesco --- */}
-                <select
-                  {...register(`familiares.${index}.parentesco`)}
-                  className={`form-select ${
-                    errors.familiares?.[index]?.parentesco ? "is-invalid" : ""
-                  }`}
-                >
-                  {PARENTESCO_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-                {errors.familiares?.[index]?.parentesco && (
-                  <p className="form-error-message">
-                    {errors.familiares[index].parentesco.message}
-                  </p>
-                )}
-              </div>
-              <div className="form-group">
-                <label>Data de Nasc.</label>
-                <input
-                  type="date"
-                  {...register(`familiares.${index}.dataNascimento`)}
-                  className={`form-input ${
-                    errors.familiares?.[index]?.dataNascimento
-                      ? "is-invalid"
-                      : ""
-                  }`}
-                />
-                {errors.familiares?.[index]?.dataNascimento && (
-                  <p className="form-error-message">
-                    {errors.familiares[index].dataNascimento.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <button
-                  type="button"
-                  onClick={() => remove(index)}
-                  className="btn"
-                  style={{ backgroundColor: "#b91c1c" }}
-                >
-                  Remover
-                </button>
-              </div>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() =>
-              append({
-                nomeCompleto: "",
-                parentesco: "Filho",
-                dataNascimento: "",
-              })
-            }
-            className="btn btn-secondary"
-            style={{ marginTop: "1rem" }}
-          >
-            + Adicionar Familiar
-          </button>
-        </fieldset>
+        <PersonalDataFields
+          register={register}
+          errors={errors}
+          isReadOnly={true}
+        />
 
-        {/* --- Endereço --- */}
-        <fieldset className="form-fieldset">
-          <legend>Endereço</legend>
-          <div className="form-grid" style={{ gridTemplateColumns: "1fr 3fr" }}>
-            <div className="form-group">
-              <label>CEP</label>
-              <div>
-                <input
-                  type="text"
-                  {...register("Endereco_CEP")}
-                  className="form-input"
-                  onBlur={handleCepBlur}
-                />
-                {cepStatus && (
-                  <small
-                    style={{ color: "var(--cor-foco-input)", marginTop: "5px" }}
-                  >
-                    {cepStatus}
-                  </small>
-                )}
-              </div>
-            </div>
-            <div className="form-group">
-              <label>Rua</label>
-              <input
-                type="text"
-                {...register("Endereco_Rua")}
-                className="form-input"
-              />
-            </div>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Número</label>
-              <input
-                type="text"
-                {...register("Endereco_Numero")}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Bairro</label>
-              <input
-                type="text"
-                {...register("Endereco_Bairro")}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Cidade</label>
-              <input
-                type="text"
-                {...register("Endereco_Cidade")}
-                className="form-input"
-              />
-            </div>
-          </div>
-        </fieldset>
+        <FamilyDataFields
+          fields={fields}
+          register={register}
+          errors={errors}
+          remove={remove}
+          append={append}
+          control={control}
+        />
 
-        {/* --- Dados Maçônicos (A maioria desabilitada para o usuário) --- */}
-        <fieldset className="form-fieldset">
-          <legend>Dados Maçônicos</legend>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>CIM</label>
-              <input
-                type="text"
-                {...register("CIM")}
-                disabled
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Situação</label>
-              <input
-                type="text"
-                {...register("Situacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Grau</label>
-              <input
-                type="text"
-                {...register("Graduacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Data de Iniciação</label>
-              <input
-                type="date"
-                {...register("DataIniciacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Data de Elevação</label>
-              <input
-                type="date"
-                {...register("DataElevacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Data de Exaltação</label>
-              <input
-                type="date"
-                {...register("DataExaltacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Data de Filiação</label>
-              <input
-                type="date"
-                {...register("DataFiliacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Data de Regularização</label>
-              <input
-                type="date"
-                {...register("DataRegularizacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Grau Filosófico</label>
-              <input
-                type="text"
-                {...register("grauFilosofico")}
-                className="form-input"
-              />
-            </div>
-          </div>
-        </fieldset>
+        <AddressFields
+          register={register}
+          handleCepBlur={handleCepBlur}
+          cepStatus={cepStatus}
+        />
 
-        {/* --- Dados Profissionais --- */}
-        <fieldset className="form-fieldset">
-          <legend>Dados Profissionais</legend>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Formação Académica</label>
-              <input
-                type="text"
-                {...register("FormacaoAcademica")}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Ocupação/Profissão</label>
-              <input
-                type="text"
-                {...register("Ocupacao")}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Local de Trabalho</label>
-              <input
-                type="text"
-                {...register("LocalTrabalho")}
-                className="form-input"
-              />
-            </div>
-          </div>
-        </fieldset>
+        <MasonicDataFields
+          register={register}
+          errors={errors}
+          isReadOnly={true}
+        />
+
+        <ProfessionalDataFields register={register} />
       </form>
     </FormPageLayout>
   );

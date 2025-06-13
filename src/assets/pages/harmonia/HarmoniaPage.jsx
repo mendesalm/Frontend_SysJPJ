@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
-import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o hook
+import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   getHarmoniaItens,
   createHarmoniaItem,
@@ -10,8 +10,10 @@ import Modal from "../../../components/modal/Modal";
 import HarmoniaForm from "./HarmoniaForm";
 import "../../styles/TableStyles.css";
 
+// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
+import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
+
 const HarmoniaPage = () => {
-  // 2. Lógica de busca de dados simplificada com o hook
   const {
     data: itens,
     isLoading,
@@ -19,7 +21,9 @@ const HarmoniaPage = () => {
     refetch,
   } = useDataFetching(getHarmoniaItens);
 
-  const [actionError, setActionError] = useState("");
+  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
+  // const [error, setError] = useState('');
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
 
@@ -29,25 +33,29 @@ const HarmoniaPage = () => {
 
   const handleSave = async (formData) => {
     try {
-      setActionError("");
       await createHarmoniaItem(formData);
-      refetch(); // 3. Atualiza a lista com `refetch`
+      refetch();
       setIsModalOpen(false);
+      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+      showSuccessToast("Item de harmonia salvo com sucesso!");
     } catch (err) {
-      setActionError(err.response?.data?.message || "Erro ao salvar o item.");
-      console.error(err);
+      console.error("Erro ao salvar o item:", err);
+      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+      showErrorToast(err.response?.data?.message || "Erro ao salvar o item.");
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm("Tem a certeza que deseja apagar este item?")) {
       try {
-        setActionError("");
         await deleteHarmoniaItem(id);
-        refetch(); // 3. Atualiza a lista com `refetch`
+        refetch();
+        // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+        showSuccessToast("Item apagado com sucesso!");
       } catch (err) {
-        setActionError(err.response?.data?.message || "Erro ao apagar o item.");
-        console.error(err);
+        console.error("Erro ao apagar o item:", err);
+        // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+        showErrorToast(err.response?.data?.message || "Erro ao apagar o item.");
       }
     }
   };
@@ -69,9 +77,8 @@ const HarmoniaPage = () => {
         )}
       </div>
 
-      {(fetchError || actionError) && (
-        <p className="error-message">{fetchError || actionError}</p>
-      )}
+      {/* 5. A EXIBIÇÃO DE ERRO É SIMPLIFICADA (APENAS PARA O FETCH INICIAL) */}
+      {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="table-responsive">
         <table className="custom-table">
@@ -84,7 +91,6 @@ const HarmoniaPage = () => {
             </tr>
           </thead>
           <tbody>
-            {/* 4. Tratamento para estado vazio */}
             {!isLoading && itens.length === 0 ? (
               <tr>
                 <td colSpan="4" style={{ textAlign: "center" }}>

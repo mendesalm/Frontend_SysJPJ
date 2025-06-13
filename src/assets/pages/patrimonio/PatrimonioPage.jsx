@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
-import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o hook
+import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   getPatrimonios,
   createPatrimonio,
@@ -8,10 +8,10 @@ import {
 } from "../../../services/patrimonioService";
 import Modal from "../../../components/modal/Modal";
 import PatrimonioForm from "./PatrimonioForm";
-import "../../styles/TableStyles.css"; // Reutilizando CSS
+import "../../styles/TableStyles.css";
+import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
 const PatrimonioPage = () => {
-  // 2. Lógica de busca de dados substituída pela chamada ao hook
   const {
     data: itens,
     isLoading,
@@ -19,7 +19,7 @@ const PatrimonioPage = () => {
     refetch,
   } = useDataFetching(getPatrimonios);
 
-  const [actionError, setActionError] = useState(""); // State específico para erros de ações (salvar, etc.)
+  // O state 'actionError' não é mais necessário, pois o toast cuidará disso.
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState(null);
   const { user } = useAuth();
@@ -30,17 +30,29 @@ const PatrimonioPage = () => {
 
   const handleSave = async (formData) => {
     try {
-      setActionError(""); // Limpa erros de ações anteriores
-      if (currentItem) {
+      const isUpdating = !!currentItem;
+      if (isUpdating) {
         await updatePatrimonio(currentItem.id, formData);
       } else {
         await createPatrimonio(formData);
       }
-      refetch(); // 3. Usa a função `refetch` para atualizar a lista
+      refetch();
       setIsModalOpen(false);
+      // --- INÍCIO DA MODIFICAÇÃO ---
+      // Exibe uma notificação de sucesso
+      showSuccessToast(
+        `Item de patrimônio ${
+          isUpdating ? "atualizado" : "criado"
+        } com sucesso!`
+      );
+      // --- FIM DA MODIFICAÇÃO ---
     } catch (err) {
       console.error("Erro ao salvar o item de patrimônio:", err);
-      setActionError(err.response?.data?.message || "Erro ao salvar o item.");
+      // --- INÍCIO DA MODIFICAÇÃO ---
+      // Exibe uma notificação de erro
+      const errorMsg = err.response?.data?.message || "Erro ao salvar o item.";
+      showErrorToast(errorMsg);
+      // --- FIM DA MODIFICAÇÃO ---
     }
   };
 
@@ -53,7 +65,6 @@ const PatrimonioPage = () => {
     setIsModalOpen(true);
   };
 
-  // O estado de carregamento inicial agora vem diretamente do hook
   if (isLoading)
     return (
       <div className="table-page-container">
@@ -72,12 +83,8 @@ const PatrimonioPage = () => {
         )}
       </div>
 
-      {/* Exibe o erro de carregamento inicial ou o erro de uma ação */}
-      {(fetchError || actionError) && (
-        <p className="error-message" onClick={() => setActionError("")}>
-          {fetchError || actionError}
-        </p>
-      )}
+      {/* A exibição de erro agora é feita pelo Toast, mas podemos manter o erro de fetch inicial */}
+      {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="table-responsive">
         <table className="custom-table">
@@ -91,7 +98,6 @@ const PatrimonioPage = () => {
             </tr>
           </thead>
           <tbody>
-            {/* 4. Adicionado tratamento para estado vazio */}
             {!isLoading && itens.length === 0 ? (
               <tr>
                 <td colSpan={canManage ? 5 : 4} style={{ textAlign: "center" }}>

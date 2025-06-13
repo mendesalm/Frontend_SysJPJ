@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o hook
+import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   getContas,
   createConta,
@@ -10,8 +10,10 @@ import Modal from "../../../components/modal/Modal";
 import ContaForm from "./ContaForm";
 import "../../styles/TableStyles.css";
 
+// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
+import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
+
 const PlanoContasPage = () => {
-  // 2. Lógica de busca de dados simplificada com o hook
   const {
     data: contas,
     isLoading,
@@ -19,23 +21,30 @@ const PlanoContasPage = () => {
     refetch,
   } = useDataFetching(getContas);
 
-  const [actionError, setActionError] = useState("");
+  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
+  // const [error, setError] = useState('');
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentConta, setCurrentConta] = useState(null);
 
   const handleSave = async (formData) => {
     try {
-      setActionError("");
-      if (currentConta) {
+      const isUpdating = !!currentConta;
+      if (isUpdating) {
         await updateConta(currentConta.id, formData);
       } else {
         await createConta(formData);
       }
-      refetch(); // 3. Atualiza a lista usando o refetch do hook
+      refetch();
       setIsModalOpen(false);
+      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+      showSuccessToast(
+        `Conta ${isUpdating ? "atualizada" : "criada"} com sucesso!`
+      );
     } catch (err) {
       const errorMsg = err.response?.data?.message || "Erro ao salvar a conta.";
-      setActionError(errorMsg);
+      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+      showErrorToast(errorMsg);
       console.error(err);
     }
   };
@@ -47,13 +56,15 @@ const PlanoContasPage = () => {
       )
     ) {
       try {
-        setActionError("");
         await deleteConta(id);
-        refetch(); // 3. Atualiza a lista usando o refetch do hook
+        refetch();
+        // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+        showSuccessToast("Conta apagada com sucesso!");
       } catch (err) {
         const errorMsg =
           err.response?.data?.message || "Não foi possível apagar a conta.";
-        setActionError(errorMsg);
+        // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+        showErrorToast(errorMsg);
         console.error(err);
       }
     }
@@ -81,11 +92,8 @@ const PlanoContasPage = () => {
         </button>
       </div>
 
-      {(fetchError || actionError) && (
-        <p className="error-message" onClick={() => setActionError("")}>
-          {fetchError || actionError}
-        </p>
-      )}
+      {/* 5. A EXIBIÇÃO DE ERRO É SIMPLIFICADA */}
+      {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="table-responsive">
         <table className="custom-table">
@@ -98,7 +106,6 @@ const PlanoContasPage = () => {
             </tr>
           </thead>
           <tbody>
-            {/* 4. Tratamento para estado vazio */}
             {!isLoading && contas.length === 0 ? (
               <tr>
                 <td colSpan="4" style={{ textAlign: "center" }}>

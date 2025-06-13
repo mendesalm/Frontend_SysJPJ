@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o nosso hook
+import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   createComissao,
   getComissoes,
-} from "../../../services/comissoesService"; // 2. getComissoes é necessário para o hook
+} from "../../../services/comissoesService";
 import { useAuth } from "../../../hooks/useAuth";
 import Modal from "../../../components/modal/Modal";
 import ComissaoForm from "./ComissaoForm";
 import "./ComissoesPage.css";
 
+// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
+import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
+
 const ComissoesPage = () => {
-  // 3. A lógica de state e fetching é substituída por esta única linha
   const {
     data: comissoes,
     isLoading,
@@ -19,7 +21,9 @@ const ComissoesPage = () => {
   } = useDataFetching(getComissoes);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [apiError, setApiError] = useState("");
+  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
+  // const [apiError, setApiError] = useState('');
+
   const { user } = useAuth();
 
   const canManage =
@@ -28,12 +32,19 @@ const ComissoesPage = () => {
 
   const handleSave = async (formData) => {
     try {
-      setApiError("");
+      // 3. REMOVEMOS A LIMPEZA DO ESTADO DE ERRO ANTIGO
+      // setApiError('');
       await createComissao(formData);
-      refetch(); // 4. Usa a função `refetch` do hook para atualizar a lista
+      refetch();
       setIsModalOpen(false);
+
+      // 4. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+      showSuccessToast("Comissão salva com sucesso!");
     } catch (err) {
-      setApiError(err.response?.data?.message || "Erro ao salvar a comissão.");
+      // 5. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+      const errorMsg =
+        err.response?.data?.message || "Erro ao salvar a comissão.";
+      showErrorToast(errorMsg);
       console.error(err);
     }
   };
@@ -55,13 +66,10 @@ const ComissoesPage = () => {
         )}
       </div>
 
-      {/* Exibe o erro de carregamento inicial ou o erro de uma ação de API */}
-      {(error || apiError) && (
-        <p className="error-message">{error || apiError}</p>
-      )}
+      {/* 6. A EXIBIÇÃO DE ERRO É SIMPLIFICADA (APENAS PARA O FETCH INICIAL) */}
+      {error && <p className="error-message">{error}</p>}
 
       <div className="comissoes-list">
-        {/* 5. Adicionada uma verificação para estado vazio */}
         {!isLoading && comissoes.length === 0 ? (
           <p>Nenhuma comissão de trabalho encontrada.</p>
         ) : (
@@ -75,7 +83,9 @@ const ComissoesPage = () => {
               </span>
               <p className="datas">
                 {new Date(comissao.dataInicio).toLocaleDateString()} -{" "}
-                {new Date(comissao.dataFim).toLocaleDateString()}
+                {comissao.dataFim
+                  ? new Date(comissao.dataFim).toLocaleDateString()
+                  : "Presente"}
               </p>
               <div className="membros-list">
                 <strong>Membros:</strong>

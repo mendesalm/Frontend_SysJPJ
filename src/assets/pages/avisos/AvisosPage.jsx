@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDataFetching } from "../../../hooks/useDataFetching"; // Importa o nosso novo hook
+import { useDataFetching } from "../../../hooks/useDataFetching";
 import { useAuth } from "../../../hooks/useAuth";
 import {
   getAllAvisos,
@@ -11,20 +11,22 @@ import Modal from "../../../components/modal/Modal";
 import AvisoForm from "./AvisoForm";
 import "./AvisosPage.css";
 
+// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
+import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
+
 const AvisosPage = () => {
-  // --- INÍCIO DA MODIFICAÇÃO ---
-  // A lógica de state e fetching foi substituída por uma única linha!
   const {
     data: avisos,
     isLoading,
     error,
     refetch,
   } = useDataFetching(getAllAvisos);
-  // --- FIM DA MODIFICAÇÃO ---
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentAviso, setCurrentAviso] = useState(null);
-  const [apiError, setApiError] = useState(""); // State separado para erros de ações
+
+  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
+  // const [apiError, setApiError] = useState('');
 
   const { user } = useAuth();
 
@@ -40,29 +42,44 @@ const AvisosPage = () => {
 
   const handleSaveAviso = async (formData) => {
     try {
-      setApiError("");
-      if (currentAviso) {
+      // 3. REMOVEMOS A LIMPEZA DO ESTADO DE ERRO ANTIGO
+      // setApiError('');
+      const isUpdating = !!currentAviso;
+      if (isUpdating) {
         await updateAviso(currentAviso.id, formData);
       } else {
         await createAviso(formData);
       }
-      refetch(); // Usa a função de refetch do nosso hook para atualizar a lista
+      refetch();
       setIsModalOpen(false);
+
+      // 4. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+      showSuccessToast(
+        `Aviso ${isUpdating ? "atualizado" : "criado"} com sucesso!`
+      );
     } catch (err) {
       console.error("Erro ao salvar aviso:", err);
-      setApiError("Não foi possível salvar o aviso.");
+      // 5. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+      // setApiError("Não foi possível salvar o aviso.");
+      showErrorToast("Não foi possível salvar o aviso.");
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm("Tem a certeza que deseja apagar este aviso?")) {
       try {
-        setApiError("");
+        // 3. REMOVEMOS A LIMPEZA DO ESTADO DE ERRO ANTIGO
+        // setApiError('');
         await deleteAviso(id);
-        refetch(); // Atualiza a lista após apagar
+        refetch();
+
+        // 4. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+        showSuccessToast("Aviso apagado com sucesso!");
       } catch (err) {
         console.error("Erro ao apagar aviso:", err);
-        setApiError("Não foi possível apagar o aviso.");
+        // 5. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+        // setApiError('Não foi possível apagar o aviso.');
+        showErrorToast("Não foi possível apagar o aviso.");
       }
     }
   };
@@ -85,8 +102,9 @@ const AvisosPage = () => {
         )}
       </div>
 
+      {/* 6. A EXIBIÇÃO DE ERRO É SIMPLIFICADA (APENAS PARA O FETCH INICIAL) */}
+      {/* O erro de ação agora é um toast e não precisa ser renderizado aqui. */}
       {error && <p className="error-message">{error}</p>}
-      {apiError && <p className="error-message">{apiError}</p>}
 
       <div className="avisos-list">
         {avisos.length === 0 && !isLoading ? (

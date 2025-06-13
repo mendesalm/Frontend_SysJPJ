@@ -1,22 +1,25 @@
 import React, { useState, useMemo } from "react";
-import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o hook
+import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   getRelatorioOrcamentario,
   setOrcamento,
 } from "../../../services/financeService";
 import "../../styles/TableStyles.css";
-import "./OrcamentoPage.css"; // Mantém os estilos específicos da página
+import "./OrcamentoPage.css";
+
+// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
+import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
 const OrcamentoPage = () => {
   const [ano, setAno] = useState(new Date().getFullYear());
-  const [actionError, setActionError] = useState("");
 
-  // 2. O hook busca os dados e refaz a busca automaticamente quando `ano` muda.
-  // Usamos useMemo para garantir que o array de parâmetros seja estável.
+  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
+  // const [error, setError] = useState('');
+
   const params = useMemo(() => [ano], [ano]);
   const {
     data: relatorio,
-    setData: setRelatorio, // Pegamos o `setData` para atualizações otimistas
+    setData: setRelatorio,
     isLoading,
     error: fetchError,
     refetch,
@@ -24,7 +27,6 @@ const OrcamentoPage = () => {
 
   const handleOrcamentoChange = (contaId, novoValor) => {
     const valorNumerico = parseFloat(novoValor) || 0;
-    // Atualiza o estado localmente para feedback imediato na UI (Atualização Otimista)
     setRelatorio((prevRelatorio) =>
       prevRelatorio.map((item) =>
         item.contaId === contaId
@@ -36,14 +38,14 @@ const OrcamentoPage = () => {
 
   const handleSaveOrcamento = async (contaId, valorOrcado) => {
     try {
-      setActionError("");
       await setOrcamento({ ano, contaId, valorOrcado });
-      // Podemos exibir uma notificação de sucesso aqui no futuro.
-      // Opcionalmente, pode-se chamar refetch() para garantir 100% de consistência,
-      // mas a atualização otimista já melhora a UX.
+      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+      // Não é necessário `refetch()` aqui, pois a atualização otimista já ocorreu.
+      showSuccessToast("Orçamento salvo!");
     } catch (err) {
       console.error("Erro ao salvar orçamento:", err);
-      setActionError(`Erro ao salvar orçamento para a conta ID ${contaId}.`);
+      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+      showErrorToast(`Erro ao salvar orçamento para a conta ID ${contaId}.`);
       refetch(); // Recarrega os dados para reverter a alteração otimista em caso de erro.
     }
   };
@@ -57,18 +59,15 @@ const OrcamentoPage = () => {
           <input
             type="number"
             id="ano"
-            className="form-input" // Usando classe de estilo padronizada
+            className="form-input"
             value={ano}
             onChange={(e) => setAno(parseInt(e.target.value, 10))}
           />
         </div>
       </div>
 
-      {(fetchError || actionError) && (
-        <p className="error-message" onClick={() => setActionError("")}>
-          {fetchError || actionError}
-        </p>
-      )}
+      {/* 5. A EXIBIÇÃO DE ERRO É SIMPLIFICADA */}
+      {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="table-responsive">
         <table className="custom-table">
@@ -89,7 +88,6 @@ const OrcamentoPage = () => {
                 </td>
               </tr>
             ) : relatorio.length === 0 ? (
-              // 3. Tratamento para estado vazio
               <tr>
                 <td colSpan="5" style={{ textAlign: "center" }}>
                   Nenhum dado orçamentário encontrado para o ano selecionado.

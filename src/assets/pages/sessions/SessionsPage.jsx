@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
-import { useDataFetching } from "../../../hooks/useDataFetching"; // 1. Importa o hook
+import { useDataFetching } from "../../../hooks/useDataFetching";
 import { getSessions, createSession } from "../../../services/sessionService";
 import Modal from "../../../components/modal/Modal";
 import SessionForm from "./SessionForm";
 import "./SessionsPage.css";
-import "../../styles/TableStyles.css"; // Para estilos do header e botões
+import "../../styles/TableStyles.css";
+
+// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
+import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
 const SessionsPage = () => {
-  // 2. Lógica de busca de dados simplificada com o hook
   const {
     data: sessions,
     isLoading,
@@ -16,7 +18,9 @@ const SessionsPage = () => {
     refetch,
   } = useDataFetching(getSessions);
 
-  const [actionError, setActionError] = useState("");
+  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
+  // const [error, setError] = useState('');
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
 
@@ -26,15 +30,17 @@ const SessionsPage = () => {
 
   const handleSaveSession = async (formData) => {
     try {
-      setActionError("");
       await createSession(formData);
-      refetch(); // 3. Atualiza a lista com `refetch`
+      refetch();
       setIsModalOpen(false);
+      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
+      showSuccessToast("Sessão registrada com sucesso!");
     } catch (err) {
-      setActionError(
-        err.response?.data?.message || "Erro ao registar a sessão."
-      );
       console.error(err);
+      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
+      const errorMsg =
+        err.response?.data?.message || "Erro ao registar a sessão.";
+      showErrorToast(errorMsg);
     }
   };
 
@@ -55,14 +61,10 @@ const SessionsPage = () => {
         )}
       </div>
 
-      {(fetchError || actionError) && (
-        <p className="error-message" onClick={() => setActionError("")}>
-          {fetchError || actionError}
-        </p>
-      )}
+      {/* 5. A EXIBIÇÃO DE ERRO É SIMPLIFICADA */}
+      {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="sessions-list">
-        {/* 4. Tratamento para estado vazio */}
         {!isLoading && sessions.length === 0 ? (
           <p>Nenhuma sessão registada.</p>
         ) : (
@@ -87,7 +89,6 @@ const SessionsPage = () => {
                   <strong>Visitantes:</strong> {session.visitantes?.length || 0}
                 </p>
                 {session.ata ? (
-                  // Assumindo que o backend serve os uploads a partir da raiz
                   <a
                     href={`/uploads/${session.ata.path}`}
                     target="_blank"
@@ -101,7 +102,6 @@ const SessionsPage = () => {
                   <p>Ata não disponível</p>
                 )}
               </div>
-              {/* Opcional: Adicionar um rodapé com mais ações se necessário */}
             </div>
           ))
         )}

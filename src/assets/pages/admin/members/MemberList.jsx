@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import React from "react"; // O useState não é mais necessário aqui
 import { useNavigate } from "react-router-dom";
-import { useDataFetching } from "../../../../hooks/useDataFetching"; // 1. Importa o hook
+import { useDataFetching } from "../../../../hooks/useDataFetching";
 import {
   getAllMembers,
   updateMember,
 } from "../../../../services/memberService";
 import "../../../../assets/styles/TableStyles.css";
 
+// 1. Importando nossas funções de notificação
+import {
+  showSuccessToast,
+  showErrorToast,
+} from "../../../../utils/notifications";
+
 const MemberList = () => {
-  // 2. Substitui a lógica de busca de dados pela chamada ao hook
   const {
     data: members,
     isLoading,
@@ -16,19 +21,19 @@ const MemberList = () => {
     refetch,
   } = useDataFetching(getAllMembers);
 
-  // Mantemos um state separado para erros que podem ocorrer em ações do usuário
-  const [actionError, setActionError] = useState("");
-
+  // 2. O state 'actionError' foi removido. Os toasts cuidarão do feedback.
   const navigate = useNavigate();
 
   const handleUpdateStatus = async (memberId, newStatus) => {
     try {
-      setActionError(""); // Limpa erros de ações anteriores
       await updateMember(memberId, { statusCadastro: newStatus });
-      refetch(); // 3. Usa a função `refetch` do hook para atualizar a lista
+      refetch();
+      // 3. Adicionando feedback de sucesso
+      showSuccessToast("Status do membro atualizado com sucesso!");
     } catch (err) {
       console.error(`Erro ao atualizar status para ${newStatus}:`, err);
-      setActionError(`Não foi possível atualizar o status do membro.`);
+      // 4. Adicionando feedback de erro
+      showErrorToast("Não foi possível atualizar o status do membro.");
     }
   };
 
@@ -50,9 +55,8 @@ const MemberList = () => {
         </button>
       </div>
 
-      {(fetchError || actionError) && (
-        <p className="error-message">{fetchError || actionError}</p>
-      )}
+      {/* 5. A exibição de erro de ação foi removida daqui */}
+      {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="table-responsive">
         <table className="custom-table">
@@ -66,7 +70,6 @@ const MemberList = () => {
             </tr>
           </thead>
           <tbody>
-            {/* 4. Adicionado tratamento para estado vazio */}
             {!isLoading && members.length === 0 ? (
               <tr>
                 <td colSpan="5" style={{ textAlign: "center" }}>
