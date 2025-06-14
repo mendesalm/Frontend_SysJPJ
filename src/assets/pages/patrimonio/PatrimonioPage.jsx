@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
@@ -11,15 +11,59 @@ import PatrimonioForm from "./PatrimonioForm";
 import "../../styles/TableStyles.css";
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
+// Componente auxiliar para os controles de paginação
+const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+  return (
+    <div
+      className="pagination-controls"
+      style={{
+        marginTop: "1.5rem",
+        display: "flex",
+        justifyContent: "center",
+        gap: "1rem",
+        alignItems: "center",
+      }}
+    >
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Anterior
+      </button>
+      <span>
+        Página {currentPage} de {totalPages}
+      </span>
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Próxima
+      </button>
+    </div>
+  );
+};
+
 const PatrimonioPage = () => {
+  // 1. Adicionando estado para paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const params = useMemo(
+    () => ({ page: currentPage, limit: 10 }),
+    [currentPage]
+  );
+
+  // 2. Atualizando a chamada do hook e a extração de dados
   const {
-    data: itens,
+    data: response,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getPatrimonios);
+  } = useDataFetching(getPatrimonios, [params]);
+  const itens = response?.data || [];
+  const pagination = response?.pagination || { totalPages: 1 };
 
-  // O state 'actionError' não é mais necessário, pois o toast cuidará disso.
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState(null);
   const { user } = useAuth();
@@ -38,21 +82,11 @@ const PatrimonioPage = () => {
       }
       refetch();
       setIsModalOpen(false);
-      // --- INÍCIO DA MODIFICAÇÃO ---
-      // Exibe uma notificação de sucesso
       showSuccessToast(
-        `Item de patrimônio ${
-          isUpdating ? "atualizado" : "criado"
-        } com sucesso!`
+        `Item ${isUpdating ? "atualizado" : "criado"} com sucesso!`
       );
-      // --- FIM DA MODIFICAÇÃO ---
     } catch (err) {
-      console.error("Erro ao salvar o item de patrimônio:", err);
-      // --- INÍCIO DA MODIFICAÇÃO ---
-      // Exibe uma notificação de erro
-      const errorMsg = err.response?.data?.message || "Erro ao salvar o item.";
-      showErrorToast(errorMsg);
-      // --- FIM DA MODIFICAÇÃO ---
+      showErrorToast(err.response?.data?.message || "Erro ao salvar o item.");
     }
   };
 
@@ -65,13 +99,6 @@ const PatrimonioPage = () => {
     setIsModalOpen(true);
   };
 
-  if (isLoading)
-    return (
-      <div className="table-page-container">
-        A carregar inventário de património...
-      </div>
-    );
-
   return (
     <div className="table-page-container">
       <div className="table-header">
@@ -83,7 +110,6 @@ const PatrimonioPage = () => {
         )}
       </div>
 
-      {/* A exibição de erro agora é feita pelo Toast, mas podemos manter o erro de fetch inicial */}
       {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="table-responsive">
@@ -98,7 +124,13 @@ const PatrimonioPage = () => {
             </tr>
           </thead>
           <tbody>
-            {!isLoading && itens.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan={canManage ? 5 : 4} style={{ textAlign: "center" }}>
+                  A carregar...
+                </td>
+              </tr>
+            ) : itens.length === 0 ? (
               <tr>
                 <td colSpan={canManage ? 5 : 4} style={{ textAlign: "center" }}>
                   Nenhum item de patrimônio cadastrado.
@@ -108,7 +140,11 @@ const PatrimonioPage = () => {
               itens.map((item) => (
                 <tr key={item.id}>
                   <td>{item.nome}</td>
-                  <td>{new Date(item.dataAquisicao).toLocaleDateString()}</td>
+                  <td>
+                    {new Date(item.dataAquisicao).toLocaleDateString("pt-BR", {
+                      timeZone: "UTC",
+                    })}
+                  </td>
                   <td>{parseFloat(item.valorAquisicao).toFixed(2)}</td>
                   <td>{item.estadoConservacao}</td>
                   {canManage && (
@@ -127,6 +163,13 @@ const PatrimonioPage = () => {
           </tbody>
         </table>
       </div>
+
+      {/* 3. Adicionando os controles de paginação */}
+      <PaginationControls
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={setCurrentPage}
+      />
 
       <Modal
         isOpen={isModalOpen}

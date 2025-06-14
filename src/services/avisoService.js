@@ -1,13 +1,13 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
-// Busca todos os avisos ativos
-export const getAllAvisos = () => {
-  return apiClient.get('/avisos');
+// Modificado para aceitar parâmetros
+export const getAllAvisos = (params) => {
+  return apiClient.get("/avisos", { params });
 };
 
 // Cria um novo aviso
 export const createAviso = (avisoData) => {
-  return apiClient.post('/avisos', avisoData);
+  return apiClient.post("/avisos", avisoData);
 };
 
 // Atualiza um aviso existente

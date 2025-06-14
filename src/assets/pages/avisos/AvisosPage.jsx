@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { useDataFetching } from "../../../hooks/useDataFetching";
+import React, { useState, useMemo } from "react";
 import { useAuth } from "../../../hooks/useAuth";
+import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   getAllAvisos,
   createAviso,
@@ -11,25 +11,103 @@ import Modal from "../../../components/modal/Modal";
 import AvisoForm from "./AvisoForm";
 import "./AvisosPage.css";
 import "../../styles/TableStyles.css";
-
-// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
+// Componente auxiliar para os controles de paginação
+const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+  return (
+    <div
+      className="pagination-controls"
+      style={{
+        marginTop: "1.5rem",
+        display: "flex",
+        justifyContent: "center",
+        gap: "1rem",
+        alignItems: "center",
+      }}
+    >
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Anterior
+      </button>
+      <span>
+        Página {currentPage} de {totalPages}
+      </span>
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Próxima
+      </button>
+    </div>
+  );
+};
+
 const AvisosPage = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const params = useMemo(
+    () => ({ page: currentPage, limit: 5 }),
+    [currentPage]
+  ); // 5 avisos por página
   const {
-    data: avisos,
+    data: response,
     isLoading,
-    error,
+    error: fetchError,
     refetch,
-  } = useDataFetching(getAllAvisos);
+  } = useDataFetching(getAllAvisos, [params]);
+
+  const avisos = response?.data || [];
+  const pagination = response?.pagination || { totalPages: 1 };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentAviso, setCurrentAviso] = useState(null);
-
-  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
-  // const [apiError, setApiError] = useState('');
-
   const { user } = useAuth();
+
+  const canManage =
+    user?.credencialAcesso === "Diretoria" ||
+    user?.credencialAcesso === "Webmaster";
+
+  const handleSaveAviso = async (formData) => {
+    try {
+      const isUpdating = !!currentAviso;
+      if (isUpdating) {
+        await updateAviso(currentAviso.id, formData);
+      } else {
+        await createAviso(formData);
+      }
+      // Se um novo aviso for criado, volta para a primeira página para vê-lo
+      if (!isUpdating && currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        refetch();
+      }
+      setIsModalOpen(false);
+      showSuccessToast(
+        `Aviso ${isUpdating ? "atualizado" : "criado"} com sucesso!`
+      );
+    } catch (err) {
+      showErrorToast("Não foi possível salvar o aviso.");
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Tem a certeza que deseja apagar este aviso?")) {
+      try {
+        await deleteAviso(id);
+        refetch();
+        showSuccessToast("Aviso apagado com sucesso!");
+      } catch (err) {
+        showErrorToast("Não foi possível apagar o aviso.");
+        console.error(err);
+      }
+    }
+  };
 
   const openModalToCreate = () => {
     setCurrentAviso(null);
@@ -41,75 +119,27 @@ const AvisosPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleSaveAviso = async (formData) => {
-    try {
-      // 3. REMOVEMOS A LIMPEZA DO ESTADO DE ERRO ANTIGO
-      // setApiError('');
-      const isUpdating = !!currentAviso;
-      if (isUpdating) {
-        await updateAviso(currentAviso.id, formData);
-      } else {
-        await createAviso(formData);
-      }
-      refetch();
-      setIsModalOpen(false);
-
-      // 4. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
-      showSuccessToast(
-        `Aviso ${isUpdating ? "atualizado" : "criado"} com sucesso!`
-      );
-    } catch (err) {
-      console.error("Erro ao salvar aviso:", err);
-      // 5. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
-      // setApiError("Não foi possível salvar o aviso.");
-      showErrorToast("Não foi possível salvar o aviso.");
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Tem a certeza que deseja apagar este aviso?")) {
-      try {
-        // 3. REMOVEMOS A LIMPEZA DO ESTADO DE ERRO ANTIGO
-        // setApiError('');
-        await deleteAviso(id);
-        refetch();
-
-        // 4. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
-        showSuccessToast("Aviso apagado com sucesso!");
-      } catch (err) {
-        console.error("Erro ao apagar aviso:", err);
-        // 5. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
-        // setApiError('Não foi possível apagar o aviso.');
-        showErrorToast("Não foi possível apagar o aviso.");
-      }
-    }
-  };
-
-  const canManage =
-    user?.credencialAcesso === "Diretoria" ||
-    user?.credencialAcesso === "Webmaster";
-
-  if (isLoading)
-    return <div className="avisos-container">A carregar avisos...</div>;
-
   return (
-    <div className="avisos-container">
-      <div className="avisos-header">
+    <div className="table-page-container">
+      <div className="table-header">
         <h1>Mural de Avisos</h1>
         {canManage && (
-          <button onClick={openModalToCreate} className="btn-novo-aviso">
+          <button
+            onClick={openModalToCreate}
+            className="btn-action btn-approve"
+          >
             Criar Novo Aviso
           </button>
         )}
       </div>
 
-      {/* 6. A EXIBIÇÃO DE ERRO É SIMPLIFICADA (APENAS PARA O FETCH INICIAL) */}
-      {/* O erro de ação agora é um toast e não precisa ser renderizado aqui. */}
-      {error && <p className="error-message">{error}</p>}
+      {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="avisos-list">
-        {avisos.length === 0 && !isLoading ? (
-          <p>Nenhum aviso para exibir no momento.</p>
+        {isLoading ? (
+          <p>A carregar avisos...</p>
+        ) : avisos.length === 0 ? (
+          <p>Nenhum aviso para exibir.</p>
         ) : (
           avisos.map((aviso) => (
             <div
@@ -155,6 +185,12 @@ const AvisosPage = () => {
           ))
         )}
       </div>
+
+      <PaginationControls
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={setCurrentPage}
+      />
 
       <Modal
         isOpen={isModalOpen}

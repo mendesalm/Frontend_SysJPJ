@@ -1,11 +1,12 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
-export const getPatrimonios = () => {
-  return apiClient.get('/patrimonio');
+// Modificado para aceitar parâmetros
+export const getPatrimonios = (params) => {
+  return apiClient.get("/patrimonio", { params });
 };
 
 export const createPatrimonio = (patrimonioData) => {
-  return apiClient.post('/patrimonio', patrimonioData);
+  return apiClient.post("/patrimonio", patrimonioData);
 };
 
 export const updatePatrimonio = (id, patrimonioData) => {

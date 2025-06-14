@@ -1,13 +1,14 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
+// Modificado para aceitar parâmetros
 export const getHarmoniaItens = (params) => {
-  return apiClient.get('/harmonia', { params });
+  return apiClient.get("/harmonia", { params });
 };
 
 export const createHarmoniaItem = (formData) => {
-  return apiClient.post('/harmonia', formData, {
+  return apiClient.post("/harmonia", formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   });
 };

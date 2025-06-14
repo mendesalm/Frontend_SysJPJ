@@ -1,5 +1,6 @@
 import apiClient from "./apiClient";
 
+// Modificado para aceitar parâmetros
 export const getEventos = (params) => {
   return apiClient.get("/eventos", { params });
 };

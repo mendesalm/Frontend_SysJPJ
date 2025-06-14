@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import { getSessions, createSession } from "../../../services/sessionService";
@@ -6,23 +6,66 @@ import Modal from "../../../components/modal/Modal";
 import SessionForm from "./SessionForm";
 import "./SessionsPage.css";
 import "../../styles/TableStyles.css";
-
-// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
+// Componente auxiliar para os controles de paginação
+const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+
+  return (
+    <div
+      className="pagination-controls"
+      style={{
+        marginTop: "1.5rem",
+        display: "flex",
+        justifyContent: "center",
+        gap: "1rem",
+        alignItems: "center",
+      }}
+    >
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Anterior
+      </button>
+      <span>
+        Página {currentPage} de {totalPages}
+      </span>
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Próxima
+      </button>
+    </div>
+  );
+};
+
 const SessionsPage = () => {
+  const { user } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 1. ESTADO PARA CONTROLE DA PÁGINA ATUAL
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // 2. O HOOK AGORA RECEBE OS PARÂMETROS DE PAGINAÇÃO
+  const params = useMemo(
+    () => ({ page: currentPage, limit: 9 }),
+    [currentPage]
+  ); // 9 cards por página
   const {
-    data: sessions,
+    data: response,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getSessions);
+  } = useDataFetching(getSessions, [params]);
 
-  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
-  // const [error, setError] = useState('');
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user } = useAuth();
+  // 3. EXTRAÍMOS OS DADOS E A PAGINAÇÃO DA RESPOSTA
+  const sessions = response?.data || [];
+  const pagination = response?.pagination || { totalPages: 1, currentPage: 1 };
 
   const canManageSessions =
     user?.credencialAcesso === "Diretoria" ||
@@ -33,14 +76,12 @@ const SessionsPage = () => {
       await createSession(formData);
       refetch();
       setIsModalOpen(false);
-      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
       showSuccessToast("Sessão registrada com sucesso!");
     } catch (err) {
       console.error(err);
-      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
-      const errorMsg =
-        err.response?.data?.message || "Erro ao registar a sessão.";
-      showErrorToast(errorMsg);
+      showErrorToast(
+        err.response?.data?.message || "Erro ao registar a sessão."
+      );
     }
   };
 
@@ -61,13 +102,13 @@ const SessionsPage = () => {
         )}
       </div>
 
-      {/* 5. A EXIBIÇÃO DE ERRO É SIMPLIFICADA */}
       {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="sessions-list">
         {!isLoading && sessions.length === 0 ? (
-          <p>Nenhuma sessão registada.</p>
+          <p>Nenhuma sessão registada para esta página.</p>
         ) : (
+          // Agora `sessions.map` funciona porque `sessions` é o array `response.data`
           sessions.map((session) => (
             <div key={session.id} className="session-card">
               <div className="session-card-header">
@@ -106,6 +147,13 @@ const SessionsPage = () => {
           ))
         )}
       </div>
+
+      {/* 4. ADICIONAMOS OS CONTROLES DE PAGINAÇÃO À UI */}
+      <PaginationControls
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
 
       <Modal
         isOpen={isModalOpen}

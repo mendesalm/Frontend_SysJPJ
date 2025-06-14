@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
@@ -9,20 +9,59 @@ import Modal from "../../../components/modal/Modal";
 import PublicacaoForm from "./PublicacaoForm";
 import "./PublicacoesPage.css";
 import "../../styles/TableStyles.css";
-
-// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
+// Componente auxiliar para os controles de paginação
+const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+  return (
+    <div
+      className="pagination-controls"
+      style={{
+        marginTop: "1.5rem",
+        display: "flex",
+        justifyContent: "center",
+        gap: "1rem",
+        alignItems: "center",
+      }}
+    >
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Anterior
+      </button>
+      <span>
+        Página {currentPage} de {totalPages}
+      </span>
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Próxima
+      </button>
+    </div>
+  );
+};
+
 const PublicacoesPage = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  // Usamos 9 para um grid 3x3
+  const params = useMemo(
+    () => ({ page: currentPage, limit: 9 }),
+    [currentPage]
+  );
   const {
-    data: publicacoes,
+    data: response,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getPublicacoes);
+  } = useDataFetching(getPublicacoes, [params]);
 
-  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
-  // const [error, setError] = useState('');
+  const publicacoes = response?.data || [];
+  const pagination = response?.pagination || { totalPages: 1 };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
@@ -36,19 +75,13 @@ const PublicacoesPage = () => {
       await createPublicacao(formData);
       refetch();
       setIsModalOpen(false);
-      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
       showSuccessToast("Publicação salva com sucesso!");
     } catch (err) {
-      console.error("Erro ao salvar a publicação:", err);
-      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
-      const errorMsg =
-        err.response?.data?.message || "Erro ao salvar a publicação.";
-      showErrorToast(errorMsg);
+      showErrorToast(
+        err.response?.data?.message || "Erro ao salvar a publicação."
+      );
     }
   };
-
-  if (isLoading)
-    return <div className="table-page-container">A carregar...</div>;
 
   return (
     <div className="table-page-container">
@@ -64,11 +97,12 @@ const PublicacoesPage = () => {
         )}
       </div>
 
-      {/* 5. A EXIBIÇÃO DE ERRO É SIMPLIFICADA */}
       {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="publicacoes-grid">
-        {!isLoading && publicacoes.length === 0 ? (
+        {isLoading ? (
+          <p>A carregar publicações...</p>
+        ) : publicacoes.length === 0 ? (
           <p>Nenhuma publicação ou trabalho encontrado.</p>
         ) : (
           publicacoes.map((pub) => (
@@ -99,6 +133,12 @@ const PublicacoesPage = () => {
           ))
         )}
       </div>
+
+      <PaginationControls
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={setCurrentPage}
+      />
 
       <Modal
         isOpen={isModalOpen}

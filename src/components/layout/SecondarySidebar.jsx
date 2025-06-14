@@ -11,6 +11,7 @@ const menuData = {
       { label: "Meus Dados Pessoais", path: "/perfil" },
       { label: "Mural de Avisos", path: "/mural-de-avisos" },
       { label: "Publicações", path: "/publicacoes" },
+      { label: "Minhas Visitações", path: "/minhas-visitacoes" },
     ],
   },
   "menu-secretaria": {

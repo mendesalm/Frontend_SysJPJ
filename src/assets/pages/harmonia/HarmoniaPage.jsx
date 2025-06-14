@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
@@ -9,20 +9,58 @@ import {
 import Modal from "../../../components/modal/Modal";
 import HarmoniaForm from "./HarmoniaForm";
 import "../../styles/TableStyles.css";
-
-// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
+// Componente auxiliar para os controles de paginação
+const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+  return (
+    <div
+      className="pagination-controls"
+      style={{
+        marginTop: "1.5rem",
+        display: "flex",
+        justifyContent: "center",
+        gap: "1rem",
+        alignItems: "center",
+      }}
+    >
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Anterior
+      </button>
+      <span>
+        Página {currentPage} de {totalPages}
+      </span>
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Próxima
+      </button>
+    </div>
+  );
+};
+
 const HarmoniaPage = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const params = useMemo(
+    () => ({ page: currentPage, limit: 10 }),
+    [currentPage]
+  );
   const {
-    data: itens,
+    data: response,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getHarmoniaItens);
+  } = useDataFetching(getHarmoniaItens, [params]);
 
-  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
-  // const [error, setError] = useState('');
+  const itens = response?.data || [];
+  const pagination = response?.pagination || { totalPages: 1 };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
@@ -34,13 +72,15 @@ const HarmoniaPage = () => {
   const handleSave = async (formData) => {
     try {
       await createHarmoniaItem(formData);
-      refetch();
+      // Se um novo item for criado, volta para a primeira página para vê-lo
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        refetch();
+      }
       setIsModalOpen(false);
-      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
       showSuccessToast("Item de harmonia salvo com sucesso!");
     } catch (err) {
-      console.error("Erro ao salvar o item:", err);
-      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
       showErrorToast(err.response?.data?.message || "Erro ao salvar o item.");
     }
   };
@@ -50,18 +90,12 @@ const HarmoniaPage = () => {
       try {
         await deleteHarmoniaItem(id);
         refetch();
-        // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
         showSuccessToast("Item apagado com sucesso!");
       } catch (err) {
-        console.error("Erro ao apagar o item:", err);
-        // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
         showErrorToast(err.response?.data?.message || "Erro ao apagar o item.");
       }
     }
   };
-
-  if (isLoading)
-    return <div className="table-page-container">A carregar...</div>;
 
   return (
     <div className="table-page-container">
@@ -77,7 +111,6 @@ const HarmoniaPage = () => {
         )}
       </div>
 
-      {/* 5. A EXIBIÇÃO DE ERRO É SIMPLIFICADA (APENAS PARA O FETCH INICIAL) */}
       {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="table-responsive">
@@ -87,13 +120,20 @@ const HarmoniaPage = () => {
               <th>Título</th>
               <th>Autor</th>
               <th>Categoria</th>
+              <th>Subcategoria</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {!isLoading && itens.length === 0 ? (
+            {isLoading ? (
               <tr>
-                <td colSpan="4" style={{ textAlign: "center" }}>
+                <td colSpan="5" style={{ textAlign: "center" }}>
+                  A carregar...
+                </td>
+              </tr>
+            ) : itens.length === 0 ? (
+              <tr>
+                <td colSpan="5" style={{ textAlign: "center" }}>
                   Nenhum item de harmonia cadastrado.
                 </td>
               </tr>
@@ -103,6 +143,7 @@ const HarmoniaPage = () => {
                   <td>{item.titulo}</td>
                   <td>{item.autor}</td>
                   <td>{item.categoria}</td>
+                  <td>{item.subcategoria}</td>
                   <td className="actions-cell">
                     {canManage && (
                       <button
@@ -119,6 +160,13 @@ const HarmoniaPage = () => {
           </tbody>
         </table>
       </div>
+
+      <PaginationControls
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={setCurrentPage}
+      />
+
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

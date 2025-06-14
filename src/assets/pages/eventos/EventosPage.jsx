@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
@@ -12,21 +12,58 @@ import Modal from "../../../components/modal/Modal";
 import EventoForm from "./EventoForm";
 import "./EventosPage.css";
 import "../../styles/TableStyles.css";
-
-// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
-const EventosPage = () => {
-  const {
-    data: eventos,
-    isLoading,
-    error: fetchError, // Renomeado para não colidir com o erro de ações
-    refetch,
-  } = useDataFetching(getEventos);
+// Componente auxiliar para os controles de paginação
+const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+  return (
+    <div
+      className="pagination-controls"
+      style={{
+        marginTop: "1.5rem",
+        display: "flex",
+        justifyContent: "center",
+        gap: "1rem",
+        alignItems: "center",
+      }}
+    >
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Anterior
+      </button>
+      <span>
+        Página {currentPage} de {totalPages}
+      </span>
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Próxima
+      </button>
+    </div>
+  );
+};
 
-  // 2. OS ESTADOS DE ERRO E SUCESSO PARA AÇÕES NÃO SÃO MAIS NECESSÁRIOS
-  // const [error, setError] = useState("");
-  // const [successMessage, setSuccessMessage] = useState("");
+const EventosPage = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const params = useMemo(
+    () => ({ page: currentPage, limit: 5 }),
+    [currentPage]
+  ); // 5 eventos por página
+  const {
+    data: response,
+    isLoading,
+    error: fetchError,
+    refetch,
+  } = useDataFetching(getEventos, [params]);
+
+  const eventos = response?.data || [];
+  const pagination = response?.pagination || { totalPages: 1 };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentEvento, setCurrentEvento] = useState(null);
@@ -46,13 +83,10 @@ const EventosPage = () => {
       }
       refetch();
       setIsModalOpen(false);
-      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
       showSuccessToast(
         `Evento ${isUpdating ? "atualizado" : "criado"} com sucesso!`
       );
     } catch (err) {
-      console.error("Erro ao salvar evento:", err);
-      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
       showErrorToast(
         err.response?.data?.message || "Ocorreu um erro ao salvar o evento."
       );
@@ -64,12 +98,10 @@ const EventosPage = () => {
       try {
         await deleteEvento(id);
         refetch();
-        // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
         showSuccessToast("Evento apagado com sucesso!");
       } catch (err) {
-        console.error("Erro ao apagar evento:", err);
-        // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
         showErrorToast("Não foi possível apagar o evento.");
+        console.error(err);
       }
     }
   };
@@ -77,14 +109,11 @@ const EventosPage = () => {
   const handleConfirmarPresenca = async (eventoId, status) => {
     try {
       await confirmarPresenca(eventoId, { statusConfirmacao: status });
-      // 3. SUBSTITUÍMOS A MENSAGEM DE SUCESSO PELA NOTIFICAÇÃO
+      refetch();
       showSuccessToast(
         `Sua presença foi registrada como "${status}" com sucesso!`
       );
-      refetch();
     } catch (err) {
-      console.error("Erro ao confirmar presença:", err);
-      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
       showErrorToast(
         err.response?.data?.message ||
           "Não foi possível registar a sua presença."
@@ -101,9 +130,6 @@ const EventosPage = () => {
     setIsModalOpen(true);
   };
 
-  if (isLoading)
-    return <div className="table-page-container">A carregar...</div>;
-
   return (
     <div className="table-page-container">
       <div className="table-header">
@@ -118,11 +144,12 @@ const EventosPage = () => {
         )}
       </div>
 
-      {/* 5. A EXIBIÇÃO DE ERRO/SUCESSO DE AÇÃO FOI REMOVIDA DAQUI */}
       {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="eventos-list">
-        {!isLoading && eventos.length === 0 ? (
+        {isLoading ? (
+          <p>A carregar eventos...</p>
+        ) : eventos.length === 0 ? (
           <p>Nenhum evento agendado no momento.</p>
         ) : (
           eventos.map((evento) => (
@@ -198,6 +225,13 @@ const EventosPage = () => {
           ))
         )}
       </div>
+
+      <PaginationControls
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={setCurrentPage}
+      />
+
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

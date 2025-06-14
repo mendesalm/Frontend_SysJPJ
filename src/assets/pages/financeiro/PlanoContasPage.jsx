@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   getContas,
@@ -9,20 +9,58 @@ import {
 import Modal from "../../../components/modal/Modal";
 import ContaForm from "./ContaForm";
 import "../../styles/TableStyles.css";
-
-// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
+// Componente auxiliar para os controles de paginação
+const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+  return (
+    <div
+      className="pagination-controls"
+      style={{
+        marginTop: "1.5rem",
+        display: "flex",
+        justifyContent: "center",
+        gap: "1rem",
+        alignItems: "center",
+      }}
+    >
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Anterior
+      </button>
+      <span>
+        Página {currentPage} de {totalPages}
+      </span>
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Próxima
+      </button>
+    </div>
+  );
+};
+
 const PlanoContasPage = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const params = useMemo(
+    () => ({ page: currentPage, limit: 10 }),
+    [currentPage]
+  );
   const {
-    data: contas,
+    data: response,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getContas);
+  } = useDataFetching(getContas, [params]);
 
-  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
-  // const [error, setError] = useState('');
+  const contas = response?.data || [];
+  const pagination = response?.pagination || { totalPages: 1 };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentConta, setCurrentConta] = useState(null);
@@ -37,15 +75,11 @@ const PlanoContasPage = () => {
       }
       refetch();
       setIsModalOpen(false);
-      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
       showSuccessToast(
         `Conta ${isUpdating ? "atualizada" : "criada"} com sucesso!`
       );
     } catch (err) {
-      const errorMsg = err.response?.data?.message || "Erro ao salvar a conta.";
-      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
-      showErrorToast(errorMsg);
-      console.error(err);
+      showErrorToast(err.response?.data?.message || "Erro ao salvar a conta.");
     }
   };
 
@@ -58,14 +92,11 @@ const PlanoContasPage = () => {
       try {
         await deleteConta(id);
         refetch();
-        // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
         showSuccessToast("Conta apagada com sucesso!");
       } catch (err) {
-        const errorMsg =
-          err.response?.data?.message || "Não foi possível apagar a conta.";
-        // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
-        showErrorToast(errorMsg);
-        console.error(err);
+        showErrorToast(
+          err.response?.data?.message || "Não foi possível apagar a conta."
+        );
       }
     }
   };
@@ -80,9 +111,6 @@ const PlanoContasPage = () => {
     setIsModalOpen(true);
   };
 
-  if (isLoading)
-    return <div className="table-page-container">A carregar...</div>;
-
   return (
     <div className="table-page-container">
       <div className="table-header">
@@ -92,7 +120,6 @@ const PlanoContasPage = () => {
         </button>
       </div>
 
-      {/* 5. A EXIBIÇÃO DE ERRO É SIMPLIFICADA */}
       {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="table-responsive">
@@ -106,7 +133,13 @@ const PlanoContasPage = () => {
             </tr>
           </thead>
           <tbody>
-            {!isLoading && contas.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan="4" style={{ textAlign: "center" }}>
+                  A carregar...
+                </td>
+              </tr>
+            ) : contas.length === 0 ? (
               <tr>
                 <td colSpan="4" style={{ textAlign: "center" }}>
                   Nenhuma conta cadastrada no plano de contas.
@@ -148,6 +181,12 @@ const PlanoContasPage = () => {
           </tbody>
         </table>
       </div>
+
+      <PaginationControls
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={setCurrentPage}
+      />
 
       <Modal
         isOpen={isModalOpen}

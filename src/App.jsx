@@ -51,6 +51,12 @@ const RelatoriosPage = lazy(() =>
 const PermissionsPage = lazy(() =>
   import("./assets/pages/admin/permissions/PermissionsPage.jsx")
 );
+const GestaoVisitacoesPage = lazy(() =>
+  import("./assets/pages/visitacoes/GestaoVisitacoesPage.jsx")
+);
+const MinhasVisitasPage = lazy(() =>
+  import("./assets/pages/visitacoes/MinhasVisitasPage.jsx")
+);
 
 // Páginas de Admin
 const MemberList = lazy(() =>
@@ -147,6 +153,12 @@ function App() {
                 <Route path="/patrimonio" element={<PatrimonioPage />} />
                 <Route path="/relatorios" element={<RelatoriosPage />} />
                 <Route path="/admin/members" element={<MemberList />} />
+                <Route
+                  path="/minhas-visitacoes"
+                  element={<MinhasVisitasPage />}
+                />
+                <Route path="/visitacoes" element={<GestaoVisitacoesPage />} />
+
                 <Route
                   path="/admin/members/create"
                   element={<MemberCreatePage />}

@@ -1,11 +1,12 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
-export const getComissoes = () => {
-  return apiClient.get('/comissoes');
+// Modificado para aceitar parâmetros
+export const getComissoes = (params) => {
+  return apiClient.get("/comissoes", { params });
 };
 
 export const createComissao = (comissaoData) => {
-  return apiClient.post('/comissoes', comissaoData);
+  return apiClient.post("/comissoes", comissaoData);
 };
 
 export const updateComissao = (id, comissaoData) => {

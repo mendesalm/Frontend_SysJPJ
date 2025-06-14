@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   createComissao,
@@ -8,22 +8,61 @@ import { useAuth } from "../../../hooks/useAuth";
 import Modal from "../../../components/modal/Modal";
 import ComissaoForm from "./ComissaoForm";
 import "./ComissoesPage.css";
-
-// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
+import "../../styles/TableStyles.css";
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
+// Componente auxiliar para os controles de paginação
+const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+  return (
+    <div
+      className="pagination-controls"
+      style={{
+        marginTop: "1.5rem",
+        display: "flex",
+        justifyContent: "center",
+        gap: "1rem",
+        alignItems: "center",
+      }}
+    >
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Anterior
+      </button>
+      <span>
+        Página {currentPage} de {totalPages}
+      </span>
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Próxima
+      </button>
+    </div>
+  );
+};
+
 const ComissoesPage = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const params = useMemo(
+    () => ({ page: currentPage, limit: 9 }),
+    [currentPage]
+  ); // 9 cards por página
   const {
-    data: comissoes,
+    data: response,
     isLoading,
-    error,
+    error: fetchError,
     refetch,
-  } = useDataFetching(getComissoes);
+  } = useDataFetching(getComissoes, [params]);
+
+  const comissoes = response?.data || [];
+  const pagination = response?.pagination || { totalPages: 1 };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
-  // const [apiError, setApiError] = useState('');
-
   const { user } = useAuth();
 
   const canManage =
@@ -32,29 +71,25 @@ const ComissoesPage = () => {
 
   const handleSave = async (formData) => {
     try {
-      // 3. REMOVEMOS A LIMPEZA DO ESTADO DE ERRO ANTIGO
-      // setApiError('');
       await createComissao(formData);
-      refetch();
+      // Se um novo item for criado, volta para a primeira página para vê-lo
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        refetch();
+      }
       setIsModalOpen(false);
-
-      // 4. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
       showSuccessToast("Comissão salva com sucesso!");
     } catch (err) {
-      // 5. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
       const errorMsg =
         err.response?.data?.message || "Erro ao salvar a comissão.";
       showErrorToast(errorMsg);
-      console.error(err);
     }
   };
 
-  if (isLoading)
-    return <div className="comissoes-container">A carregar...</div>;
-
   return (
-    <div className="comissoes-container">
-      <div className="comissoes-header">
+    <div className="table-page-container">
+      <div className="table-header">
         <h1>Comissões de Trabalho</h1>
         {canManage && (
           <button
@@ -66,11 +101,12 @@ const ComissoesPage = () => {
         )}
       </div>
 
-      {/* 6. A EXIBIÇÃO DE ERRO É SIMPLIFICADA (APENAS PARA O FETCH INICIAL) */}
-      {error && <p className="error-message">{error}</p>}
+      {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="comissoes-list">
-        {!isLoading && comissoes.length === 0 ? (
+        {isLoading ? (
+          <p>A carregar comissões...</p>
+        ) : comissoes.length === 0 ? (
           <p>Nenhuma comissão de trabalho encontrada.</p>
         ) : (
           comissoes.map((comissao) => (
@@ -99,6 +135,12 @@ const ComissoesPage = () => {
           ))
         )}
       </div>
+
+      <PaginationControls
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={setCurrentPage}
+      />
 
       <Modal
         isOpen={isModalOpen}

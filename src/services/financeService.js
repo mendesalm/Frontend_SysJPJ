@@ -1,16 +1,15 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
 // --- Plano de Contas (Accounts) ---
 
-
-// Busca todas as contas
-export const getContas = () => {
-  return apiClient.get('/financeiro/contas');
+// Modificado para aceitar parâmetros
+export const getContas = (params) => {
+  return apiClient.get("/financeiro/contas", { params });
 };
 
 // Cria uma nova conta
 export const createConta = (contaData) => {
-  return apiClient.post('/financeiro/contas', contaData);
+  return apiClient.post("/financeiro/contas", contaData);
 };
 
 // Atualiza uma conta existente
@@ -23,21 +22,22 @@ export const deleteConta = (id) => {
   return apiClient.delete(`/financeiro/contas/${id}`);
 };
 
+// A função getLancamentos já estava correta, mas a incluímos para confirmação
 export const getLancamentos = (params) => {
-  // `params` pode ser um objeto como { mes: 6, ano: 2024 }
-  return apiClient.get('/financeiro/lancamentos', { params });
+  // `params` pode ser um objeto como { mes: 6, ano: 2024, page: 1, limit: 10 }
+  return apiClient.get("/financeiro/lancamentos", { params });
 };
 
 export const createLancamento = (lancamentoData) => {
-  return apiClient.post('/financeiro/lancamentos', lancamentoData);
+  return apiClient.post("/financeiro/lancamentos", lancamentoData);
 };
-// Futuramente, adicionaremos aqui funções para Lançamentos e Orçamentos.
 
 export const getRelatorioOrcamentario = (ano) => {
-  return apiClient.get('/financeiro/relatorios/orcamentario', { params: { ano } });
+  return apiClient.get("/financeiro/relatorios/orcamentario", {
+    params: { ano },
+  });
 };
 
 export const setOrcamento = (orcamentoData) => {
-  // orcamentoData deve ser um objeto como { ano, contaId, valorOrcado }
-  return apiClient.post('/financeiro/orcamentos', orcamentoData);
+  return apiClient.post("/financeiro/orcamentos", orcamentoData);
 };
