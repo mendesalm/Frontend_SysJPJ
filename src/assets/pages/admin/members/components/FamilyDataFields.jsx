@@ -1,4 +1,3 @@
-// src/assets/pages/admin/members/components/FamilyDataFields.jsx
 import React from "react";
 import { PARENTESCO_OPTIONS } from "../../../../../constants/formConstants";
 
@@ -19,26 +18,26 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
         >
           <div className="form-group">
             <label>Nome do Familiar</label>
-            {/* --- MUDANÇA AQUI --- */}
+            {/* CORREÇÃO: Usando 'nomeCompleto' */}
             <input
-              {...register(`familiares.${index}.Nome`)}
+              {...register(`familiares.${index}.nomeCompleto`)}
               className={`form-input ${
-                errors.familiares?.[index]?.Nome ? "is-invalid" : ""
+                errors.familiares?.[index]?.nomeCompleto ? "is-invalid" : ""
               }`}
             />
-            {errors.familiares?.[index]?.Nome && (
+            {errors.familiares?.[index]?.nomeCompleto && (
               <p className="form-error-message">
-                {errors.familiares[index].Nome.message}
+                {errors.familiares[index].nomeCompleto.message}
               </p>
             )}
           </div>
           <div className="form-group">
             <label>Parentesco</label>
-            {/* --- MUDANÇA AQUI --- */}
+            {/* CORREÇÃO: Usando 'parentesco' */}
             <select
-              {...register(`familiares.${index}.Parentesco`)}
+              {...register(`familiares.${index}.parentesco`)}
               className={`form-select ${
-                errors.familiares?.[index]?.Parentesco ? "is-invalid" : ""
+                errors.familiares?.[index]?.parentesco ? "is-invalid" : ""
               }`}
             >
               {PARENTESCO_OPTIONS.map((opt) => (
@@ -47,25 +46,25 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
                 </option>
               ))}
             </select>
-            {errors.familiares?.[index]?.Parentesco && (
+            {errors.familiares?.[index]?.parentesco && (
               <p className="form-error-message">
-                {errors.familiares[index].Parentesco.message}
+                {errors.familiares[index].parentesco.message}
               </p>
             )}
           </div>
           <div className="form-group">
             <label>Data de Nasc.</label>
-            {/* --- MUDANÇA AQUI --- */}
+            {/* CORREÇÃO: Usando 'dataNascimento' */}
             <input
               type="date"
-              {...register(`familiares.${index}.DataNascimento`)}
+              {...register(`familiares.${index}.dataNascimento`)}
               className={`form-input ${
-                errors.familiares?.[index]?.DataNascimento ? "is-invalid" : ""
+                errors.familiares?.[index]?.dataNascimento ? "is-invalid" : ""
               }`}
             />
-            {errors.familiares?.[index]?.DataNascimento && (
+            {errors.familiares?.[index]?.dataNascimento && (
               <p className="form-error-message">
-                {errors.familiares[index].DataNascimento.message}
+                {errors.familiares[index].dataNascimento.message}
               </p>
             )}
           </div>
@@ -83,9 +82,9 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
       ))}
       <button
         type="button"
-        // --- MUDANÇA AQUI ---
+        // CORREÇÃO: Usando 'camelCase' ao adicionar novo familiar
         onClick={() =>
-          append({ Nome: "", Parentesco: "Filho", DataNascimento: "" })
+          append({ nomeCompleto: "", parentesco: "Filho", dataNascimento: "" })
         }
         className="btn btn-secondary"
         style={{ marginTop: "1rem" }}

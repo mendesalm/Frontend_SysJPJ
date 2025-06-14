@@ -1,38 +1,22 @@
 import React, { createContext, useState, useEffect, useCallback } from "react";
 import apiClient from "../services/apiClient";
 
-// Função auxiliar para descodificar o payload de um JWT
-const decodeToken = (token) => {
-  try {
-    // Um JWT é dividido em 3 partes por pontos. A segunda parte é o payload.
-    // Usamos atob() para descodificar de Base64.
-    return JSON.parse(atob(token.split(".")[1]));
-  } catch (e) {
-    console.error("Erro ao descodificar o token:", e);
-    return null;
-  }
-};
-
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [tokenExpiration, setTokenExpiration] = useState(null);
 
   const checkUserStatus = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     if (token) {
       try {
+        apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         const response = await apiClient.get("/lodgemembers/me");
-        const decodedToken = decodeToken(token);
         setUser(response.data);
-        if (decodedToken) {
-          setTokenExpiration(decodedToken.exp * 1000); // Converte para milissegundos
-        }
       } catch (error) {
-        logout(); // Limpa tudo se a verificação falhar
-        console.error("Erro ao verificar o usuário:", error);
+        console.error("Erro ao verificar o status do usuário:", error);
+        logout();
       }
     }
     setLoading(false);
@@ -47,40 +31,38 @@ export const AuthProvider = ({ children }) => {
       Email: email,
       password: password,
     });
-    const { token, user: userData } = response.data;
 
-    localStorage.setItem("authToken", token);
-    const decodedToken = decodeToken(token);
-    setUser(userData);
-    if (decodedToken) {
-      setTokenExpiration(decodedToken.exp * 1000);
+    // --- INÍCIO DA CORREÇÃO ---
+    // ANTES: const { token, refreshToken, user: userData } = response.data;
+    // DEPOIS: A chave do token de acesso agora é 'accessToken'
+    const { accessToken, refreshToken, user: userData } = response.data;
+
+    if (!accessToken) {
+      throw new Error(
+        "Login bem-sucedido, mas nenhum accessToken foi recebido."
+      );
     }
+
+    localStorage.setItem("authToken", accessToken);
+    if (refreshToken) {
+      localStorage.setItem("refreshToken", refreshToken);
+    }
+
+    // Define o cabeçalho padrão para todas as requisições futuras
+    apiClient.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${accessToken}`;
+    // --- FIM DA CORREÇÃO ---
+
+    setUser(userData);
     return userData;
   };
 
   const logout = () => {
     localStorage.removeItem("authToken");
+    localStorage.removeItem("refreshToken");
     setUser(null);
-    setTokenExpiration(null);
-  };
-
-  // Função para renovar o token
-  const refreshToken = async () => {
-    try {
-      // Assume que você criará esta rota no backend
-      const response = await apiClient.post("/auth/refresh-token");
-      const { token } = response.data;
-      localStorage.setItem("authToken", token);
-      const decodedToken = decodeToken(token);
-      if (decodedToken) {
-        setTokenExpiration(decodedToken.exp * 1000);
-      }
-      return true;
-    } catch (error) {
-      console.error("Falha ao renovar o token, a deslogar...", error);
-      logout();
-      return false;
-    }
+    delete apiClient.defaults.headers.common["Authorization"];
   };
 
   const value = {
@@ -90,11 +72,9 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!user,
     loading,
     checkUserStatus,
-    tokenExpiration,
-    refreshToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export { AuthContext }; // Exporta para o hook useAuth
+export { AuthContext };

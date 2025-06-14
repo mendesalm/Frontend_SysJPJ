@@ -1,3 +1,4 @@
+// src/services/memberService.js
 import apiClient from "./apiClient";
 
 // --- Funções para o próprio utilizador ---
@@ -12,8 +13,15 @@ export const updateMyProfile = (profileData) => {
 
 // --- Funções para Administradores ---
 
-export const getAllMembers = () => {
-  return apiClient.get("/lodgemembers");
+// ANTES:
+// export const getAllMembers = () => {
+//   return apiClient.get("/lodgemembers");
+// };
+
+// DEPOIS: A função agora aceita um objeto de parâmetros
+export const getAllMembers = (params) => {
+  // `params` pode ser, por exemplo, { page: 1, limit: 10, search: 'Fulano' }
+  return apiClient.get("/lodgemembers", { params });
 };
 
 // --- NOVA FUNÇÃO ADICIONADA ---

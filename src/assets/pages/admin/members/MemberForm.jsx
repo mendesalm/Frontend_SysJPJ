@@ -6,14 +6,12 @@ import { consultarCEP } from "../../../../services/cepService.js";
 import FormPageLayout from "../../../../components/layout/FormPageLayout.jsx";
 import "../../../styles/FormStyles.css";
 
-// 1. IMPORTAMOS NOSSOS NOVOS COMPONENTES DE FORMULÁRIO
+// Importando os componentes de formulário reutilizáveis
 import PersonalDataFields from "./components/PersonalDataFields.jsx";
 import FamilyDataFields from "./components/FamilyDataFields.jsx";
 import AddressFields from "./components/AddressFields.jsx";
 import MasonicDataFields from "./components/MasonicDataFields.jsx";
 import ProfessionalDataFields from "./components/ProfessionalDataFields.jsx";
-
-// Importamos apenas as constantes necessárias para a lógica deste componente
 import {
   CREDENCIAIS,
   STATUS_CADASTRO,
@@ -40,7 +38,6 @@ const MemberForm = ({
     defaultValues: { familiares: [], ...initialData },
   });
 
-  // A lógica do useFieldArray permanece aqui, pois controla o estado do formulário
   const { fields, append, remove } = useFieldArray({
     control,
     name: "familiares",
@@ -48,7 +45,6 @@ const MemberForm = ({
 
   const cepValue = watch("Endereco_CEP");
 
-  // A lógica de busca de CEP também permanece no componente pai
   const handleCepBlur = async () => {
     const cepLimpo = (cepValue || "").replace(/\D/g, "");
     if (cepLimpo.length !== 8) {
@@ -68,7 +64,6 @@ const MemberForm = ({
   };
 
   useEffect(() => {
-    // A lógica de formatação de dados para popular o formulário também fica aqui
     const formattedData = {
       ...initialData,
       DataNascimento: initialData.DataNascimento
@@ -92,12 +87,16 @@ const MemberForm = ({
       DataRegularizacao: initialData.DataRegularizacao
         ? new Date(initialData.DataRegularizacao).toISOString().split("T")[0]
         : "",
+
+      // --- INÍCIO DA CORREÇÃO ---
+      // Ajustando para formatar a propriedade correta (camelCase)
       familiares: (initialData.familiares || []).map((f) => ({
         ...f,
         dataNascimento: f.dataNascimento
           ? new Date(f.dataNascimento).toISOString().split("T")[0]
           : "",
       })),
+      // --- FIM DA CORREÇÃO ---
     };
     reset(formattedData);
   }, [initialData, reset]);
@@ -133,10 +132,7 @@ const MemberForm = ({
         onSubmit={handleSubmit(onSave)}
         className="form-container"
       >
-        {/* 2. SUBSTITUÍMOS OS BLOCOS JSX PELOS NOSSOS COMPONENTES */}
-
         <PersonalDataFields register={register} errors={errors} />
-
         <FamilyDataFields
           fields={fields}
           register={register}
@@ -145,18 +141,13 @@ const MemberForm = ({
           append={append}
           control={control}
         />
-
         <AddressFields
           register={register}
           handleCepBlur={handleCepBlur}
           cepStatus={cepStatus}
         />
-
         <MasonicDataFields register={register} errors={errors} />
-
         <ProfessionalDataFields register={register} />
-
-        {/* A seção de Acesso é específica deste formulário, então ela permanece aqui */}
         <fieldset className="form-fieldset">
           <legend>Informações de Acesso</legend>
           <div className="form-grid">

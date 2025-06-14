@@ -1,4 +1,4 @@
-import React from "react"; // O useState não é mais necessário aqui
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDataFetching } from "../../../../hooks/useDataFetching";
 import {
@@ -6,42 +6,94 @@ import {
   updateMember,
 } from "../../../../services/memberService";
 import "../../../../assets/styles/TableStyles.css";
-
-// 1. Importando nossas funções de notificação
+import "../../../../assets/styles/FormStyles.css"; // Importamos para usar o estilo do .form-input
 import {
   showSuccessToast,
   showErrorToast,
 } from "../../../../utils/notifications";
 
+// --- Componente auxiliar para os controles de paginação ---
+const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) {
+    return null;
+  }
+  return (
+    <div
+      className="pagination-controls"
+      style={{
+        marginTop: "1.5rem",
+        display: "flex",
+        justifyContent: "center",
+        gap: "1rem",
+        alignItems: "center",
+      }}
+    >
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Anterior
+      </button>
+      <span>
+        Página {currentPage} de {totalPages}
+      </span>
+      <button
+        className="btn btn-secondary"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Próxima
+      </button>
+    </div>
+  );
+};
+
 const MemberList = () => {
+  const navigate = useNavigate();
+
+  // 1. ESTADO PARA CONTROLE DA PAGINAÇÃO E FILTROS
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [limit] = useState(10); // Define quantos itens por página
+
+  // `useMemo` garante que o objeto de parâmetros só seja recriado quando um valor de dependência mudar.
+  const params = useMemo(
+    () => ({
+      page: currentPage,
+      limit,
+      search: searchQuery,
+    }),
+    [currentPage, limit, searchQuery]
+  );
+
+  // 2. O HOOK AGORA RECEBE OS PARÂMETROS E ATUALIZA AUTOMATICAMENTE QUANDO ELES MUDAM
   const {
-    data: members,
+    data: response,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getAllMembers);
+  } = useDataFetching(getAllMembers, [params]);
 
-  // 2. O state 'actionError' foi removido. Os toasts cuidarão do feedback.
-  const navigate = useNavigate();
+  // 3. EXTRAÍMOS OS DADOS E A PAGINAÇÃO DA RESPOSTA DA API
+  const members = response?.data || [];
+  const pagination = response?.pagination || { totalPages: 1, currentPage: 1 };
 
   const handleUpdateStatus = async (memberId, newStatus) => {
     try {
       await updateMember(memberId, { statusCadastro: newStatus });
-      refetch();
-      // 3. Adicionando feedback de sucesso
       showSuccessToast("Status do membro atualizado com sucesso!");
+      refetch();
     } catch (err) {
-      console.error(`Erro ao atualizar status para ${newStatus}:`, err);
-      // 4. Adicionando feedback de erro
       showErrorToast("Não foi possível atualizar o status do membro.");
+      console.error(err);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="table-page-container">A carregar lista de membros...</div>
-    );
-  }
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Sempre volta para a primeira página ao fazer uma nova busca
+  };
 
   return (
     <div className="table-page-container">
@@ -55,7 +107,17 @@ const MemberList = () => {
         </button>
       </div>
 
-      {/* 5. A exibição de erro de ação foi removida daqui */}
+      {/* 4. BARRA DE BUSCA E FILTRO */}
+      <div className="filter-bar" style={{ marginBottom: "1.5rem" }}>
+        <input
+          type="text"
+          placeholder="Buscar membro por nome ou email..."
+          className="form-input"
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
+      </div>
+
       {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="table-responsive">
@@ -70,7 +132,13 @@ const MemberList = () => {
             </tr>
           </thead>
           <tbody>
-            {!isLoading && members.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan="5" style={{ textAlign: "center" }}>
+                  A carregar...
+                </td>
+              </tr>
+            ) : members.length === 0 ? (
               <tr>
                 <td colSpan="5" style={{ textAlign: "center" }}>
                   Nenhum membro encontrado.
@@ -117,6 +185,13 @@ const MemberList = () => {
           </tbody>
         </table>
       </div>
+
+      {/* 5. CONTROLES DE PAGINAÇÃO */}
+      <PaginationControls
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
     </div>
   );
 };

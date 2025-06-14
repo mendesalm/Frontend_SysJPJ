@@ -1,33 +1,26 @@
-// src/validators/memberValidator.js
 import * as yup from "yup";
 
-// --- INÍCIO DA MUDANÇA ---
-// Esquema para um familiar individual
+// --- INÍCIO DA CORREÇÃO ---
+// Esquema para um familiar individual, padronizado para camelCase
 const familiarSchema = yup.object().shape({
-  // ANTES: nomeCompleto: yup.string().required("O nome do familiar é obrigatório."),
-  Nome: yup.string().required("O nome do familiar é obrigatório."), // DEPOIS
-
-  // ANTES: parentesco: yup.string()...
-  Parentesco: yup // DEPOIS
+  nomeCompleto: yup.string().required("O nome do familiar é obrigatório."),
+  parentesco: yup
     .string()
     .oneOf(
       ["Cônjuge", "Esposa", "Filho", "Filha"],
       "O parentesco selecionado é inválido."
     )
     .required("O parentesco é obrigatório."),
-
-  // ANTES: dataNascimento: yup.date()...
-  DataNascimento: yup // DEPOIS
+  dataNascimento: yup
     .date()
     .required("A data de nascimento do familiar é obrigatória.")
     .max(new Date(), "A data de nascimento não pode ser no futuro.")
     .typeError("Forneça uma data válida para o familiar (DD/MM/AAAA)."),
 });
-// --- FIM DA MUDANÇA ---
+// --- FIM DA CORREÇÃO ---
 
 // Esquema principal para o formulário de membros com mensagens e transformações melhoradas
 export const memberValidationSchema = yup.object().shape({
-  // ... O resto do arquivo permanece exatamente igual ...
   // --- Acesso ---
   Email: yup
     .string()
@@ -95,7 +88,8 @@ export const memberValidationSchema = yup.object().shape({
       "O CEP deve ter 8 dígitos (apenas números), se informado."
     ),
 
-  // --- Dados Maçônicos ---
+  // --- Dados Maçónicos ---
+  // CORREÇÃO: Data de Iniciação agora é obrigatória.
   DataIniciacao: yup
     .date()
     .required("A data de iniciação é obrigatória.")
