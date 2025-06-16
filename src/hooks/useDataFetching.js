@@ -1,3 +1,5 @@
+// src/hooks/useDataFetching.js (CORRIGIDO)
+
 import { useState, useEffect, useCallback } from "react";
 
 /**
@@ -12,7 +14,6 @@ export const useDataFetching = (serviceFunction, params = []) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Criamos uma versão stringificada e estável dos parâmetros.
   const stringifiedParams = JSON.stringify(params);
 
   const fetchData = useCallback(async () => {
@@ -20,22 +21,20 @@ export const useDataFetching = (serviceFunction, params = []) => {
       setIsLoading(true);
       setError("");
 
-      // --- INÍCIO DA CORREÇÃO ---
-      // Transformamos a string de volta em um array AQUI DENTRO.
-      // Agora, esta função não depende mais da variável `params` externa,
-      // apenas de `stringifiedParams`, que está no array de dependências.
       const parsedParams = JSON.parse(stringifiedParams);
       const response = await serviceFunction(...parsedParams);
-      // --- FIM DA CORREÇÃO ---
 
-      setData(response.data);
+      // --- CORREÇÃO APLICADA AQUI ---
+      // A função de serviço já retorna os dados. Não precisamos mais acessar '.data'.
+      setData(response);
     } catch (err) {
       console.error("Erro ao buscar dados:", err);
       setError(err.response?.data?.message || "Falha ao carregar os dados.");
+      setData([]); // Garante que data seja sempre um array em caso de erro
     } finally {
       setIsLoading(false);
     }
-  }, [serviceFunction, stringifiedParams]); // O array de dependências agora está correto.
+  }, [serviceFunction, stringifiedParams]);
 
   useEffect(() => {
     fetchData();

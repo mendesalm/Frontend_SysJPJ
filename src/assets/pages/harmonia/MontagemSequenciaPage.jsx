@@ -5,11 +5,11 @@ import {
   createTipoSessao,
   deleteTipoSessao,
   getPlaylists,
-  updateSequenciaPlaylist,
+  setSequenciaPlaylist, // CORREÇÃO: Importando a função com o nome correto
 } from "../../../services/harmoniaService";
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
-import "./MontagemSequenciaPage.css"; // Importando o novo CSS
-import "../../../assets/styles/FormStyles.css"; // Para os inputs e botões
+import "./MontagemSequenciaPage.css";
+import "../../../assets/styles/FormStyles.css";
 
 const MontagemSequenciaPage = () => {
   const {
@@ -25,10 +25,12 @@ const MontagemSequenciaPage = () => {
   const [newTipoSessaoName, setNewTipoSessaoName] = useState("");
 
   useEffect(() => {
+    console.log("TIPO DE SESSÃO SELECIONADO:", selectedTipoSessao);
     const playlistsDaSequencia =
       selectedTipoSessao?.playlists?.sort(
         (a, b) => a.TipoSessaoPlaylists.ordem - b.TipoSessaoPlaylists.ordem
       ) || [];
+    console.log("PLAYLISTS ENCONTRADAS NA SEQUÊNCIA:", playlistsDaSequencia);
     setSequencia(playlistsDaSequencia);
   }, [selectedTipoSessao]);
 
@@ -78,14 +80,18 @@ const MontagemSequenciaPage = () => {
   const handleSaveSequencia = async () => {
     if (!selectedTipoSessao)
       return showErrorToast("Nenhum Tipo de Sessão selecionado.");
+
+    // O payload que você criou já está correto para a nova API
     const payload = sequencia.map((playlist, index) => ({
       playlistId: playlist.id,
       ordem: index + 1,
     }));
+
     try {
-      await updateSequenciaPlaylist(selectedTipoSessao.id, payload);
+      // CORREÇÃO: Chamando a função com o nome correto
+      await setSequenciaPlaylist(selectedTipoSessao.id, payload);
       showSuccessToast("Sequência salva com sucesso!");
-      refetchTiposSessao(); // Para atualizar a contagem de playlists no tipo de sessão
+      refetchTiposSessao();
     } catch (error) {
       showErrorToast("Erro ao salvar sequência.");
       console.error(error);

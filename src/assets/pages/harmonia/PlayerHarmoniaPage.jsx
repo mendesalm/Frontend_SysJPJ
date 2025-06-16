@@ -4,8 +4,8 @@ import {
   getTiposSessao,
   getSequencia,
 } from "../../../services/harmoniaService";
-import apiClient from "../../../services/apiClient"; // 1. Importamos o apiClient
-
+import apiClient from "../../../services/apiClient";
+import { showErrorToast } from "../../../utils/notifications"; // Para feedback de erro
 import "./PlayerPage.css";
 
 const MusicIcon = () => (
@@ -32,8 +32,9 @@ const PlayerHarmoniaPage = () => {
   const [sequencia, setSequencia] = useState([]);
   const [indiceAtual, setIndiceAtual] = useState(0);
   const [isLoadingSequencia, setIsLoadingSequencia] = useState(false);
+  const [error, setError] = useState(null); // Novo estado para erros
   const audioRef = useRef(null);
-  const carrosselRef = useRef(null); // Ref para o container do carrossel
+  const carrosselRef = useRef(null);
 
   const currentSong =
     sequencia.length > 0 ? sequencia[indiceAtual]?.musicaSorteada : null;
@@ -41,15 +42,32 @@ const PlayerHarmoniaPage = () => {
   useEffect(() => {
     if (!selectedTipoSessaoId) {
       setSequencia([]);
+      setError(null);
       return;
     }
+
     setIsLoadingSequencia(true);
+    setError(null); // Limpa erros anteriores
+
     getSequencia(selectedTipoSessaoId)
       .then((res) => {
-        setSequencia(res.data.sequencia);
-        setIndiceAtual(0);
+        // --- CORREÇÃO CRÍTICA AQUI ---
+        // 'res' já é o objeto de dados. Acessamos 'res.sequencia' diretamente.
+        if (res && res.sequencia) {
+          setSequencia(res.sequencia);
+          setIndiceAtual(0);
+        } else {
+          // Se a API não retornar uma sequência, tratamos como erro.
+          setSequencia([]);
+          setError("Sequência não encontrada ou está vazia.");
+          showErrorToast("A sequência para este ritual não foi encontrada.");
+        }
       })
-      .catch(console.error)
+      .catch((err) => {
+        console.error(err);
+        setError("Falha ao carregar a sequência.");
+        showErrorToast("Falha ao carregar a sequência.");
+      })
       .finally(() => setIsLoadingSequencia(false));
   }, [selectedTipoSessaoId]);
 
@@ -65,7 +83,6 @@ const PlayerHarmoniaPage = () => {
       );
 
       audio.src = finalPath;
-
       audio.play().catch((e) => console.error("Erro ao tocar áudio:", e));
     } else if (audio) {
       audio.pause();
@@ -73,7 +90,6 @@ const PlayerHarmoniaPage = () => {
     }
   }, [currentSong]);
 
-  // Efeito para centralizar o card ativo no carrossel
   useEffect(() => {
     if (carrosselRef.current && carrosselRef.current.children[indiceAtual]) {
       const cardAtivo = carrosselRef.current.children[indiceAtual];
@@ -83,7 +99,7 @@ const PlayerHarmoniaPage = () => {
         inline: "center",
       });
     }
-  }, [indiceAtual, sequencia]); // Adiciona 'sequencia' para garantir a execução quando a lista muda
+  }, [indiceAtual, sequencia]);
 
   const handleNext = () => {
     if (indiceAtual < sequencia.length - 1) {
@@ -91,13 +107,19 @@ const PlayerHarmoniaPage = () => {
     }
   };
 
-  // --- NOVA FUNÇÃO ---
+  // --- NOVA FUNÇÃO PARA VOLTAR ---
+  const handlePrev = () => {
+    if (indiceAtual > 0) {
+      setIndiceAtual(indiceAtual - 1);
+    }
+  };
+
   const handleStopAndAdvance = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
-    handleNext(); // Reutiliza a lógica de avançar
+    handleNext();
   };
 
   const selectTrack = (index) => {
@@ -146,25 +168,44 @@ const PlayerHarmoniaPage = () => {
           key={currentSong?.id}
         />
 
-        {/* --- BOTÃO DE AVANÇO MANUAL --- */}
+        {/* --- CONTROLES MANUAIS ATUALIZADOS --- */}
         {sequencia.length > 0 && (
           <div className="manual-controls">
+            <button
+              onClick={handlePrev}
+              className="btn-nav"
+              disabled={indiceAtual === 0}
+            >
+              Anterior
+            </button>
             <button
               onClick={handleStopAndAdvance}
               className="btn-stop-advance"
               disabled={indiceAtual >= sequencia.length - 1}
             >
-              Parar e Avançar para o Próximo Momento
+              Parar e Avançar
+            </button>
+            <button
+              onClick={handleNext}
+              className="btn-nav"
+              disabled={indiceAtual >= sequencia.length - 1}
+            >
+              Próximo
             </button>
           </div>
         )}
 
-        {/* --- CARROSSEL DE MOMENTOS --- */}
         <div className="carrossel-container-wrapper">
           <div className="carrossel-container" ref={carrosselRef}>
             {isLoadingSequencia ? (
               <p style={{ textAlign: "center", width: "100%" }}>
                 Carregando...
+              </p>
+            ) : error ? (
+              <p className="error-message">{error}</p> // Exibe mensagem de erro
+            ) : sequencia.length === 0 && selectedTipoSessaoId ? (
+              <p className="info-message">
+                Nenhuma sequência encontrada para este ritual.
               </p>
             ) : (
               sequencia.map((item, index) => (

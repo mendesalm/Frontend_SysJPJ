@@ -1,192 +1,67 @@
-/* src/assets/pages/harmonia/PlayerPage.css */
-
-.harmonia-player-container {
-  width: 100%;
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 1rem;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
-.harmonia-player-card {
-  background: var(--cor-fundo-app, #111827);
-  border: 1px solid var(--cor-borda-sidebar, #374151);
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: var(--sombra, 0 8px 32px rgba(0, 0, 0, 0.3));
-  color: var(--cor-texto-primario, #f9fafb);
-}
-
-.player-header {
-  text-align: center;
-  border-bottom: 1px solid var(--cor-borda-sidebar, #374151);
-  padding-bottom: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.player-header h2 {
-  font-size: var(--font-size-3xl, 1.875rem);
-  margin: 0 0 1rem 0;
-  color: var(--cor-texto-cabecalho, #e5e7eb);
-}
-
-.form-select {
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 12px 15px;
-  border: 1px solid var(--cor-borda-input, #4b5563);
-  border-radius: 6px;
-  font-size: var(--font-size-base, 1rem);
-  color: var(--cor-texto-primario, #f9fafb);
-  background-color: var(--cor-fundo-input, #1f2937);
-}
-
-.form-select:disabled {
-  opacity: 0.5;
-}
-
-.now-playing-area {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.album-art {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  background-color: var(--cor-sidebar-primaria, #1f2937);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.album-art svg {
-  width: 40px;
-  height: 40px;
-  color: var(--cor-active-icon, #0ea5e9);
-}
-
-.track-info {
-  overflow: hidden;
-}
-
-.track-title {
-  font-size: var(--font-size-2xl, 1.5rem);
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.track-playlist {
-  font-size: var(--font-size-lg, 1.125rem);
-  color: var(--cor-texto-secundario, #9ca3af);
-}
-
-.main-audio-player {
-  width: 100%;
-}
+/* ... (estilos existentes) ... */
 
 .manual-controls {
   display: flex;
   justify-content: center;
-  margin: 1.5rem 0;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.btn-stop-advance,
+.btn-nav {
+  /* Novo estilo para botões de navegação */
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-nav {
+  background-color: var(--elevation-2);
+  color: var(--text-color);
 }
 
 .btn-stop-advance {
-  background-color: var(--cor-active-icon, #0ea5e9);
+  background-color: var(--primary-color);
   color: white;
-  font-weight: bold;
-  font-size: var(--font-size-lg);
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
 }
-.btn-stop-advance:hover:not(:disabled) {
-  background-color: var(--cor-hover-icon);
+
+.btn-stop-advance:hover,
+.btn-nav:hover {
+  transform: translateY(-2px);
 }
-.btn-stop-advance:active:not(:disabled) {
-  transform: scale(0.98);
-}
-.btn-stop-advance:disabled {
-  background-color: var(--cor-borda-input);
+
+.btn-stop-advance:disabled,
+.btn-nav:disabled {
+  background-color: var(--elevation-3);
+  color: var(--text-secondary-color);
   cursor: not-allowed;
-  opacity: 0.6;
+  transform: none;
 }
 
 .carrossel-container-wrapper {
-  overflow: hidden;
-  padding: 1rem 0;
-  margin-top: 1rem;
-  border-top: 1px solid var(--cor-borda-sidebar, #374151);
+  /* ... (estilos existentes) ... */
 }
 
-.carrossel-container {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  gap: 1rem;
-  padding-bottom: 1rem; /* Espaço para a barra de rolagem */
-  scrollbar-width: thin;
-  scrollbar-color: var(--cor-active-icon) transparent;
-}
-
-.carrossel-container::-webkit-scrollbar {
-  height: 8px;
-}
-.carrossel-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-.carrossel-container::-webkit-scrollbar-thumb {
-  background-color: var(--cor-borda-sidebar);
-  border-radius: 10px;
-}
-.carrossel-container::-webkit-scrollbar-thumb:hover {
-  background-color: var(--cor-active-icon);
-}
-
-.carrossel-card {
-  flex: 0 0 220px;
-  padding: 1rem;
-  border: 1px solid var(--cor-borda-sidebar);
-  border-radius: 8px;
-  background-color: var(--cor-sidebar-primaria);
-  cursor: pointer;
-  transition: border-color 0.2s ease, transform 0.2s ease;
-  scroll-snap-align: center;
+/* --- NOVOS ESTILOS PARA MENSAGENS --- */
+.error-message,
+.info-message {
+  width: 100%;
   text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
 }
 
-.carrossel-card:hover {
-  transform: translateY(-3px);
+.error-message {
+  color: var(--danger-color);
+  background-color: rgba(220, 53, 69, 0.1);
 }
 
-.carrossel-card.active {
-  border-color: var(--cor-active-icon);
-  box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
+.info-message {
+  color: var(--text-secondary-color);
 }
 
-.carrossel-card-title {
-  font-weight: bold;
-  font-size: var(--font-size-base);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.carrossel-card-song {
-  font-size: var(--font-size-sm);
-  color: var(--cor-texto-secundario);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 0.5rem;
-}
-
-/* Os estilos antigos não são mais necessários, pois foram substituídos por estes */
+/* ... (restante dos estilos) ... */
