@@ -3,19 +3,19 @@ import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// Layouts e Componentes Estruturais (carregados imediatamente)
+
+// Layouts e Componentes Estruturais
 import Header from "./components/header/Header.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import NewDashboardLayout from "./components/layout/NewDashboardLayout.jsx";
 
-// Páginas Públicas (podem ser lazy-loaded também, mas geralmente são pequenas)
+// Páginas Públicas
 import HomePage from "./assets/pages/home/HomePage.jsx";
 import LoginPage from "./assets/pages/login/LoginPage.jsx";
 import ForgotPasswordPage from "./assets/pages/auth/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./assets/pages/auth/ResetPasswordPage.jsx";
 
-// --- Início da Modificação: Lazy Loading das Páginas Protegidas ---
-
+// Páginas Lazy-loaded
 const DashboardPage = lazy(() =>
   import("./assets/pages/dashboard/DashboardPage.jsx")
 );
@@ -32,10 +32,6 @@ const PublicacoesPage = lazy(() =>
 const BibliotecaPage = lazy(() =>
   import("./assets/pages/biblioteca/BibliotecaPage.jsx")
 );
-const HarmoniaPage = lazy(() =>
-  import("./assets/pages/harmonia/HarmoniaPage.jsx")
-);
-const PlayerPage = lazy(() => import("./assets/pages/harmonia/PlayerPage.jsx"));
 const SessionsPage = lazy(() =>
   import("./assets/pages/sessions/SessionsPage.jsx")
 );
@@ -51,14 +47,6 @@ const RelatoriosPage = lazy(() =>
 const PermissionsPage = lazy(() =>
   import("./assets/pages/admin/permissions/PermissionsPage.jsx")
 );
-const GestaoVisitacoesPage = lazy(() =>
-  import("./assets/pages/visitacoes/GestaoVisitacoesPage.jsx")
-);
-const MinhasVisitasPage = lazy(() =>
-  import("./assets/pages/visitacoes/MinhasVisitasPage.jsx")
-);
-
-// Páginas de Admin
 const MemberList = lazy(() =>
   import("./assets/pages/admin/members/MemberList.jsx")
 );
@@ -68,8 +56,6 @@ const MemberCreatePage = lazy(() =>
 const MemberEditPage = lazy(() =>
   import("./assets/pages/admin/members/MemberEditPage.jsx")
 );
-
-// Páginas Financeiras
 const PlanoContasPage = lazy(() =>
   import("./assets/pages/financeiro/PlanoContasPage.jsx")
 );
@@ -80,9 +66,18 @@ const OrcamentoPage = lazy(() =>
   import("./assets/pages/financeiro/OrcamentoPage.jsx")
 );
 
-// --- Fim da Modificação ---
+// --- INÍCIO DA CORREÇÃO DAS ROTAS DE HARMONIA ---
+const GestaoPlaylistsPage = lazy(() =>
+  import("./assets/pages/harmonia/GestaoPlaylistsPage.jsx")
+);
+const MontagemSequenciaPage = lazy(() =>
+  import("./assets/pages/harmonia/MontagemSequenciaPage.jsx")
+);
+const PlayerHarmoniaPage = lazy(() =>
+  import("./assets/pages/harmonia/PlayerHarmoniaPage.jsx")
+);
+// --- FIM DA CORREÇÃO DAS ROTAS DE HARMONIA ---
 
-// Componente simples para o fallback do Suspense
 const LoadingFallback = () => (
   <div
     style={{
@@ -114,10 +109,8 @@ function App() {
         theme="dark"
       />
       <div className="App">
-        {/* O Suspense deve envolver as rotas que usam componentes lazy-loaded */}
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
-            {/* Rotas Públicas com Header */}
             <Route
               path="/"
               element={
@@ -127,17 +120,12 @@ function App() {
                 </>
               }
             />
-            {/* ... outras rotas públicas podem permanecer como estão se desejar */}
-
-            {/* Rotas Públicas sem Header */}
             <Route path="/login-teste" element={<LoginPage />} />
             <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
             <Route
               path="/resetar-senha/:token"
               element={<ResetPasswordPage />}
             />
-
-            {/* Rotas Protegidas dentro do novo Layout com Sidebar */}
             <Route element={<ProtectedRoute />}>
               <Route element={<NewDashboardLayout />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
@@ -146,19 +134,11 @@ function App() {
                 <Route path="/eventos" element={<EventosPage />} />
                 <Route path="/publicacoes" element={<PublicacoesPage />} />
                 <Route path="/biblioteca" element={<BibliotecaPage />} />
-                <Route path="/harmonia" element={<HarmoniaPage />} />
-                <Route path="/player-harmonia" element={<PlayerPage />} />
                 <Route path="/sessoes" element={<SessionsPage />} />
                 <Route path="/comissoes" element={<ComissoesPage />} />
                 <Route path="/patrimonio" element={<PatrimonioPage />} />
                 <Route path="/relatorios" element={<RelatoriosPage />} />
                 <Route path="/admin/members" element={<MemberList />} />
-                <Route
-                  path="/minhas-visitacoes"
-                  element={<MinhasVisitasPage />}
-                />
-                <Route path="/visitacoes" element={<GestaoVisitacoesPage />} />
-
                 <Route
                   path="/admin/members/create"
                   element={<MemberCreatePage />}
@@ -183,9 +163,23 @@ function App() {
                   path="/admin/permissions"
                   element={<PermissionsPage />}
                 />
+
+                {/* --- INÍCIO DA CORREÇÃO DAS ROTAS DE HARMONIA --- */}
+                <Route
+                  path="/player-harmonia"
+                  element={<PlayerHarmoniaPage />}
+                />
+                <Route
+                  path="/admin/harmonia/playlists"
+                  element={<GestaoPlaylistsPage />}
+                />
+                <Route
+                  path="/admin/harmonia/sequencias"
+                  element={<MontagemSequenciaPage />}
+                />
+                {/* --- FIM DA CORREÇÃO DAS ROTAS DE HARMONIA --- */}
               </Route>
             </Route>
-
             <Route path="*" element={<h2>404 - Página Não Encontrada</h2>} />
           </Routes>
         </Suspense>

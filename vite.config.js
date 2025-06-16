@@ -1,17 +1,21 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // Adicione esta secção:
   server: {
     proxy: {
-      // Redireciona requisições que começam com /api para o seu backend
-      '/api': {
-        target: 'http://localhost:3001', // A porta do seu backend
+      // Proxy para as chamadas de API (ex: /api/membros)
+      "/api": {
+        target: "http://localhost:3001",
         changeOrigin: true,
-      }
-    }
-  }
-})
+      },
+      // Proxy para a pasta de uploads (áudios, imagens, etc.)
+      "/uploads": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
+    },
+  },
+});

@@ -1,0 +1,96 @@
+/* src/assets/pages/harmonia/MontagemSequenciaPage.css */
+
+/* Reutilizando o layout principal da página de gestão */
+.montagem-container {
+  padding: 1rem;
+  color: var(--cor-texto-primario);
+}
+
+.montagem-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.montagem-header h1 {
+  font-size: var(--font-size-3xl);
+}
+
+.montagem-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.tipos-sessao-column,
+.sequencia-column {
+  background: var(--cor-conteudo-fundo);
+  border: 1px solid var(--cor-borda-sidebar);
+  border-radius: 12px;
+  padding: 1.5rem;
+  min-height: 500px;
+}
+
+.tipos-sessao-column h3,
+.sequencia-column h3 {
+  font-size: var(--font-size-2xl);
+  margin-top: 0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--cor-borda-sidebar);
+  margin-bottom: 1rem;
+}
+
+.new-tiposessao-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tipos-sessao-list .sessao-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid var(--cor-borda-sidebar);
+}
+
+.tipos-sessao-list .sessao-item:hover {
+  background-color: var(--cor-fundo-hover-sidebar);
+}
+
+.tipos-sessao-list .sessao-item.active {
+  background-color: var(--cor-active-icon);
+  color: white;
+}
+
+.sequencia-editor {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.playlist-list-container {
+  padding: 1rem;
+  background-color: var(--cor-fundo-app);
+  border-radius: 8px;
+}
+
+.playlist-list-container h4 {
+  margin-top: 0;
+  font-size: var(--font-size-lg);
+}
+
+.playlist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  margin-bottom: 0.5rem;
+  background-color: var(--cor-sidebar-primaria);
+  border-radius: 4px;
+}

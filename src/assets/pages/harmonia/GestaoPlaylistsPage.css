@@ -1,0 +1,153 @@
+/* src/assets/pages/harmonia/GestaoPlaylistsPage.css */
+
+.gestao-container {
+  padding: 1rem;
+  color: var(--cor-texto-primario);
+}
+
+.table-header h1 {
+  font-size: var(--font-size-3xl);
+  margin-bottom: 2rem;
+}
+
+.gestao-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.playlists-column,
+.musicas-column {
+  background: var(--cor-conteudo-fundo);
+  border: 1px solid var(--cor-borda-sidebar);
+  border-radius: 12px;
+  padding: 1.5rem;
+  min-height: 500px;
+}
+
+.playlists-column h3,
+.musicas-column h3 {
+  font-size: var(--font-size-2xl);
+  margin-top: 0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--cor-borda-sidebar);
+  margin-bottom: 1rem;
+}
+
+.new-playlist-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.new-playlist-form .form-input {
+  flex-grow: 1;
+}
+
+.playlists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.playlist-card {
+  background-color: var(--cor-sidebar-primaria);
+  border: 1px solid var(--cor-borda-sidebar);
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.playlist-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border-color: var(--cor-active-icon);
+}
+
+.playlist-card.active {
+  border-color: var(--cor-active-icon);
+  box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+}
+
+.playlist-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.playlist-name {
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+}
+
+.btn-delete-playlist {
+  background: none;
+  border: none;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+}
+.btn-delete-playlist:hover {
+  color: #ef4444;
+}
+
+.playlist-card-body {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--cor-texto-secundario);
+}
+.playlist-card-body svg {
+  width: 20px;
+  height: 20px;
+}
+.track-count {
+  font-size: var(--font-size-sm);
+}
+
+.musicas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.musica-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background-color: var(--cor-sidebar-primaria);
+  border-radius: 6px;
+}
+
+.btn-delete-musica {
+  background: none;
+  border: none;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+}
+.btn-delete-musica:hover {
+  color: #ef4444;
+}
+
+.placeholder-musicas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 400px;
+  color: var(--cor-texto-secundario);
+  text-align: center;
+  font-size: var(--font-size-lg);
+}
+
+.upload-section {
+  border-top: 1px solid var(--cor-borda-sidebar);
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+}

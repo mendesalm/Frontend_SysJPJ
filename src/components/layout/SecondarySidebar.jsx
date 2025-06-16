@@ -49,13 +49,15 @@ const menuData = {
     title: "Harmonia",
     items: [
       { label: "Player de Harmonia", path: "/player-harmonia" },
-      { label: "Gestão de Músicas", path: "/harmonia" },
+      { label: "Gestão de Playlists", path: "/admin/harmonia/playlists" },
+      { label: "Montagem de Sequências", path: "/admin/harmonia/sequencias" },
     ],
   },
   "menu-webmaster": {
     title: "Webmaster",
     items: [
       { label: "Gestão de Permissões", path: "/admin/permissions" },
+      { label: "Gestão de Templates", path: "/admin/templates" },
       { label: "Configurações Gerais", path: "#" },
     ],
     adminOnly: true,
