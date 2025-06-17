@@ -241,3 +241,115 @@ body.theme-light {
   color: var(--cor-texto-primario);
   transform: translateX(5px);
 }
+/* =================================================================== */
+/* --- TEMA ESCURO PARA O PLAYER DE HARMONIA --- */
+/* =================================================================== */
+
+/* Usando a classe no body, conforme a implementação do seu ThemeContext */
+
+body.theme-dark .harmonia-player-container {
+  background-color: var(--cor-fundo-app);
+}
+
+body.theme-dark .harmonia-player-card {
+  background-color: var(--cor-sidebar-primaria);
+  border: 1px solid var(--cor-borda-input);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+body.theme-dark .player-header {
+  border-bottom-color: var(--cor-borda-input);
+}
+
+body.theme-dark .player-header h2,
+body.theme-dark .track-title,
+body.theme-dark .carrossel-card-title,
+body.theme-dark .btn-nav {
+  color: var(--cor-texto-primario);
+}
+
+body.theme-dark .form-select {
+  background-color: var(--cor-fundo-app);
+  border-color: var(--cor-borda-input);
+  color: var(--cor-texto-primario);
+}
+
+body.theme-dark .form-select option {
+  background: var(--cor-fundo-app);
+  color: var(--cor-texto-primario);
+}
+
+body.theme-dark .now-playing-area {
+  background-color: var(--cor-fundo-app);
+}
+
+body.theme-dark .track-playlist,
+body.theme-dark .carrossel-card-song,
+body.theme-dark .info-message {
+  color: var(--cor-texto-secundario);
+}
+
+/* Player de áudio nativo */
+body.theme-dark .main-audio-player {
+  filter: invert(1) hue-rotate(180deg) brightness(1.2);
+}
+
+/* Botões de navegação */
+body.theme-dark .btn-nav {
+  background-color: var(--cor-borda-input);
+  border-color: var(--cor-borda-input);
+}
+
+body.theme-dark .btn-nav:hover:not(:disabled) {
+  background-color: var(--cor-texto-secundario);
+}
+
+body.theme-dark .btn-nav:disabled {
+  background-color: #2a2a2a;
+  color: var(--cor-texto-secundario);
+  opacity: 0.5;
+}
+
+/* Cards do carrossel */
+body.theme-dark .carrossel-card {
+  background-color: var(--cor-borda-input);
+  border-color: var(--cor-borda-input);
+  opacity: 0.6;
+}
+
+body.theme-dark .carrossel-card.active {
+  background-color: var(--cor-sidebar-primaria);
+  border-color: var(
+    --cor-primaria
+  ); /* Assumindo que você tenha uma var de cor primária */
+  box-shadow: 0 6px 25px rgba(var(--cor-primaria-rgb), 0.15); /* Assumindo uma var rgb */
+  opacity: 1;
+}
+
+body.theme-dark .carrossel-card.active .carrossel-card-title {
+  color: var(--cor-primaria);
+}
+
+/* Mensagens */
+body.theme-dark .error-message {
+  color: #ef5350; /* Vermelho mais suave */
+  background-color: rgba(239, 83, 80, 0.1);
+}
+
+/* Estilo para a imagem do logo na sidebar */
+.main-sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0; /* Adiciona um espaçamento */
+}
+
+.logo-image {
+  max-width: 80%; /* Garante que o logo não ultrapasse a largura da sidebar */
+  height: auto; /* Mantém a proporção da imagem */
+  transition: transform 0.3s ease; /* Efeito suave de zoom */
+}
+
+.main-sidebar-logo:hover .logo-image {
+  transform: scale(1.1); /* Aumenta um pouco o logo ao passar o mouse */
+}

@@ -162,6 +162,15 @@ export const setSequenciaPlaylist = async (tipoSessaoId, payload) => {
   return response.data;
 };
 
+/**
+ * Atualiza os dados de uma música (ex: título).
+ * @param {string} id - O ID da música a ser atualizada.
+ * @param {{ titulo: string }} musicaData - Os novos dados da música.
+ */
+export const updateMusica = async (id, musicaData) => {
+  const response = await apiClient.put(`/harmonia/musicas/${id}`, musicaData);
+  return response.data;
+};
 // NOTA: A função abaixo pode ser redundante se o backend não tiver o endpoint específico
 // /playlists/:id/musicas. Se o update de músicas for feito em outra rota, esta pode ser removida.
 /**

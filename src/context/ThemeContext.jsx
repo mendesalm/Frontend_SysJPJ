@@ -1,11 +1,10 @@
-// src/context/ThemeContext.jsx
+// src/context/ThemeContext.jsx (CORRIGIDO)
 
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useEffect } from "react"; // Removido 'useContext' daqui
 
-const ThemeContext = createContext();
+export const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  // Tenta pegar o tema do localStorage, ou usa 'dark' como padrão
   const [theme, setTheme] = useState(
     () => localStorage.getItem("theme") || "dark"
   );
@@ -27,6 +26,3 @@ export const ThemeProvider = ({ children }) => {
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 };
-
-// Hook customizado para facilitar o uso do contexto
-export const useTheme = () => useContext(ThemeContext);

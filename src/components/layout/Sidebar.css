@@ -18,8 +18,8 @@
   background-color: #34495e;
 }
 .sidebar-header a {
-    color: #ecf0f1;
-    text-decoration: none;
+  color: #ecf0f1;
+  text-decoration: none;
 }
 
 .sidebar-nav {
@@ -69,7 +69,7 @@
   border-left: 4px solid transparent;
 }
 .nav-group .group-toggle:hover {
-    background-color: #34495e;
+  background-color: #34495e;
 }
 
 .chevron-icon {
@@ -78,7 +78,9 @@
 .chevron-icon.open {
   transform: rotate(180deg);
 }
-
+.sidebar-icon {
+  height: 5px;
+}
 .submenu {
   list-style: none;
   padding-left: 0;
@@ -94,28 +96,40 @@
 }
 
 .submenu li {
-    opacity: 0;
-    transform: translateY(-15px);
-    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  opacity: 0;
+  transform: translateY(-15px);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
 }
 
 .submenu.open li {
-    opacity: 1;
-    transform: translateY(0);
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.submenu.open li:nth-child(1) { transition-delay: 0.05s; }
-.submenu.open li:nth-child(2) { transition-delay: 0.1s; }
-.submenu.open li:nth-child(3) { transition-delay: 0.15s; }
-.submenu.open li:nth-child(4) { transition-delay: 0.2s; }
-.submenu.open li:nth-child(5) { transition-delay: 0.25s; }
-.submenu.open li:nth-child(6) { transition-delay: 0.3s; }
+.submenu.open li:nth-child(1) {
+  transition-delay: 0.05s;
+}
+.submenu.open li:nth-child(2) {
+  transition-delay: 0.1s;
+}
+.submenu.open li:nth-child(3) {
+  transition-delay: 0.15s;
+}
+.submenu.open li:nth-child(4) {
+  transition-delay: 0.2s;
+}
+.submenu.open li:nth-child(5) {
+  transition-delay: 0.25s;
+}
+.submenu.open li:nth-child(6) {
+  transition-delay: 0.3s;
+}
 
 .submenu a {
   padding-left: 45px;
 }
 .submenu a.active {
-    border-left-color: #e67e22;
+  border-left-color: #e67e22;
 }
 
 .sidebar-footer {
@@ -125,25 +139,25 @@
 
 /* ESTILOS ADICIONADOS PARA A INFORMAÇÃO DE DEBUG */
 .user-info-debug {
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 1rem;
-    font-size: 0.85rem;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
 }
 .user-info-debug p {
-    margin: 4px 0;
-    color: #bdc3c7;
+  margin: 4px 0;
+  color: #bdc3c7;
 }
 .user-info-debug strong {
-    color: #ecf0f1;
+  color: #ecf0f1;
 }
 .debug-credential {
-    font-weight: bold;
-    color: #e67e22; /* Laranja para destaque */
-    background-color: rgba(0,0,0,0.3);
-    padding: 2px 5px;
-    border-radius: 3px;
+  font-weight: bold;
+  color: #e67e22; /* Laranja para destaque */
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 2px 5px;
+  border-radius: 3px;
 }
 /* FIM DOS ESTILOS DE DEBUG */
 
@@ -159,6 +173,5 @@
   transition: background-color 0.2s;
 }
 .logout-button:hover {
-    background-color: #e74c3c;
+  background-color: #e74c3c;
 }
-

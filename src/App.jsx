@@ -15,7 +15,7 @@ import LoginPage from "./assets/pages/login/LoginPage.jsx";
 import ForgotPasswordPage from "./assets/pages/auth/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./assets/pages/auth/ResetPasswordPage.jsx";
 
-// Páginas Lazy-loaded
+// Lazy-loaded Pages
 const DashboardPage = lazy(() =>
   import("./assets/pages/dashboard/DashboardPage.jsx")
 );
@@ -65,10 +65,12 @@ const LancamentosPage = lazy(() =>
 const OrcamentoPage = lazy(() =>
   import("./assets/pages/financeiro/OrcamentoPage.jsx")
 );
-
-// --- INÍCIO DA CORREÇÃO DAS ROTAS DE HARMONIA ---
 const GestaoPlaylistsPage = lazy(() =>
   import("./assets/pages/harmonia/GestaoPlaylistsPage.jsx")
+);
+// --- CORREÇÃO APLICADA AQUI ---
+const GestaoMusicasPage = lazy(() =>
+  import("./assets/pages/harmonia/GestaoMusicasPage.jsx")
 );
 const MontagemSequenciaPage = lazy(() =>
   import("./assets/pages/harmonia/MontagemSequenciaPage.jsx")
@@ -76,7 +78,12 @@ const MontagemSequenciaPage = lazy(() =>
 const PlayerHarmoniaPage = lazy(() =>
   import("./assets/pages/harmonia/PlayerHarmoniaPage.jsx")
 );
-// --- FIM DA CORREÇÃO DAS ROTAS DE HARMONIA ---
+const GestaoVisitacoesPage = lazy(() =>
+  import("./assets/pages/visitacoes/GestaoVisitacoesPage.jsx")
+);
+const MinhasVisitasPage = lazy(() =>
+  import("./assets/pages/visitacoes/MinhasVisitasPage.jsx")
+);
 
 const LoadingFallback = () => (
   <div
@@ -111,6 +118,7 @@ function App() {
       <div className="App">
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
+            {/* Rotas Públicas */}
             <Route
               path="/"
               element={
@@ -126,6 +134,8 @@ function App() {
               path="/resetar-senha/:token"
               element={<ResetPasswordPage />}
             />
+
+            {/* Rotas Protegidas com Layout */}
             <Route element={<ProtectedRoute />}>
               <Route element={<NewDashboardLayout />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
@@ -163,24 +173,40 @@ function App() {
                   path="/admin/permissions"
                   element={<PermissionsPage />}
                 />
-
-                {/* --- INÍCIO DA CORREÇÃO DAS ROTAS DE HARMONIA --- */}
                 <Route
                   path="/player-harmonia"
                   element={<PlayerHarmoniaPage />}
                 />
                 <Route
-                  path="/admin/harmonia/playlists"
+                  path="admin/harmonia/sequencias"
+                  element={<MontagemSequenciaPage />}
+                />
+                <Route
+                  path="admin/harmonia/playlists"
                   element={<GestaoPlaylistsPage />}
                 />
                 <Route
-                  path="/admin/harmonia/sequencias"
-                  element={<MontagemSequenciaPage />}
+                  path="admin/harmonia/musicas"
+                  element={<GestaoMusicasPage />}
                 />
-                {/* --- FIM DA CORREÇÃO DAS ROTAS DE HARMONIA --- */}
+                <Route
+                  path="/admin/visitacoes"
+                  element={<GestaoVisitacoesPage />}
+                />
+                <Route
+                  path="/minhas-visitacoes"
+                  element={<MinhasVisitasPage />}
+                />
+
+                {/* --- ROTA DE 404 MELHORADA --- */}
+                <Route
+                  path="*"
+                  element={
+                    <h2>404 - Página Não Encontrada Dentro do Sistema</h2>
+                  }
+                />
               </Route>
             </Route>
-            <Route path="*" element={<h2>404 - Página Não Encontrada</h2>} />
           </Routes>
         </Suspense>
       </div>

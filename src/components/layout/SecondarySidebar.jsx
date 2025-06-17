@@ -28,7 +28,7 @@ const menuData = {
       { label: "Dados de Membros", path: "/admin/members" },
       { label: "Gestão de Sessões", path: "/sessoes" },
       { label: "Controle de Frequência", path: "/relatorios" },
-      { label: "Controle de Visitações", path: "/visitacoes" },
+      { label: "Controle de Visitações", path: "/admin/visitacoes" },
       // CORREÇÃO: Adicionado o novo item de menu para eventos.
       { label: "Gestão de Eventos", path: "/eventos" },
     ],
@@ -49,8 +49,9 @@ const menuData = {
     title: "Harmonia",
     items: [
       { label: "Player de Harmonia", path: "/player-harmonia" },
-      { label: "Gestão de Playlists", path: "/admin/harmonia/playlists" },
       { label: "Montagem de Sequências", path: "/admin/harmonia/sequencias" },
+      { label: "Gestão de Playlists", path: "/admin/harmonia/playlists" },
+      { label: "Gestão de Músicas", path: "/admin/harmonia/musicas" },
     ],
   },
   "menu-webmaster": {

@@ -1,0 +1,22 @@
+/* src/components/ThemeSwitcher.css */
+
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%; /* Deixa o fundo redondo */
+  transition: background-color 0.2s ease-in-out;
+  width: 40px; /* Define uma largura fixa */
+  height: 40px; /* Define uma altura fixa */
+}
+
+.theme-switcher:hover {
+  background-color: var(--elevation-2); /* Cor de fundo ao passar o mouse */
+}
+
+.theme-switcher .icon {
+  font-size: 20px; /* Tamanho do ícone de sol/lua */
+  color: var(--primary-color); /* Cor do ícone */
+}

@@ -1,16 +1,16 @@
-// src/hooks/useDataFetching.js (CORRIGIDO)
+// src/hooks/useDataFetching.js (VERSÃO FINAL E UNIVERSAL)
 
 import { useState, useEffect, useCallback } from "react";
 
 /**
- * Um hook customizado para buscar dados de um serviço de API.
- * Ele gerencia os estados de carregamento, erro e os próprios dados.
- * @param {Function} serviceFunction A função do serviço que retorna uma promessa (ex: getAllAvisos).
- * @param {Array} params Parâmetros opcionais para passar para a função de serviço.
- * @returns {{data: Array, isLoading: boolean, error: string, refetch: Function}}
+ * Hook customizado e universal para buscar dados.
+ * Lida com respostas paginadas (formato { data: [], pagination: {} }) e
+ * respostas não paginadas (formato []), retornando sempre um objeto
+ * consistente para o componente.
  */
 export const useDataFetching = (serviceFunction, params = []) => {
-  const [data, setData] = useState([]);
+  // O estado inicial já reflete a estrutura de retorno final
+  const [state, setState] = useState({ data: [], pagination: null });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -20,17 +20,39 @@ export const useDataFetching = (serviceFunction, params = []) => {
     try {
       setIsLoading(true);
       setError("");
-
       const parsedParams = JSON.parse(stringifiedParams);
       const response = await serviceFunction(...parsedParams);
 
-      // --- CORREÇÃO APLICADA AQUI ---
-      // A função de serviço já retorna os dados. Não precisamos mais acessar '.data'.
-      setData(response);
+      // Verifica se a resposta JÁ é paginada
+      if (
+        response &&
+        typeof response === "object" &&
+        "data" in response &&
+        "pagination" in response
+      ) {
+        // Se sim, usa a resposta paginada diretamente
+        setState(response);
+      } else {
+        // Se não, é um array simples (ou outro dado). Nós o envolvemos na estrutura padrão.
+        const dataArray = Array.isArray(response)
+          ? response
+          : response
+          ? [response]
+          : [];
+        setState({
+          data: dataArray,
+          pagination: {
+            currentPage: 1,
+            totalPages: 1,
+            totalItems: dataArray.length,
+          },
+        });
+      }
     } catch (err) {
       console.error("Erro ao buscar dados:", err);
       setError(err.response?.data?.message || "Falha ao carregar os dados.");
-      setData([]); // Garante que data seja sempre um array em caso de erro
+      // Em caso de erro, retorna a estrutura zerada
+      setState({ data: [], pagination: null });
     } finally {
       setIsLoading(false);
     }
@@ -40,5 +62,6 @@ export const useDataFetching = (serviceFunction, params = []) => {
     fetchData();
   }, [fetchData]);
 
-  return { data, isLoading, error, refetch: fetchData };
+  // Espalha o estado (que contém 'data' e 'pagination') e adiciona o resto
+  return { ...state, isLoading, error, refetch: fetchData };
 };

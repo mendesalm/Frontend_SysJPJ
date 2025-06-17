@@ -3,20 +3,31 @@ import apiClient from "./apiClient";
 
 /**
  * Busca a lista de todas as visitações, com suporte a paginação e filtros.
+ * ROTA CORRIGIDA DE /visitacoes PARA /visitas
  * @param {object} params - Parâmetros como { page, limit, search }
  * @returns {Promise}
  */
-export const getAllVisitas = (params) => {
+export const getVisitas = (params) => {
   return apiClient.get("/visitas", { params });
 };
 
 /**
  * Busca a lista de visitações apenas do membro logado.
+ * ROTA CORRIGIDA DE /visitacoes/me PARA /visitas/me
  * @param {object} params - Parâmetros como { page, limit }
  * @returns {Promise}
  */
 export const getMyVisitas = (params) => {
   return apiClient.get("/visitas/me", { params });
+};
+
+/**
+ * Busca uma visitação específica pelo seu ID.
+ * @param {number} id - O ID da visitação.
+ * @returns {Promise}
+ */
+export const getVisitaById = (id) => {
+  return apiClient.get(`/visitas/${id}`);
 };
 
 /**

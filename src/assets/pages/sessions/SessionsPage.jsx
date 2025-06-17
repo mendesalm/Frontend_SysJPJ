@@ -8,10 +8,8 @@ import "./SessionsPage.css";
 import "../../styles/TableStyles.css";
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
-// Componente auxiliar para os controles de paginação
 const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
-
   return (
     <div
       className="pagination-controls"
@@ -45,27 +43,24 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
 };
 
 const SessionsPage = () => {
-  const { user } = useAuth();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // 1. ESTADO PARA CONTROLE DA PÁGINA ATUAL
   const [currentPage, setCurrentPage] = useState(1);
-
-  // 2. O HOOK AGORA RECEBE OS PARÂMETROS DE PAGINAÇÃO
   const params = useMemo(
     () => ({ page: currentPage, limit: 9 }),
     [currentPage]
-  ); // 9 cards por página
+  );
+
+  // --- CORREÇÃO AQUI ---
+  // O hook agora retorna 'data' e 'pagination' de forma explícita
   const {
-    data: response,
+    data: sessions,
+    pagination,
     isLoading,
     error: fetchError,
     refetch,
   } = useDataFetching(getSessions, [params]);
 
-  // 3. EXTRAÍMOS OS DADOS E A PAGINAÇÃO DA RESPOSTA
-  const sessions = response?.data || [];
-  const pagination = response?.pagination || { totalPages: 1, currentPage: 1 };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user } = useAuth();
 
   const canManageSessions =
     user?.credencialAcesso === "Diretoria" ||
@@ -74,19 +69,19 @@ const SessionsPage = () => {
   const handleSaveSession = async (formData) => {
     try {
       await createSession(formData);
-      refetch();
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        refetch();
+      }
       setIsModalOpen(false);
       showSuccessToast("Sessão registrada com sucesso!");
     } catch (err) {
-      console.error(err);
       showErrorToast(
         err.response?.data?.message || "Erro ao registar a sessão."
       );
     }
   };
-
-  if (isLoading)
-    return <div className="table-page-container">A carregar sessões...</div>;
 
   return (
     <div className="table-page-container">
@@ -105,10 +100,11 @@ const SessionsPage = () => {
       {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="sessions-list">
-        {!isLoading && sessions.length === 0 ? (
-          <p>Nenhuma sessão registada para esta página.</p>
+        {isLoading ? (
+          <p>A carregar sessões...</p>
+        ) : !sessions || sessions.length === 0 ? (
+          <p>Nenhuma sessão registada.</p>
         ) : (
-          // Agora `sessions.map` funciona porque `sessions` é o array `response.data`
           sessions.map((session) => (
             <div key={session.id} className="session-card">
               <div className="session-card-header">
@@ -148,12 +144,13 @@ const SessionsPage = () => {
         )}
       </div>
 
-      {/* 4. ADICIONAMOS OS CONTROLES DE PAGINAÇÃO À UI */}
-      <PaginationControls
-        currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
-        onPageChange={(page) => setCurrentPage(page)}
-      />
+      {pagination && (
+        <PaginationControls
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
 
       <Modal
         isOpen={isModalOpen}

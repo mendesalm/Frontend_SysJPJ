@@ -1,112 +1,28 @@
-// src/components/layout/MainSidebar.jsx
-import React from "react";
+//import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useTheme } from "../../hooks/useTheme";
 import ThemeSwitcher from "../ThemeSwitcher";
+import logoJPJ from "../../assets/images/logo.png";
+// Ícones para o tema Claro
+import MacomL from "../../assets/images/icones/light/Macom-L.png";
+import SecretarioL from "../../assets/images/icones/light/Secretario-L.png";
+import ChancelerL from "../../assets/images/icones/light/Chanceler-L.png";
+import TesoureiroL from "../../assets/images/icones/light/Tesoureiro-L.png";
+import BibliotecaL from "../../assets/images/icones/light/Biblioteca-L.png";
+import HarmoniaL from "../../assets/images/icones/light/Harmonia-L.png";
 
-const IconUsuario = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-);
-const IconSecretaria = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M17 3l4 4L7 21l-4-4L17 3z"></path>
-    <path d="M7 3l4 4L3 21l-4-4L7 3z"></path>
-    <path d="M14 8L6 16"></path>
-  </svg>
-);
-const IconChancelaria = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
-    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
-    <circle cx="10.5" cy="15.5" r="2.5"></circle>
-    <path d="m16 10-5.5 5.5"></path>
-  </svg>
-);
-const IconTesouraria = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M14.5 2.5a2.5 2.5 0 0 1-5 0 2.5 2.5 0 0 1 5 0Z"></path>
-    <path d="M12 10.5V15l-2.5-2.5L7 15V5"></path>
-    <path d="M9.5 2.5a2.5 2.5 0 0 1-5 0 2.5 2.5 0 0 1 5 0Z"></path>
-    <path d="M7 10.5V15l2.5-2.5L12 15V5"></path>
-  </svg>
-);
-const IconBiblioteca = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-  </svg>
-);
-const IconHarmonia = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M7 6V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v2"></path>
-    <path d="M8 6v12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6"></path>
-    <path d="M7 8h10"></path>
-    <path d="M7 12h10"></path>
-    <path d="M7 16h10"></path>
-  </svg>
-);
+// Ícones para o tema Escuro
+import MacomD from "../../assets/images/icones/dark/Macom-D.png";
+import SecretarioD from "../../assets/images/icones/dark/Secretario-D.png";
+import ChancelerD from "../../assets/images/icones/dark/Chanceler-D.png";
+import TesoureiroD from "../../assets/images/icones/dark/Tesoureiro-D.png";
+import BibliotecaD from "../../assets/images/icones/dark/Biblioteca-D.png";
+import HarmoniaD from "../../assets/images/icones/dark/Harmonia-D.png";
+
+// 1. Componentes SVG para Webmaster e Logout reintroduzidos
 const IconWebmaster = () => (
   <svg
-    xmlns="http://www.w3.org/2000/svg"
     width="24"
     height="24"
     viewBox="0 0 24 24"
@@ -121,7 +37,6 @@ const IconWebmaster = () => (
 );
 const IconLogout = () => (
   <svg
-    xmlns="http://www.w3.org/2000/svg"
     width="24"
     height="24"
     viewBox="0 0 24 24"
@@ -137,51 +52,79 @@ const IconLogout = () => (
   </svg>
 );
 
+// Mapeamento dos ícones (agora apenas para os itens principais)
+const lightIcons = {
+  macom: MacomL,
+  secretario: SecretarioL,
+  chanceler: ChancelerL,
+  tesoureiro: TesoureiroL,
+  biblioteca: BibliotecaL,
+  harmonia: HarmoniaL,
+};
+
+const darkIcons = {
+  macom: MacomD,
+  secretario: SecretarioD,
+  chanceler: ChancelerD,
+  tesoureiro: TesoureiroD,
+  biblioteca: BibliotecaD,
+  harmonia: HarmoniaD,
+};
+
 const MainSidebar = ({ activeMenu, onMenuClick }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
-  console.log("[MainSidebar] Renderizou com a prop activeMenu:", activeMenu);
+  const icons = theme === "light" ? lightIcons : darkIcons;
+  const iconStyle = { height: "35px", width: "35px", objectFit: "contain" };
+
+  const menuItems = [
+    { id: "menu-usuario", tooltip: "Painel do Usuário", iconName: "macom" },
+    { id: "menu-secretaria", tooltip: "Secretaria", iconName: "secretario" },
+    { id: "menu-chancelaria", tooltip: "Chancelaria", iconName: "chanceler" },
+    { id: "menu-tesouraria", tooltip: "Tesouraria", iconName: "tesoureiro" },
+    { id: "menu-biblioteca", tooltip: "Biblioteca", iconName: "biblioteca" },
+    { id: "menu-harmonia", tooltip: "Harmonia", iconName: "harmonia" },
+  ];
 
   const handleLogout = () => {
     logout();
     navigate("/");
   };
 
-  const menuItems = [
-    { id: "menu-usuario", tooltip: "Painel do Usuário", icon: <IconUsuario /> },
-    { id: "menu-secretaria", tooltip: "Secretaria", icon: <IconSecretaria /> },
-    {
-      id: "menu-chancelaria",
-      tooltip: "Chancelaria",
-      icon: <IconChancelaria />,
-    },
-    { id: "menu-tesouraria", tooltip: "Tesouraria", icon: <IconTesouraria /> },
-    { id: "menu-biblioteca", tooltip: "Biblioteca", icon: <IconBiblioteca /> },
-    { id: "menu-harmonia", tooltip: "Harmonia", icon: <IconHarmonia /> },
-  ];
-
   return (
     <nav className="main-sidebar">
       <Link to="/dashboard" className="main-sidebar-logo">
-        JPJ
+        <img src={logoJPJ} alt="Logo JPJ" className="logo-image" />
       </Link>
       <ul className="main-menu">
-        {menuItems.map((item) => (
-          <li key={item.id} className="main-menu-item">
-            <button
-              className={`main-menu-button ${
-                activeMenu === item.id ? "active" : ""
-              }`}
-              onClick={() => onMenuClick(item.id)}
-            >
-              {item.icon}
-              <span className="tooltip">{item.tooltip}</span>
-            </button>
-          </li>
-        ))}
+        {menuItems.map((item) => {
+          const iconSrc = icons[item.iconName];
+          return (
+            <li key={item.id} className="main-menu-item">
+              <button
+                className={`main-menu-button ${
+                  activeMenu === item.id ? "active" : ""
+                }`}
+                onClick={() => onMenuClick(item.id)}
+              >
+                {iconSrc && (
+                  <img
+                    src={iconSrc}
+                    alt={item.tooltip}
+                    className="sidebar-icon"
+                    style={iconStyle}
+                  />
+                )}
+                <span className="tooltip">{item.tooltip}</span>
+              </button>
+            </li>
+          );
+        })}
       </ul>
       <div className="main-sidebar-footer">
+        {/* 2. Botões do rodapé agora usam os componentes SVG */}
         <button
           className={`main-menu-button ${
             activeMenu === "menu-webmaster" ? "active" : ""

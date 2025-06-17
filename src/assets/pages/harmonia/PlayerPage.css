@@ -1,5 +1,113 @@
-/* ... (estilos existentes) ... */
+/* Definição de variáveis de cor (exemplo, ajuste conforme seu tema) */
+:root {
+  --primary-color: #0d6efd;
+  --primary-rgb: 13, 110, 253;
+  --danger-color: #dc3545;
+  --background-color: #f8f9fa;
+  --elevation-1: #ffffff;
+  --elevation-2: #f0f3f5;
+  --elevation-3: #e9ecef;
+  --text-color: #212529;
+  --text-secondary-color: #6c757d;
+  --border-color: #dee2e6;
+}
 
+/* Container principal da página */
+.harmonia-player-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+  background-color: var(--background-color);
+  min-height: 100vh;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Card principal do player */
+.harmonia-player-card {
+  width: 100%;
+  max-width: 800px;
+  background-color: var(--elevation-1);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.player-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1.5rem;
+}
+
+.player-header h2 {
+  text-align: center;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.form-select {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--elevation-2);
+  font-size: 1rem;
+}
+
+/* Área "Now Playing" */
+.now-playing-area {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+  background-color: var(--elevation-2);
+  border-radius: 12px;
+}
+
+.album-art {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-color), #42a5f5);
+  color: white;
+  border-radius: 12px;
+}
+
+.track-info {
+  flex-grow: 1;
+  text-align: left;
+  overflow: hidden;
+}
+
+.track-title {
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-playlist {
+  font-size: 0.9rem;
+  color: var(--text-secondary-color);
+}
+
+/* Player de áudio principal */
+.main-audio-player {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* Controles manuais */
 .manual-controls {
   display: flex;
   justify-content: center;
@@ -9,7 +117,6 @@
 
 .btn-stop-advance,
 .btn-nav {
-  /* Novo estilo para botões de navegação */
   padding: 0.8rem 1.5rem;
   border: none;
   border-radius: 25px;
@@ -29,8 +136,9 @@
 }
 
 .btn-stop-advance:hover,
-.btn-nav:hover {
+.btn-nav:hover:not(:disabled) {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .btn-stop-advance:disabled,
@@ -39,19 +147,81 @@
   color: var(--text-secondary-color);
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
+/* Wrapper e container do carrossel */
 .carrossel-container-wrapper {
-  /* ... (estilos existentes) ... */
+  width: 100%;
+  overflow: hidden;
+  padding: 1rem 0;
 }
 
-/* --- NOVOS ESTILOS PARA MENSAGENS --- */
+.carrossel-container {
+  display: flex;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--elevation-2);
+}
+
+.carrossel-card {
+  flex: 0 0 220px;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  background-color: var(--elevation-1);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  opacity: 0.6;
+  transform: scale(0.95);
+}
+
+.carrossel-card.active {
+  opacity: 1;
+  transform: scale(1.05);
+  border-color: var(--primary-color);
+  background-color: #ffffff;
+  box-shadow: 0 6px 25px rgba(var(--primary-rgb), 0.2);
+}
+
+.carrossel-card:hover:not(.active) {
+  opacity: 0.9;
+}
+
+.carrossel-card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.carrossel-card.active .carrossel-card-title {
+  color: var(--primary-color);
+}
+
+.carrossel-card-song {
+  font-size: 0.8rem;
+  color: var(--text-secondary-color);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mensagens de info e erro */
 .error-message,
 .info-message {
   width: 100%;
   text-align: center;
   padding: 2rem;
   font-size: 1.1rem;
+  font-weight: 500;
   border-radius: 8px;
 }
 
@@ -63,5 +233,3 @@
 .info-message {
   color: var(--text-secondary-color);
 }
-
-/* ... (restante dos estilos) ... */
