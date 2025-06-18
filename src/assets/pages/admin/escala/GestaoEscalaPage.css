@@ -1,0 +1,27 @@
+/* Estilos para a tabela da escala */
+.escala-table .actions-cell button {
+  background-color: var(--cor-fundo-input);
+  color: var(--cor-texto-primario);
+  border: 1px solid var(--cor-borda-input);
+  width: 35px;
+  height: 35px;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.escala-table .actions-cell button:hover:not(:disabled) {
+  background-color: var(--cor-foco-input-borda);
+  color: white;
+}
+
+.escala-table .actions-cell button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Badge de status para 'pulado' */
+.status-badge.status-pulado {
+  background-color: #64748b; /* Cinza */
+}

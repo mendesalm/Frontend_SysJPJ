@@ -88,9 +88,10 @@ const GestaoVisitacoesPage = lazy(() =>
 const MinhasVisitasPage = lazy(() =>
   import("./assets/pages/visitacoes/MinhasVisitasPage.jsx")
 );
-const GerarBalaustrePage = lazy(() =>
-  import("./assets/pages/sessions/GerarBalaustrePage.jsx")
+const GestaoEscalaPage = lazy(() =>
+  import("./assets/pages/admin/escala/GestaoEscalaPage.jsx")
 );
+
 const LoadingFallback = () => (
   <div
     style={{
@@ -207,6 +208,10 @@ function App() {
                 <Route
                   path="/minhas-visitacoes"
                   element={<MinhasVisitasPage />}
+                />
+                <Route
+                  path="/admin/escala-jantares"
+                  element={<GestaoEscalaPage />}
                 />
 
                 {/* --- ROTA DE 404 MELHORADA --- */}

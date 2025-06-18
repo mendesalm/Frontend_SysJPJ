@@ -30,6 +30,7 @@ const menuData = {
       { label: "Controle de Frequência", path: "/relatorios" },
       { label: "Controle de Visitações", path: "/admin/visitacoes" },
       { label: "Gestão de Eventos", path: "/eventos" },
+      { label: "Gestão da Escala de Jantares", path: "/admin/escala-jantares" },
     ],
   },
   "menu-tesouraria": {
