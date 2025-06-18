@@ -1,65 +1,110 @@
-.sessions-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 1rem;
+/* src/assets/pages/sessions/SessionsPage.css */
+
+/* --- Container Principal do Carrossel --- */
+.carousel-container {
+  padding: 2rem 0;
 }
 
-.sessions-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.sessions-header h1 {
-  font-size: 2.2rem;
-}
-
-.sessions-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+/* --- Estilos para os Slides e Cards --- */
+.session-slide {
+  padding: 0 15px; /* Espaçamento entre os cards */
 }
 
 .session-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--cor-borda-vidro);
+  border-radius: 12px;
+  color: var(--cor-texto-secundario);
   display: flex;
   flex-direction: column;
+  min-height: 280px; /* Altura mínima para consistência */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform: scale(0.95); /* Slides não ativos são menores */
+  opacity: 0.7;
+}
+
+.slick-center .session-card {
+  transform: scale(1); /* Slide ativo tem o tamanho normal */
+  opacity: 1;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 .session-card-header {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--cor-borda-sidebar);
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .session-card-header h3 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: var(--font-size-lg);
+  color: var(--cor-texto-cabecalho);
 }
 
 .session-date {
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: #007bff;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--cor-active-icon);
+  flex-shrink: 0;
 }
 
 .session-card-body {
   padding: 1.5rem;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .session-card-body p {
-  margin: 0 0 0.5rem 0;
+  margin: 0;
+  font-size: var(--font-size-base);
+}
+
+.balaustre-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto; /* Empurra para o fundo */
 }
 
 .session-card-footer {
-    padding: 1rem 1.5rem;
-    background-color: #f9f9f9;
-    text-align: right;
+  padding: 1rem 1.5rem;
+  margin-top: auto;
+  border-top: 1px solid var(--cor-borda-sidebar);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* --- Estilos para as Flechas e Pontos do Carrossel --- */
+.slick-dots li button:before {
+  font-size: 12px;
+  color: var(--cor-texto-secundario);
+}
+
+.slick-dots li.slick-active button:before {
+  color: var(--cor-active-icon);
+}
+
+.slick-arrow {
+  z-index: 10;
+}
+
+.slick-prev:before,
+.slick-next:before {
+  font-size: 25px;
+  color: var(--cor-active-icon);
+  opacity: 0.8;
+}
+
+.slick-prev {
+  left: -40px;
+}
+
+.slick-next {
+  right: -40px;
 }

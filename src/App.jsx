@@ -19,6 +19,10 @@ import ResetPasswordPage from "./assets/pages/auth/ResetPasswordPage.jsx";
 const DashboardPage = lazy(() =>
   import("./assets/pages/dashboard/DashboardPage.jsx")
 );
+const BalaustreEditPage = lazy(() =>
+  import("./assets/pages/sessions/BalaustreEditPage.jsx")
+);
+
 const ProfilePage = lazy(() =>
   import("./assets/pages/profile/ProfilePage.jsx")
 );
@@ -84,7 +88,9 @@ const GestaoVisitacoesPage = lazy(() =>
 const MinhasVisitasPage = lazy(() =>
   import("./assets/pages/visitacoes/MinhasVisitasPage.jsx")
 );
-
+const GerarBalaustrePage = lazy(() =>
+  import("./assets/pages/sessions/GerarBalaustrePage.jsx")
+);
 const LoadingFallback = () => (
   <div
     style={{
@@ -149,6 +155,11 @@ function App() {
                 <Route path="/patrimonio" element={<PatrimonioPage />} />
                 <Route path="/relatorios" element={<RelatoriosPage />} />
                 <Route path="/admin/members" element={<MemberList />} />
+                <Route
+                  path="/balaustres/editar/:id"
+                  element={<BalaustreEditPage />}
+                />
+
                 <Route
                   path="/admin/members/create"
                   element={<MemberCreatePage />}

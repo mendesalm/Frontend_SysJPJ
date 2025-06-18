@@ -1,59 +1,40 @@
 import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import Slider from "react-slick"; // --- 1. Importar o componente Slider ---
 import { useAuth } from "../../../hooks/useAuth";
 import { useDataFetching } from "../../../hooks/useDataFetching";
-import { getSessions, createSession } from "../../../services/sessionService";
+import {
+  getSessions,
+  createSession,
+  deleteSession,
+} from "../../../services/sessionService";
 import Modal from "../../../components/modal/Modal";
-import SessionForm from "./SessionForm";
-import "./SessionsPage.css";
+import SessionForm from "./SessionForm.jsx";
+import "./SessionsPage.css"; // O CSS será atualizado
 import "../../styles/TableStyles.css";
-import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
+import {
+  showSuccessToast,
+  showErrorToast,
+} from "../../../utils/notifications.js";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
-const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-  return (
-    <div
-      className="pagination-controls"
-      style={{
-        marginTop: "1.5rem",
-        display: "flex",
-        justifyContent: "center",
-        gap: "1rem",
-        alignItems: "center",
-      }}
-    >
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        Anterior
-      </button>
-      <span>
-        Página {currentPage} de {totalPages}
-      </span>
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        Próxima
-      </button>
-    </div>
-  );
+const formatDate = (dateString) => {
+  if (!dateString || isNaN(new Date(dateString))) {
+    return "Data inválida";
+  }
+  return new Date(dateString).toLocaleDateString("pt-BR", { timeZone: "UTC" });
 };
 
 const SessionsPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  // --- 2. Busca todos os itens para o carrossel, removendo a paginação ---
   const params = useMemo(
-    () => ({ page: currentPage, limit: 9 }),
-    [currentPage]
+    () => ({ page: 1, limit: 999, sortBy: "dataSessao", order: "DESC" }),
+    []
   );
 
-  // --- CORREÇÃO AQUI ---
-  // O hook agora retorna 'data' e 'pagination' de forma explícita
   const {
     data: sessions,
-    pagination,
     isLoading,
     error: fetchError,
     refetch,
@@ -61,33 +42,88 @@ const SessionsPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
-  const canManageSessions =
-    user?.credencialAcesso === "Diretoria" ||
-    user?.credencialAcesso === "Webmaster";
+  const allowedRolesForSessionCreation = [
+    "Secretário",
+    "Secretário Adjunto",
+    "Chanceler",
+    "Chanceler Adjunto",
+  ];
+  const canCreateSession =
+    user?.credencialAcesso === "Webmaster" ||
+    allowedRolesForSessionCreation.includes(user?.cargoAtual);
+
+  const allowedRolesForBalaustreEdit = ["Secretário", "Secretário Adjunto"];
+  const canEditBalaustre =
+    user?.credencialAcesso === "Webmaster" ||
+    allowedRolesForBalaustreEdit.includes(user?.cargoAtual);
+
+  const canDeleteSession = canCreateSession;
 
   const handleSaveSession = async (formData) => {
     try {
       await createSession(formData);
-      if (currentPage !== 1) {
-        setCurrentPage(1);
-      } else {
-        refetch();
-      }
-      setIsModalOpen(false);
       showSuccessToast("Sessão registrada com sucesso!");
+      setIsModalOpen(false);
+      refetch();
     } catch (err) {
       showErrorToast(
-        err.response?.data?.message || "Erro ao registar a sessão."
+        err.response?.data?.message || "Erro ao registrar a sessão."
       );
     }
+  };
+
+  const handleDeleteSession = async (sessionId) => {
+    if (
+      window.confirm(
+        "Tem a certeza que deseja apagar esta sessão? Esta ação não pode ser desfeita e irá remover também o balaústre associado."
+      )
+    ) {
+      try {
+        await deleteSession(sessionId);
+        showSuccessToast("Sessão apagada com sucesso!");
+        refetch();
+      } catch (err) {
+        showErrorToast(
+          err.response?.data?.message || "Erro ao apagar a sessão."
+        );
+      }
+    }
+  };
+
+  // --- 3. Configurações para o carrossel ---
+  const sliderSettings = {
+    dots: true,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    centerMode: true,
+    centerPadding: "0px",
+    initialSlide: 0, // A sessão mais recente será a primeira (ativa)
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 2,
+        },
+      },
+      {
+        breakpoint: 600,
+        settings: {
+          slidesToShow: 1,
+          centerMode: false,
+        },
+      },
+    ],
   };
 
   return (
     <div className="table-page-container">
       <div className="table-header">
-        <h1>Sessões Maçónicas</h1>
-        {canManageSessions && (
+        <h1>Gestão de Sessões</h1>
+        {canCreateSession && (
           <button
             onClick={() => setIsModalOpen(true)}
             className="btn-action btn-approve"
@@ -99,58 +135,84 @@ const SessionsPage = () => {
 
       {fetchError && <p className="error-message">{fetchError}</p>}
 
-      <div className="sessions-list">
+      {/* --- 4. Renderização do Carrossel em vez da lista simples --- */}
+      <div className="carousel-container">
         {isLoading ? (
           <p>A carregar sessões...</p>
         ) : !sessions || sessions.length === 0 ? (
           <p>Nenhuma sessão registada.</p>
         ) : (
-          sessions.map((session) => (
-            <div key={session.id} className="session-card">
-              <div className="session-card-header">
-                <h3>
-                  {session.tipoSessao} de {session.subtipoSessao}
-                </h3>
-                <span className="session-date">
-                  {new Date(session.dataSessao).toLocaleDateString("pt-BR", {
-                    timeZone: "UTC",
-                  })}
-                </span>
-              </div>
-              <div className="session-card-body">
-                <p>
-                  <strong>Presentes:</strong> {session.presentes?.length || 0}{" "}
-                  Obreiros
-                </p>
-                <p>
-                  <strong>Visitantes:</strong> {session.visitantes?.length || 0}
-                </p>
-                {session.ata ? (
-                  <a
-                    href={`/uploads/${session.ata.path}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn-action btn-edit"
-                    style={{ textDecoration: "none" }}
-                  >
-                    Ver Ata (Nº {session.ata.numero}/{session.ata.ano})
-                  </a>
-                ) : (
-                  <p>Ata não disponível</p>
-                )}
-              </div>
-            </div>
-          ))
+          <Slider {...sliderSettings}>
+            {sessions
+              .filter((session) => session && session.id)
+              .map((session) => (
+                <div key={session.id} className="session-slide">
+                  <div className="session-card">
+                    <div className="session-card-header">
+                      <h3>
+                        {session.tipoSessao} de {session.subtipoSessao}
+                      </h3>
+                      <span className="session-date">
+                        {formatDate(session.dataSessao)}
+                      </span>
+                    </div>
+                    <div className="session-card-body">
+                      <p>
+                        <strong>Presentes:</strong>{" "}
+                        {session.presentesCount || 0} Obreiros
+                      </p>
+                      <p>
+                        <strong>Visitantes:</strong>{" "}
+                        {session.visitantesCount || 0}
+                      </p>
+
+                      {session.Balaustre ? (
+                        <div className="balaustre-actions">
+                          <a
+                            href={`${
+                              import.meta.env.VITE_BACKEND_URL ||
+                              "http://localhost:3001"
+                            }${session.Balaustre.caminhoPdfLocal}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-action btn-edit"
+                          >
+                            Ver PDF
+                          </a>
+                          {canEditBalaustre && (
+                            <button
+                              onClick={() =>
+                                navigate(
+                                  `/balaustres/editar/${session.Balaustre.id}`
+                                )
+                              }
+                              className="btn-action btn-approve"
+                            >
+                              Editar Balaústre
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <p>Balaústre não disponível.</p>
+                      )}
+                    </div>
+                    {canDeleteSession && (
+                      <div className="session-card-footer">
+                        <button
+                          onClick={() => handleDeleteSession(session.id)}
+                          className="btn-action btn-delete"
+                          title="Apagar Sessão"
+                        >
+                          Apagar Sessão
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+          </Slider>
         )}
       </div>
-
-      {pagination && (
-        <PaginationControls
-          currentPage={pagination.currentPage}
-          totalPages={pagination.totalPages}
-          onPageChange={setCurrentPage}
-        />
-      )}
 
       <Modal
         isOpen={isModalOpen}

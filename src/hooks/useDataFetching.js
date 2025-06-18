@@ -1,15 +1,9 @@
-// src/hooks/useDataFetching.js (VERSÃO FINAL E UNIVERSAL)
-
 import { useState, useEffect, useCallback } from "react";
 
 /**
- * Hook customizado e universal para buscar dados.
- * Lida com respostas paginadas (formato { data: [], pagination: {} }) e
- * respostas não paginadas (formato []), retornando sempre um objeto
- * consistente para o componente.
+ * Hook customizado e universal para buscar dados, corrigido para lidar com respostas do Axios.
  */
 export const useDataFetching = (serviceFunction, params = []) => {
-  // O estado inicial já reflete a estrutura de retorno final
   const [state, setState] = useState({ data: [], pagination: null });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -21,23 +15,27 @@ export const useDataFetching = (serviceFunction, params = []) => {
       setIsLoading(true);
       setError("");
       const parsedParams = JSON.parse(stringifiedParams);
-      const response = await serviceFunction(...parsedParams);
+      const response = await serviceFunction(...parsedParams); // A resposta completa do Axios
 
-      // Verifica se a resposta JÁ é paginada
+      // --- CORREÇÃO PRINCIPAL ---
+      // Extraímos a carga útil da API da propriedade `data` da resposta do Axios.
+      const apiData = response.data;
+
+      // Agora, verificamos a estrutura dos dados da API.
       if (
-        response &&
-        typeof response === "object" &&
-        "data" in response &&
-        "pagination" in response
+        apiData &&
+        typeof apiData === "object" &&
+        "data" in apiData &&
+        "pagination" in apiData
       ) {
-        // Se sim, usa a resposta paginada diretamente
-        setState(response);
+        // Se a resposta JÁ é paginada, usa-a diretamente.
+        setState({ data: apiData.data, pagination: apiData.pagination });
       } else {
-        // Se não, é um array simples (ou outro dado). Nós o envolvemos na estrutura padrão.
-        const dataArray = Array.isArray(response)
-          ? response
-          : response
-          ? [response]
+        // Se não, é um array simples ou outro dado. Nós o envolvemos na estrutura padrão.
+        const dataArray = Array.isArray(apiData)
+          ? apiData
+          : apiData
+          ? [apiData]
           : [];
         setState({
           data: dataArray,
@@ -51,7 +49,6 @@ export const useDataFetching = (serviceFunction, params = []) => {
     } catch (err) {
       console.error("Erro ao buscar dados:", err);
       setError(err.response?.data?.message || "Falha ao carregar os dados.");
-      // Em caso de erro, retorna a estrutura zerada
       setState({ data: [], pagination: null });
     } finally {
       setIsLoading(false);
@@ -62,6 +59,6 @@ export const useDataFetching = (serviceFunction, params = []) => {
     fetchData();
   }, [fetchData]);
 
-  // Espalha o estado (que contém 'data' e 'pagination') e adiciona o resto
-  return { ...state, isLoading, error, refetch: fetchData };
+  // Retornamos 'setState' para permitir atualizações otimistas da UI, se necessário.
+  return { ...state, isLoading, error, refetch: fetchData, setState };
 };

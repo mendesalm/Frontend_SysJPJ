@@ -18,7 +18,7 @@ const menuData = {
     title: "Secretaria",
     items: [
       { label: "Gestão de Membros", path: "/admin/members" },
-      { label: "Gestão de Atas", path: "/sessoes" },
+      { label: "Gestão de Sessões e Balaústres", path: "/sessoes" },
       { label: "Gestão de Publicações", path: "/publicacoes" },
     ],
   },
@@ -29,7 +29,6 @@ const menuData = {
       { label: "Gestão de Sessões", path: "/sessoes" },
       { label: "Controle de Frequência", path: "/relatorios" },
       { label: "Controle de Visitações", path: "/admin/visitacoes" },
-      // CORREÇÃO: Adicionado o novo item de menu para eventos.
       { label: "Gestão de Eventos", path: "/eventos" },
     ],
   },
@@ -69,10 +68,6 @@ const SecondarySidebar = ({ activeMenu }) => {
   const { user } = useAuth();
   const finalClassName = `secondary-sidebar ${activeMenu ? "is-open" : ""}`;
 
-  console.log(
-    `[SecondarySidebar] Renderizou. Prop activeMenu: '${activeMenu}'. Classe final: '${finalClassName}'`
-  );
-
   const isWebmaster = user?.credencialAcesso === "Webmaster";
 
   const shouldRenderMenu = (menu) => {
@@ -93,7 +88,8 @@ const SecondarySidebar = ({ activeMenu }) => {
             <h3>{menu.title}</h3>
             <ul className="secondary-menu">
               {menu.items.map((item) => (
-                <li key={item.path}>
+                // CORREÇÃO: A chave agora é uma combinação única do grupo e do caminho do item.
+                <li key={`${key}-${item.path}`}>
                   <NavLink to={item.path}>{item.label}</NavLink>
                 </li>
               ))}
