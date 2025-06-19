@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   getContas,
@@ -11,56 +11,13 @@ import ContaForm from "./ContaForm";
 import "../../styles/TableStyles.css";
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
-// Componente auxiliar para os controles de paginação
-const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-  return (
-    <div
-      className="pagination-controls"
-      style={{
-        marginTop: "1.5rem",
-        display: "flex",
-        justifyContent: "center",
-        gap: "1rem",
-        alignItems: "center",
-      }}
-    >
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        Anterior
-      </button>
-      <span>
-        Página {currentPage} de {totalPages}
-      </span>
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        Próxima
-      </button>
-    </div>
-  );
-};
-
 const PlanoContasPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const params = useMemo(
-    () => ({ page: currentPage, limit: 10 }),
-    [currentPage]
-  );
   const {
-    data: response,
+    data: contas,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getContas, [params]);
-
-  const contas = response?.data || [];
-  const pagination = response?.pagination || { totalPages: 1 };
+  } = useDataFetching(getContas);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentConta, setCurrentConta] = useState(null);
@@ -181,12 +138,6 @@ const PlanoContasPage = () => {
           </tbody>
         </table>
       </div>
-
-      <PaginationControls
-        currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
-        onPageChange={setCurrentPage}
-      />
 
       <Modal
         isOpen={isModalOpen}

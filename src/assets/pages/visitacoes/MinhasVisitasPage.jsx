@@ -1,59 +1,14 @@
-// src/assets/pages/visitacoes/MinhasVisitasPage.jsx
-import React, { useState, useMemo } from "react";
+import React from "react";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import { getMyVisitas } from "../../../services/visitacaoService";
 import "../../styles/TableStyles.css";
 
-// --- INÍCIO DA CORREÇÃO: Adicionando o componente de controles ---
-const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-  return (
-    <div
-      className="pagination-controls"
-      style={{
-        marginTop: "1.5rem",
-        display: "flex",
-        justifyContent: "center",
-        gap: "1rem",
-        alignItems: "center",
-      }}
-    >
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        Anterior
-      </button>
-      <span>
-        Página {currentPage} de {totalPages}
-      </span>
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        Próxima
-      </button>
-    </div>
-  );
-};
-// --- FIM DA CORREÇÃO ---
-
 const MinhasVisitasPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const params = useMemo(
-    () => ({ page: currentPage, limit: 10 }),
-    [currentPage]
-  );
   const {
-    data: response,
+    data: visitas,
     isLoading,
     error: fetchError,
-  } = useDataFetching(getMyVisitas, [params]);
-
-  const visitas = response?.data || [];
-  const pagination = response?.pagination || { totalPages: 1 };
+  } = useDataFetching(getMyVisitas);
 
   return (
     <div className="table-page-container">
@@ -101,14 +56,6 @@ const MinhasVisitasPage = () => {
           </tbody>
         </table>
       </div>
-
-      {/* --- INÍCIO DA CORREÇÃO: Renderizando os controles de paginação --- */}
-      <PaginationControls
-        currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
-        onPageChange={setCurrentPage}
-      />
-      {/* --- FIM DA CORREÇÃO --- */}
     </div>
   );
 };

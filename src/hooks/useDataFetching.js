@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 
 /**
- * Hook customizado e universal para buscar dados, corrigido para lidar com respostas do Axios.
+ * Hook customizado e universal para buscar dados.
+ * Lida com respostas paginadas (formato { data: [], pagination: {} }) e
+ * respostas não paginadas (um array simples), retornando sempre um objeto
+ * consistente para o componente.
  */
 export const useDataFetching = (serviceFunction, params = []) => {
   const [state, setState] = useState({ data: [], pagination: null });
@@ -15,23 +18,25 @@ export const useDataFetching = (serviceFunction, params = []) => {
       setIsLoading(true);
       setError("");
       const parsedParams = JSON.parse(stringifiedParams);
-      const response = await serviceFunction(...parsedParams); // A resposta completa do Axios
+      const response = await serviceFunction(...parsedParams);
 
-      // --- CORREÇÃO PRINCIPAL ---
-      // Extraímos a carga útil da API da propriedade `data` da resposta do Axios.
+      // DEBUG: Inspeciona a resposta crua da API
+      console.log(
+        `[useDataFetching] Resposta da API para ${serviceFunction.name}:`,
+        response
+      );
+
       const apiData = response.data;
 
-      // Agora, verificamos a estrutura dos dados da API.
       if (
         apiData &&
         typeof apiData === "object" &&
+        !Array.isArray(apiData) &&
         "data" in apiData &&
         "pagination" in apiData
       ) {
-        // Se a resposta JÁ é paginada, usa-a diretamente.
         setState({ data: apiData.data, pagination: apiData.pagination });
       } else {
-        // Se não, é um array simples ou outro dado. Nós o envolvemos na estrutura padrão.
         const dataArray = Array.isArray(apiData)
           ? apiData
           : apiData
@@ -59,6 +64,5 @@ export const useDataFetching = (serviceFunction, params = []) => {
     fetchData();
   }, [fetchData]);
 
-  // Retornamos 'setState' para permitir atualizações otimistas da UI, se necessário.
   return { ...state, isLoading, error, refetch: fetchData, setState };
 };

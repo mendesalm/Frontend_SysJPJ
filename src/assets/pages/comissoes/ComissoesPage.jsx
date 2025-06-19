@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   createComissao,
@@ -11,56 +11,13 @@ import "./ComissoesPage.css";
 import "../../styles/TableStyles.css";
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
-// Componente auxiliar para os controles de paginação
-const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-  return (
-    <div
-      className="pagination-controls"
-      style={{
-        marginTop: "1.5rem",
-        display: "flex",
-        justifyContent: "center",
-        gap: "1rem",
-        alignItems: "center",
-      }}
-    >
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        Anterior
-      </button>
-      <span>
-        Página {currentPage} de {totalPages}
-      </span>
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        Próxima
-      </button>
-    </div>
-  );
-};
-
 const ComissoesPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const params = useMemo(
-    () => ({ page: currentPage, limit: 9 }),
-    [currentPage]
-  ); // 9 cards por página
   const {
-    data: response,
+    data: comissoes,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getComissoes, [params]);
-
-  const comissoes = response?.data || [];
-  const pagination = response?.pagination || { totalPages: 1 };
+  } = useDataFetching(getComissoes);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
@@ -72,12 +29,7 @@ const ComissoesPage = () => {
   const handleSave = async (formData) => {
     try {
       await createComissao(formData);
-      // Se um novo item for criado, volta para a primeira página para vê-lo
-      if (currentPage !== 1) {
-        setCurrentPage(1);
-      } else {
-        refetch();
-      }
+      refetch();
       setIsModalOpen(false);
       showSuccessToast("Comissão salva com sucesso!");
     } catch (err) {
@@ -135,12 +87,6 @@ const ComissoesPage = () => {
           ))
         )}
       </div>
-
-      <PaginationControls
-        currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
-        onPageChange={setCurrentPage}
-      />
 
       <Modal
         isOpen={isModalOpen}

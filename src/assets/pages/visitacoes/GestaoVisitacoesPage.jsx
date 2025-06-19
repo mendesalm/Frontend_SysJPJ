@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react"; // Adicionado useEffect para debug
+import React, { useState, useMemo } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
@@ -13,76 +13,31 @@ import "../../styles/TableStyles.css";
 import "../../styles/FormStyles.css";
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
-// Componente auxiliar para os controles de paginação
-const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-  return (
-    <div
-      className="pagination-controls"
-      style={{
-        marginTop: "1.5rem",
-        display: "flex",
-        justifyContent: "center",
-        gap: "1rem",
-        alignItems: "center",
-      }}
-    >
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        Anterior
-      </button>
-      <span>
-        Página {currentPage} de {totalPages}
-      </span>
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        Próxima
-      </button>
-    </div>
-  );
-};
-
 const GestaoVisitacoesPage = () => {
   const { user } = useAuth();
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentVisita, setCurrentVisita] = useState(null);
 
-  const params = useMemo(
-    () => ({ page: currentPage, limit: 10, search: searchQuery }),
-    [currentPage, searchQuery]
-  );
-
-  // --- INÍCIO DOS LOGS DE DEBUG ---
-  useEffect(() => {
-    console.log("LOG 0: Componente GestaoVisitacoesPage foi montado.");
-  }, []);
-
-  console.log("LOG 1: Parâmetros enviados para a API:", params);
   const {
-    data: response,
+    data: allVisitas,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getVisitas, [params]);
+  } = useDataFetching(getVisitas);
 
-  console.log("LOG 2: Resposta BRUTA recebida pelo hook:", response);
-
-  const visitas = response?.data || [];
-  const pagination = response?.pagination || { totalPages: 1 };
-
-  console.log("LOG 3: Dados processados para renderização:", {
-    visitas,
-    pagination,
-  });
-  // --- FIM DOS LOGS DE DEBUG ---
+  const filteredVisitas = useMemo(() => {
+    if (!allVisitas) return [];
+    return allVisitas.filter(
+      (visita) =>
+        visita.membro?.NomeCompleto.toLowerCase().includes(
+          searchQuery.toLowerCase()
+        ) ||
+        visita.nomeLojaVisitada
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+    );
+  }, [allVisitas, searchQuery]);
 
   const canManage =
     user?.credencialAcesso === "Diretoria" ||
@@ -99,6 +54,7 @@ const GestaoVisitacoesPage = () => {
         showSuccessToast("Registro de visita apagado com sucesso!");
       } catch (err) {
         showErrorToast("Não foi possível apagar o registro.");
+        console.error(err);
       }
     }
   };
@@ -115,6 +71,7 @@ const GestaoVisitacoesPage = () => {
       showSuccessToast("Registro de visita salvo com sucesso!");
     } catch (err) {
       showErrorToast("Erro ao salvar o registro.");
+      console.error(err);
     }
   };
 
@@ -144,10 +101,7 @@ const GestaoVisitacoesPage = () => {
           placeholder="Buscar por nome do membro ou da loja..."
           className="form-input"
           value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setCurrentPage(1);
-          }}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 
@@ -172,14 +126,14 @@ const GestaoVisitacoesPage = () => {
                   A carregar...
                 </td>
               </tr>
-            ) : visitas.length === 0 ? (
+            ) : filteredVisitas.length === 0 ? (
               <tr>
                 <td colSpan={canManage ? 6 : 5} style={{ textAlign: "center" }}>
                   Nenhum registro de visitação encontrado.
                 </td>
               </tr>
             ) : (
-              visitas.map((visita) => (
+              filteredVisitas.map((visita) => (
                 <tr key={visita.id}>
                   <td>{visita.membro?.NomeCompleto || "N/A"}</td>
                   <td>{visita.nomeLojaVisitada}</td>
@@ -212,12 +166,6 @@ const GestaoVisitacoesPage = () => {
           </tbody>
         </table>
       </div>
-
-      <PaginationControls
-        currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
-        onPageChange={setCurrentPage}
-      />
 
       <Modal
         isOpen={isModalOpen}

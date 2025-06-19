@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
@@ -11,57 +11,13 @@ import "./PublicacoesPage.css";
 import "../../styles/TableStyles.css";
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
-// Componente auxiliar para os controles de paginação
-const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-  return (
-    <div
-      className="pagination-controls"
-      style={{
-        marginTop: "1.5rem",
-        display: "flex",
-        justifyContent: "center",
-        gap: "1rem",
-        alignItems: "center",
-      }}
-    >
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        Anterior
-      </button>
-      <span>
-        Página {currentPage} de {totalPages}
-      </span>
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        Próxima
-      </button>
-    </div>
-  );
-};
-
 const PublicacoesPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  // Usamos 9 para um grid 3x3
-  const params = useMemo(
-    () => ({ page: currentPage, limit: 9 }),
-    [currentPage]
-  );
   const {
-    data: response,
+    data: publicacoes,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getPublicacoes, [params]);
-
-  const publicacoes = response?.data || [];
-  const pagination = response?.pagination || { totalPages: 1 };
+  } = useDataFetching(getPublicacoes);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
@@ -133,12 +89,6 @@ const PublicacoesPage = () => {
           ))
         )}
       </div>
-
-      <PaginationControls
-        currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
-        onPageChange={setCurrentPage}
-      />
 
       <Modal
         isOpen={isModalOpen}

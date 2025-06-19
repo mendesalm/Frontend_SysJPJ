@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
@@ -13,56 +13,14 @@ import "./AvisosPage.css";
 import "../../styles/TableStyles.css";
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
-// Componente auxiliar para os controles de paginação
-const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-  return (
-    <div
-      className="pagination-controls"
-      style={{
-        marginTop: "1.5rem",
-        display: "flex",
-        justifyContent: "center",
-        gap: "1rem",
-        alignItems: "center",
-      }}
-    >
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        Anterior
-      </button>
-      <span>
-        Página {currentPage} de {totalPages}
-      </span>
-      <button
-        className="btn btn-secondary"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        Próxima
-      </button>
-    </div>
-  );
-};
-
 const AvisosPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const params = useMemo(
-    () => ({ page: currentPage, limit: 5 }),
-    [currentPage]
-  ); // 5 avisos por página
+  // Chamada simplificada do hook, sem paginação.
   const {
-    data: response,
+    data: avisos,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getAllAvisos, [params]);
-
-  const avisos = response?.data || [];
-  const pagination = response?.pagination || { totalPages: 1 };
+  } = useDataFetching(getAllAvisos);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentAviso, setCurrentAviso] = useState(null);
@@ -80,12 +38,7 @@ const AvisosPage = () => {
       } else {
         await createAviso(formData);
       }
-      // Se um novo aviso for criado, volta para a primeira página para vê-lo
-      if (!isUpdating && currentPage !== 1) {
-        setCurrentPage(1);
-      } else {
-        refetch();
-      }
+      refetch(); // Apenas busca os dados novamente.
       setIsModalOpen(false);
       showSuccessToast(
         `Aviso ${isUpdating ? "atualizado" : "criado"} com sucesso!`
@@ -185,12 +138,6 @@ const AvisosPage = () => {
           ))
         )}
       </div>
-
-      <PaginationControls
-        currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
-        onPageChange={setCurrentPage}
-      />
 
       <Modal
         isOpen={isModalOpen}
