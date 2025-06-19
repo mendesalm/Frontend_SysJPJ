@@ -32,3 +32,18 @@ export const updateSession = (id, formData) => {
 export const deleteSession = (id) => {
   return apiClient.delete(`/sessions/${id}`);
 };
+
+// NOVA FUNÇÃO ADICIONADA
+/**
+ * Busca os dados para o painel do Chanceler de uma sessão específica.
+ * @param {string} sessionId - O ID da sessão.
+ * @param {string} dataFim - A data final no formato YYYY-MM-DD.
+ */
+export const getDadosPainelChanceler = (sessionId, dataFim) => {
+  console.log(
+    `[sessionService] Buscando dados do painel para a sessão ${sessionId} até ${dataFim}`
+  );
+  return apiClient.get(`/sessions/${sessionId}/painel-chanceler`, {
+    params: { dataFim },
+  });
+};

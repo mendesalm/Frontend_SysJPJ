@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Slider from "react-slick"; // --- 1. Importar o componente Slider ---
+import Slider from "react-slick";
 import { useAuth } from "../../../hooks/useAuth";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
@@ -10,7 +10,7 @@ import {
 } from "../../../services/sessionService";
 import Modal from "../../../components/modal/Modal";
 import SessionForm from "./SessionForm.jsx";
-import "./SessionsPage.css"; // O CSS será atualizado
+import "./SessionsPage.css";
 import "../../styles/TableStyles.css";
 import {
   showSuccessToast,
@@ -27,39 +27,27 @@ const formatDate = (dateString) => {
 };
 
 const SessionsPage = () => {
-  // --- 2. Busca todos os itens para o carrossel, removendo a paginação ---
-  const params = useMemo(
-    () => ({ page: 1, limit: 999, sortBy: "dataSessao", order: "DESC" }),
-    []
-  );
-
+  const fetchParams = {
+    page: 1,
+    limit: 999,
+    sortBy: "dataSessao",
+    order: "DESC",
+  };
   const {
     data: sessions,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getSessions, [params]);
+  } = useDataFetching(getSessions, [fetchParams]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const allowedRolesForSessionCreation = [
-    "Secretário",
-    "Secretário Adjunto",
-    "Chanceler",
-    "Chanceler Adjunto",
-  ];
-  const canCreateSession =
+  // Lógica de permissão para DELETAR ainda pode ser útil no frontend
+  const canDeleteSession =
     user?.credencialAcesso === "Webmaster" ||
-    allowedRolesForSessionCreation.includes(user?.cargoAtual);
-
-  const allowedRolesForBalaustreEdit = ["Secretário", "Secretário Adjunto"];
-  const canEditBalaustre =
-    user?.credencialAcesso === "Webmaster" ||
-    allowedRolesForBalaustreEdit.includes(user?.cargoAtual);
-
-  const canDeleteSession = canCreateSession;
+    ["Secretário", "Secretário Adjunto"].includes(user?.cargoAtual);
 
   const handleSaveSession = async (formData) => {
     try {
@@ -92,7 +80,6 @@ const SessionsPage = () => {
     }
   };
 
-  // --- 3. Configurações para o carrossel ---
   const sliderSettings = {
     dots: true,
     infinite: false,
@@ -101,7 +88,7 @@ const SessionsPage = () => {
     slidesToScroll: 1,
     centerMode: true,
     centerPadding: "0px",
-    initialSlide: 0, // A sessão mais recente será a primeira (ativa)
+    initialSlide: 0,
     responsive: [
       {
         breakpoint: 1024,
@@ -123,19 +110,17 @@ const SessionsPage = () => {
     <div className="table-page-container">
       <div className="table-header">
         <h1>Gestão de Sessões</h1>
-        {canCreateSession && (
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="btn-action btn-approve"
-          >
-            Registar Nova Sessão
-          </button>
-        )}
+        {/* CORREÇÃO: A condição 'canCreateSession' foi removida, o botão agora é sempre renderizado */}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="btn-action btn-approve"
+        >
+          Registar Nova Sessão
+        </button>
       </div>
 
       {fetchError && <p className="error-message">{fetchError}</p>}
 
-      {/* --- 4. Renderização do Carrossel em vez da lista simples --- */}
       <div className="carousel-container">
         {isLoading ? (
           <p>A carregar sessões...</p>
@@ -165,48 +150,42 @@ const SessionsPage = () => {
                         <strong>Visitantes:</strong>{" "}
                         {session.visitantesCount || 0}
                       </p>
-
-                      {session.Balaustre ? (
-                        <div className="balaustre-actions">
-                          <a
-                            href={`${
-                              import.meta.env.VITE_BACKEND_URL ||
-                              "http://localhost:3001"
-                            }${session.Balaustre.caminhoPdfLocal}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn-action btn-edit"
-                          >
-                            Ver PDF
-                          </a>
-                          {canEditBalaustre && (
-                            <button
-                              onClick={() =>
-                                navigate(
-                                  `/balaustres/editar/${session.Balaustre.id}`
-                                )
-                              }
-                              className="btn-action btn-approve"
-                            >
-                              Editar Balaústre
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        <p>Balaústre não disponível.</p>
-                      )}
                     </div>
-                    {canDeleteSession && (
-                      <div className="session-card-footer">
+                    <div className="session-card-footer management-footer">
+                      <button
+                        onClick={() =>
+                          navigate(`/sessoes/${session.id}`, {
+                            state: { balaustreId: session.Balaustre?.id },
+                          })
+                        }
+                        className="btn btn-primary"
+                      >
+                        Gerenciar Sessão
+                      </button>
+                      {canDeleteSession && (
                         <button
-                          onClick={() => handleDeleteSession(session.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteSession(session.id);
+                          }}
                           className="btn-action btn-delete"
                           title="Apagar Sessão"
+                          style={{
+                            position: "absolute",
+                            top: "10px",
+                            right: "10px",
+                            background: "#b91c1c",
+                            borderRadius: "50%",
+                            width: "30px",
+                            height: "30px",
+                            fontSize: "1rem",
+                            lineHeight: "1",
+                          }}
                         >
-                          Apagar Sessão
+                          X
                         </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

@@ -1,0 +1,359 @@
+/* Container principal da página de detalhes */
+.sessao-detalhes-container {
+  width: 100%;
+}
+
+/*
+ * Sistema de Abas
+ * Utiliza as variáveis de tema para cores e bordas.
+ */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--cor-borda-sidebar);
+  margin-bottom: 2rem;
+}
+
+.tab-button {
+  padding: 1rem 1.5rem;
+  background-color: transparent;
+  border: none;
+  color: var(--cor-texto-secundario);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transform: translateY(2px);
+  transition: all 0.2s ease-in-out;
+}
+
+.tab-button:hover {
+  color: var(--cor-texto-primario);
+}
+
+.tab-button.active {
+  color: var(--cor-active-icon);
+  border-bottom-color: var(--cor-active-icon);
+  font-weight: 600;
+}
+
+/*
+ * Estilo de Card Genérico
+ * Usado como base para o conteúdo de cada aba.
+ */
+.tab-content .card {
+  background: var(--cor-sidebar-primaria);
+  border: 1px solid var(--cor-borda-sidebar);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  color: var(--cor-texto-primario);
+}
+
+.tab-content .card h3 {
+  font-size: var(--font-size-2xl);
+  margin-top: 0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--cor-borda-sidebar);
+  margin-bottom: 1rem;
+  color: var(--cor-texto-cabecalho);
+}
+
+/* Estilos para o Painel do Chanceler */
+.painel-chanceler .panel-section {
+  margin-bottom: 1.5rem;
+}
+
+.painel-chanceler h4 {
+  font-size: var(--font-size-xl);
+  color: var(--cor-active-icon);
+  margin-bottom: 1rem;
+}
+
+.painel-chanceler h5 {
+  font-size: var(--font-size-lg);
+  margin: 1rem 0 0.5rem;
+}
+
+.painel-chanceler ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.painel-chanceler li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--cor-borda-input);
+  color: var(--cor-texto-primario);
+}
+.painel-chanceler li:last-child {
+  border-bottom: none;
+}
+
+.painel-chanceler .nenhum-encontrado {
+  font-style: italic;
+  color: var(--cor-texto-secundario);
+  padding: 0.5rem 0;
+}
+
+/* Estilos para a Aba de Participantes */
+.participantes-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.lista-participantes h4 {
+  margin-top: 0;
+  border-bottom: 1px solid var(--cor-borda-input);
+  padding-bottom: 0.5rem;
+  color: var(--cor-texto-cabecalho);
+}
+
+.lista-participantes ul {
+  list-style: none;
+  padding: 0;
+  height: 400px;
+  overflow-y: auto;
+  background-color: var(--cor-fundo-app);
+  border-radius: 6px;
+  padding: 0.5rem;
+  border: 1px solid var(--cor-borda-input);
+}
+
+.lista-participantes li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.lista-participantes li:nth-child(odd) {
+  background-color: var(--cor-fundo-input);
+}
+
+.lista-participantes li button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  background-color: var(--cor-borda-sidebar);
+  color: var(--cor-texto-primario);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.lista-participantes li button:hover {
+  background-color: var(--cor-active-icon);
+  color: white;
+}
+
+/* Estilos para a Aba de Visitantes */
+.lista-simples {
+  list-style: none;
+  padding: 0;
+}
+.lista-simples li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--cor-borda-input);
+}
+.lista-simples li:last-child {
+  border-bottom: none;
+}
+/* Adicione estas novas regras ao final do seu arquivo CSS existente */
+
+.painel-chanceler {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.painel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--cor-sidebar-primaria);
+  border: 1px solid var(--cor-borda-sidebar);
+  border-radius: 12px;
+}
+
+.painel-header h3 {
+  margin: 0;
+  color: var(--cor-texto-cabecalho);
+}
+
+.painel-header .form-group {
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.painel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.painel-card {
+  background: var(--cor-sidebar-primaria);
+  border: 1px solid var(--cor-borda-sidebar);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.painel-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--cor-borda-input);
+}
+
+.painel-card-header .icon {
+  font-size: 1.5rem;
+  color: var(--cor-active-icon);
+}
+
+.painel-card-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--cor-texto-primario);
+}
+
+.painel-card-body p {
+  margin: 0.25rem 0;
+}
+
+.painel-card-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.painel-card-body li {
+  padding: 0.4rem 0;
+  font-size: 0.95rem;
+}
+
+.painel-card-body .empty-state {
+  font-style: italic;
+  color: var(--cor-texto-secundario);
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.anniversaries-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Cria duas colunas de largura igual */
+  gap: 2rem; /* Espaçamento entre as colunas */
+}
+
+.anniversaries-split .split-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.anniversaries-split h5 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: var(--cor-texto-secundario);
+  font-weight: 500;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--cor-borda-input);
+}
+
+.aniversariantes-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Garante que a lista não ocupe espaço vertical se estiver vazia, evitando espaços em branco */
+.aniversariantes-lista:not(:has(li)) {
+  display: none;
+}
+
+.aniversariantes-lista li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--cor-borda-input);
+  gap: 1rem;
+}
+
+.aniversariantes-lista li:last-child {
+  border-bottom: none;
+}
+
+.aniversariantes-lista .nome {
+  font-weight: 600;
+  color: var(--cor-texto-primario);
+}
+
+.aniversariantes-lista .parentesco {
+  font-weight: 400;
+  font-style: italic;
+  font-size: 0.85em;
+  color: var(--cor-texto-secundario);
+}
+
+.aniversariantes-lista .data {
+  font-family: monospace;
+  font-size: 0.9em;
+  background-color: var(--cor-fundo-input);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  color: var(--cor-texto-secundario);
+  white-space: nowrap;
+}
+
+.empty-state {
+  font-style: italic;
+  color: var(--cor-texto-secundario);
+  text-align: center;
+  padding: 1rem 0;
+}
+/* Adicione estas novas regras ao final do seu arquivo CSS existente */
+
+.bulk-add-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.visitor-row-bulk {
+  display: grid;
+  /* ATUALIZAÇÃO: Grid com 6 colunas para os inputs + 1 para o botão */
+  grid-template-columns: 1.2fr 2fr 1fr 1.5fr 1.5fr 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.visitor-row-bulk.header {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--cor-texto-secundario);
+  padding: 0 0.5rem;
+  margin-bottom: -0.25rem;
+}
+
+.bulk-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}

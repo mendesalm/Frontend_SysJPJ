@@ -19,10 +19,6 @@ import ResetPasswordPage from "./assets/pages/auth/ResetPasswordPage.jsx";
 const DashboardPage = lazy(() =>
   import("./assets/pages/dashboard/DashboardPage.jsx")
 );
-const BalaustreEditPage = lazy(() =>
-  import("./assets/pages/sessions/BalaustreEditPage.jsx")
-);
-
 const ProfilePage = lazy(() =>
   import("./assets/pages/profile/ProfilePage.jsx")
 );
@@ -72,7 +68,6 @@ const OrcamentoPage = lazy(() =>
 const GestaoPlaylistsPage = lazy(() =>
   import("./assets/pages/harmonia/GestaoPlaylistsPage.jsx")
 );
-// --- CORREÇÃO APLICADA AQUI ---
 const GestaoMusicasPage = lazy(() =>
   import("./assets/pages/harmonia/GestaoMusicasPage.jsx")
 );
@@ -90,6 +85,9 @@ const MinhasVisitasPage = lazy(() =>
 );
 const GestaoEscalaPage = lazy(() =>
   import("./assets/pages/admin/escala/GestaoEscalaPage.jsx")
+);
+const SessaoDetalhesPage = lazy(() =>
+  import("./assets/pages/sessions/details/SessaoDetalhesPage.jsx")
 );
 
 const LoadingFallback = () => (
@@ -156,10 +154,8 @@ function App() {
                 <Route path="/patrimonio" element={<PatrimonioPage />} />
                 <Route path="/relatorios" element={<RelatoriosPage />} />
                 <Route path="/admin/members" element={<MemberList />} />
-                <Route
-                  path="/balaustres/editar/:id"
-                  element={<BalaustreEditPage />}
-                />
+
+                {/* ATUALIZAÇÃO: Rota antiga para editar balaústre foi removida */}
 
                 <Route
                   path="/admin/members/create"
@@ -213,8 +209,9 @@ function App() {
                   path="/admin/escala-jantares"
                   element={<GestaoEscalaPage />}
                 />
+                {/* ATUALIZAÇÃO: Nova rota para a página de detalhes da sessão */}
+                <Route path="/sessoes/:id" element={<SessaoDetalhesPage />} />
 
-                {/* --- ROTA DE 404 MELHORADA --- */}
                 <Route
                   path="*"
                   element={

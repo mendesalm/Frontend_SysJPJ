@@ -48,7 +48,13 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response.status === 401 && !originalRequest._retry) {
+    // CORREÇÃO: Adicionada uma verificação para garantir que 'error.response' existe.
+    // Isso previne o crash em erros de rede onde não há resposta do servidor.
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
       console.log("Token expirado. Tentando renovar...");
 
@@ -71,6 +77,7 @@ apiClient.interceptors.response.use(
       }
     }
 
+    // Se o erro não for 401 ou não tiver um 'response', ele é simplesmente rejeitado.
     return Promise.reject(error);
   }
 );
