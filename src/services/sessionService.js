@@ -47,3 +47,11 @@ export const getDadosPainelChanceler = (sessionId, dataFim) => {
     params: { dataFim },
   });
 };
+/**
+ * Atualiza o responsável pelo jantar de uma sessão específica.
+ * @param {string} sessionId - O ID da sessão.
+ * @param {{tipo: string, membroId: number | null}} data - Dados da responsabilidade.
+ */
+export const updateResponsavelJantar = (sessionId, data) => {
+  return apiClient.put(`/sessions/${sessionId}/jantar`, data);
+};

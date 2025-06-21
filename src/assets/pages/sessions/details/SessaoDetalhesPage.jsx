@@ -7,6 +7,8 @@ import PainelChanceler from "./components/PainelChanceler";
 import BalaustreEditor from "./components/BalaustreEditor";
 import ParticipantesTab from "./components/ParticipantesTab";
 import VisitantesTab from "./components/VisitantesTab";
+import JantarTab from "./components/JantarTab";
+
 import "./SessaoDetalhes.css";
 
 const SessaoDetalhesPage = () => {
@@ -16,20 +18,22 @@ const SessaoDetalhesPage = () => {
   const { user } = useAuth();
 
   const balaustreId = location.state?.balaustreId;
+  const [activeTab, setActiveTab] = useState("");
 
+  // CORREÇÃO: Renomeado para 'sessionData' para indicar que é a resposta do hook
   const {
-    data: sessionData, // Alterado para sessionData para clareza
-    isLoading: isLoadingSession,
+    data: sessionData,
+    isLoading,
     error,
   } = useDataFetching(getSessionById, [sessionId]);
 
-  // Usamos useMemo para garantir que 'session' seja recalculado apenas quando os dados mudam.
+  // CORREÇÃO: Extrai o objeto da sessão do array retornado pelo hook.
+  // useMemo garante que isso só seja recalculado quando os dados mudarem.
   const session = useMemo(() => {
-    // O hook useDataFetching, por padrão, retorna um array. Pegamos o primeiro item.
     if (sessionData && Array.isArray(sessionData) && sessionData.length > 0) {
       return sessionData[0];
     }
-    // Se a API retornar um objeto único (não em um array), usamos diretamente.
+    // Fallback para caso a API retorne um objeto único (mais robusto)
     if (
       sessionData &&
       typeof sessionData === "object" &&
@@ -40,67 +44,52 @@ const SessaoDetalhesPage = () => {
     return null;
   }, [sessionData]);
 
-  // DEBUG: Inspeciona o objeto 'session' final após ser processado.
-  console.log(
-    "[SessaoDetalhesPage] Conteúdo final do objeto 'session':",
-    session
-  );
-
-  const [activeTab, setActiveTab] = useState("");
-
-  const permissoes = useMemo(
-    () => ({
-      chanceler: ["Webmaster", "Diretoria", "Chanceler"].includes(
-        user?.credencialAcesso
-      ),
-      balaustre: ["Webmaster", "Secretário", "Secretário Adjunto"].includes(
-        user?.credencialAcesso
-      ),
-      presenca: ["Webmaster", "Chanceler", "Secretário"].includes(
-        user?.credencialAcesso
-      ),
-      visitantes: ["Webmaster", "Chanceler", "Secretário"].includes(
-        user?.credencialAcesso
-      ),
-    }),
-    [user]
-  );
+  const permissoes = useMemo(() => {
+    const isAdmin = ["Webmaster", "Diretoria"].includes(user?.credencialAcesso);
+    return {
+      chanceler:
+        isAdmin || user?.permissoes?.includes("visualizarPainelChanceler"),
+      balaustre: isAdmin || user?.permissoes?.includes("editarBalaustre"),
+      presenca:
+        isAdmin || user?.permissoes?.includes("gerenciarPresentesSessao"),
+      visitantes:
+        isAdmin || user?.permissoes?.includes("gerenciarVisitantesSessao"),
+      jantar: isAdmin || user?.permissoes?.includes("gerenciarEscalaJantar"),
+    };
+  }, [user]);
 
   useEffect(() => {
     if (!session || activeTab) return;
+
     const abasDisponiveis = [
       "chanceler",
       "balaustre",
       "presentes",
       "visitantes",
+      "jantar",
     ];
     const primeiraAbaValida = abasDisponiveis.find((aba) => permissoes[aba]);
+
     if (primeiraAbaValida) {
       setActiveTab(primeiraAbaValida);
     }
   }, [session, activeTab, permissoes]);
 
-  if (isLoadingSession) {
+  if (isLoading)
     return <div className="page-container">Carregando dados da sessão...</div>;
-  }
-  if (error) {
-    return <div className="page-container error-message">{error}</div>;
-  }
-  if (!session) {
+  if (error) return <div className="page-container error-message">{error}</div>;
+  if (!session)
     return <div className="page-container">Sessão não encontrada.</div>;
-  }
 
   return (
     <div className="page-container sessao-detalhes-container">
       <div className="table-header">
         <h1>
-          {/* CORREÇÃO: Adicionada verificação para evitar 'Invalid Date' */}
+          {/* Agora 'session.dataSessao' terá o valor correto, evitando 'Invalid Date' */}
           Gestão da Sessão de{" "}
-          {session.dataSessao
-            ? new Date(session.dataSessao).toLocaleDateString("pt-BR", {
-                timeZone: "UTC",
-              })
-            : "Data não informada"}
+          {new Date(session.dataSessao).toLocaleDateString("pt-BR", {
+            timeZone: "UTC",
+          })}
         </h1>
         <button
           onClick={() => navigate("/sessoes")}
@@ -151,9 +140,18 @@ const SessaoDetalhesPage = () => {
             Visitantes
           </button>
         )}
+        {permissoes.jantar && (
+          <button
+            className={`tab-button ${activeTab === "jantar" ? "active" : ""}`}
+            onClick={() => setActiveTab("jantar")}
+          >
+            Jantar
+          </button>
+        )}
       </div>
 
       <div className="tab-content">
+        {/* Renderiza o conteúdo da aba ativa */}
         {activeTab === "chanceler" && <PainelChanceler sessionId={sessionId} />}
         {activeTab === "balaustre" && (
           <BalaustreEditor balaustreId={balaustreId} />
@@ -162,6 +160,7 @@ const SessaoDetalhesPage = () => {
           <ParticipantesTab sessionId={sessionId} />
         )}
         {activeTab === "visitantes" && <VisitantesTab sessionId={sessionId} />}
+        {activeTab === "jantar" && <JantarTab sessionId={sessionId} />}
       </div>
     </div>
   );

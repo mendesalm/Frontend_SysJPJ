@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { memberValidationSchema } from "../../../../validators/memberValidator.js";
+import { useForm, FormProvider, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { memberSchema } from "../../../../validators/memberValidator.js";
 import { consultarCEP } from "../../../../services/cepService.js";
 import FormPageLayout from "../../../../components/layout/FormPageLayout.jsx";
 import "../../../styles/FormStyles.css";
@@ -12,6 +12,7 @@ import FamilyDataFields from "./components/FamilyDataFields.jsx";
 import AddressFields from "./components/AddressFields.jsx";
 import MasonicDataFields from "./components/MasonicDataFields.jsx";
 import ProfessionalDataFields from "./components/ProfessionalDataFields.jsx";
+import HistoricoCargos from "./components/HistoricoCargos"; // 1. IMPORTAÇÃO DO NOVO COMPONENTE
 import {
   CREDENCIAIS,
   STATUS_CADASTRO,
@@ -24,6 +25,14 @@ const MemberForm = ({
   onCancel,
 }) => {
   const [cepStatus, setCepStatus] = useState("");
+
+  // Usando FormProvider para compartilhar o estado do formulário com componentes aninhados
+  const methods = useForm({
+    resolver: zodResolver(memberSchema),
+    context: { isCreating },
+    defaultValues: initialData,
+  });
+
   const {
     register,
     control,
@@ -32,11 +41,7 @@ const MemberForm = ({
     reset,
     watch,
     setValue,
-  } = useForm({
-    resolver: yupResolver(memberValidationSchema),
-    context: { isCreating },
-    defaultValues: { familiares: [], ...initialData },
-  });
+  } = methods;
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -64,6 +69,7 @@ const MemberForm = ({
   };
 
   useEffect(() => {
+    // Formata as datas para o formato YYYY-MM-DD que o input[type=date] espera
     const formattedData = {
       ...initialData,
       DataNascimento: initialData.DataNascimento
@@ -87,16 +93,12 @@ const MemberForm = ({
       DataRegularizacao: initialData.DataRegularizacao
         ? new Date(initialData.DataRegularizacao).toISOString().split("T")[0]
         : "",
-
-      // --- INÍCIO DA CORREÇÃO ---
-      // Ajustando para formatar a propriedade correta (camelCase)
       familiares: (initialData.familiares || []).map((f) => ({
         ...f,
         dataNascimento: f.dataNascimento
           ? new Date(f.dataNascimento).toISOString().split("T")[0]
           : "",
       })),
-      // --- FIM DA CORREÇÃO ---
     };
     reset(formattedData);
   }, [initialData, reset]);
@@ -127,70 +129,87 @@ const MemberForm = ({
       title={isCreating ? "Criar Novo Membro" : "Editar Membro"}
       actionsComponent={<ActionButtons />}
     >
-      <form
-        id="member-form"
-        onSubmit={handleSubmit(onSave)}
-        className="form-container"
-      >
-        <PersonalDataFields register={register} errors={errors} />
-        <FamilyDataFields
-          fields={fields}
-          register={register}
-          errors={errors}
-          remove={remove}
-          append={append}
-          control={control}
-        />
-        <AddressFields
-          register={register}
-          handleCepBlur={handleCepBlur}
-          cepStatus={cepStatus}
-        />
-        <MasonicDataFields register={register} errors={errors} />
-        <ProfessionalDataFields register={register} />
-        <fieldset className="form-fieldset">
-          <legend>Informações de Acesso</legend>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Credencial</label>
-              <select {...register("credencialAcesso")} className="form-select">
-                {CREDENCIAIS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Status</label>
-              <select {...register("statusCadastro")} className="form-select">
-                {STATUS_CADASTRO.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {isCreating && (
+      {/* Envolvemos o formulário com o FormProvider */}
+      <FormProvider {...methods}>
+        <form
+          id="member-form"
+          onSubmit={handleSubmit(onSave)}
+          className="form-container"
+        >
+          <PersonalDataFields register={register} errors={errors} />
+          <FamilyDataFields
+            fields={fields}
+            register={register}
+            errors={errors}
+            remove={remove}
+            append={append}
+            control={control}
+          />
+          <AddressFields
+            register={register}
+            handleCepBlur={handleCepBlur}
+            cepStatus={cepStatus}
+          />
+          <MasonicDataFields
+            control={control}
+            register={register}
+            errors={errors}
+          />
+          <ProfessionalDataFields control={control} register={register} />
+
+          {/* 2. O COMPONENTE DE HISTÓRICO É RENDERIZADO AQUI */}
+          {/* Ele só aparece se estivermos editando um membro que já existe (tem um ID) */}
+          {!isCreating && initialData.id && (
+            <HistoricoCargos memberId={initialData.id} />
+          )}
+
+          <fieldset className="form-fieldset">
+            <legend>Informações de Acesso</legend>
+            <div className="form-grid">
               <div className="form-group">
-                <label>Senha Inicial</label>
-                <input
-                  type="password"
-                  {...register("SenhaHash")}
-                  className={`form-input ${
-                    errors.SenhaHash ? "is-invalid" : ""
-                  }`}
-                />
-                {errors.SenhaHash && (
-                  <p className="form-error-message">
-                    {errors.SenhaHash.message}
-                  </p>
-                )}
+                <label>Credencial</label>
+                <select
+                  {...register("credencialAcesso")}
+                  className="form-select"
+                >
+                  {CREDENCIAIS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
-          </div>
-        </fieldset>
-      </form>
+              <div className="form-group">
+                <label>Status</label>
+                <select {...register("statusCadastro")} className="form-select">
+                  {STATUS_CADASTRO.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {isCreating && (
+                <div className="form-group">
+                  <label>Senha Inicial</label>
+                  <input
+                    type="password"
+                    {...register("SenhaHash")}
+                    className={`form-input ${
+                      errors.SenhaHash ? "is-invalid" : ""
+                    }`}
+                  />
+                  {errors.SenhaHash && (
+                    <p className="form-error-message">
+                      {errors.SenhaHash.message}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </fieldset>
+        </form>
+      </FormProvider>
     </FormPageLayout>
   );
 };

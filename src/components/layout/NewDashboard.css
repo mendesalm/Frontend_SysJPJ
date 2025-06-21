@@ -187,7 +187,8 @@ body.theme-light {
   background: var(--cor-sidebar-secundaria-fundo);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-right: 1px solid var(--cor-borda-vidro);
+  /* CORREÇÃO: Usando a variável de borda que existe no tema */
+  border-right: 1px solid var(--cor-borda-sidebar);
   overflow: hidden;
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   color: var(--cor-texto-primario);
@@ -214,7 +215,8 @@ body.theme-light {
   font-size: 1.25rem;
   margin-bottom: 20px;
   padding-bottom: 10px;
-  border-bottom: 1px solid var(--cor-borda-vidro);
+  /* CORREÇÃO: Usando a variável de borda que existe no tema */
+  border-bottom: 1px solid var(--cor-borda-sidebar);
   color: var(--cor-texto-cabecalho);
 }
 
@@ -319,15 +321,15 @@ body.theme-dark .carrossel-card {
 
 body.theme-dark .carrossel-card.active {
   background-color: var(--cor-sidebar-primaria);
-  border-color: var(
-    --cor-primaria
-  ); /* Assumindo que você tenha uma var de cor primária */
-  box-shadow: 0 6px 25px rgba(var(--cor-primaria-rgb), 0.15); /* Assumindo uma var rgb */
+  /* CORREÇÃO: Usando a variável de cor de destaque que existe no tema */
+  border-color: var(--cor-active-icon);
+  box-shadow: 0 6px 25px rgba(14, 165, 233, 0.15); /* Sombra correspondente à cor de destaque */
   opacity: 1;
 }
 
 body.theme-dark .carrossel-card.active .carrossel-card-title {
-  color: var(--cor-primaria);
+  /* CORREÇÃO: Usando a variável de cor de destaque que existe no tema */
+  color: var(--cor-active-icon);
 }
 
 /* Mensagens */

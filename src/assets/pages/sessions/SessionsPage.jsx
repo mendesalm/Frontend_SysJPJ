@@ -10,6 +10,7 @@ import {
 } from "../../../services/sessionService";
 import Modal from "../../../components/modal/Modal";
 import SessionForm from "./SessionForm.jsx";
+import LoadingOverlay from "../../../components/layout/LoadingOverlay"; // Importa o componente de overlay
 import "./SessionsPage.css";
 import "../../styles/TableStyles.css";
 import {
@@ -20,10 +21,11 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 const formatDate = (dateString) => {
-  if (!dateString || isNaN(new Date(dateString))) {
-    return "Data inválida";
-  }
-  return new Date(dateString).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+  if (!dateString) return "Data inválida";
+  const date = new Date(dateString);
+  const timezoneOffset = date.getTimezoneOffset() * 60000;
+  const adjustedDate = new Date(date.getTime() + timezoneOffset);
+  return adjustedDate.toLocaleDateString("pt-BR", { timeZone: "UTC" });
 };
 
 const SessionsPage = () => {
@@ -41,17 +43,26 @@ const SessionsPage = () => {
   } = useDataFetching(getSessions, [fetchParams]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreatingSession, setIsCreatingSession] = useState(false); // Novo estado para o loading
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Lógica de permissão para DELETAR ainda pode ser útil no frontend
   const canDeleteSession =
     user?.credencialAcesso === "Webmaster" ||
     ["Secretário", "Secretário Adjunto"].includes(user?.cargoAtual);
 
   const handleSaveSession = async (formData) => {
+    setIsCreatingSession(true); // Ativa o loading
     try {
-      await createSession(formData);
+      const dadosParaEnviar = { ...formData };
+      if (dadosParaEnviar.dataSessao) {
+        const date = new Date(dadosParaEnviar.dataSessao);
+        const timezoneOffset = date.getTimezoneOffset() * 60000;
+        const adjustedDate = new Date(date.getTime() + timezoneOffset);
+        dadosParaEnviar.dataSessao = adjustedDate;
+      }
+
+      await createSession(dadosParaEnviar);
       showSuccessToast("Sessão registrada com sucesso!");
       setIsModalOpen(false);
       refetch();
@@ -59,6 +70,8 @@ const SessionsPage = () => {
       showErrorToast(
         err.response?.data?.message || "Erro ao registrar a sessão."
       );
+    } finally {
+      setIsCreatingSession(false); // Desativa o loading
     }
   };
 
@@ -108,9 +121,14 @@ const SessionsPage = () => {
 
   return (
     <div className="table-page-container">
+      {/* O overlay será renderizado aqui quando isCreatingSession for true */}
+      <LoadingOverlay
+        isLoading={isCreatingSession}
+        message="Criando sessão e gerando documentos, por favor aguarde..."
+      />
+
       <div className="table-header">
         <h1>Gestão de Sessões</h1>
-        {/* CORREÇÃO: A condição 'canCreateSession' foi removida, o botão agora é sempre renderizado */}
         <button
           onClick={() => setIsModalOpen(true)}
           className="btn-action btn-approve"
@@ -201,6 +219,7 @@ const SessionsPage = () => {
         <SessionForm
           onSave={handleSaveSession}
           onCancel={() => setIsModalOpen(false)}
+          isSubmitting={isCreatingSession} // Passa o estado para o formulário
         />
       </Modal>
     </div>

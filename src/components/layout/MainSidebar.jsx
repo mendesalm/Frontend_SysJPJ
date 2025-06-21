@@ -1,18 +1,15 @@
-//import React, { useContext } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useTheme } from "../../hooks/useTheme";
 import ThemeSwitcher from "../ThemeSwitcher";
 import logoJPJ from "../../assets/images/logo.png";
-// Ícones para o tema Claro
 import MacomL from "../../assets/images/icones/light/Macom-L.png";
 import SecretarioL from "../../assets/images/icones/light/Secretario-L.png";
 import ChancelerL from "../../assets/images/icones/light/Chanceler-L.png";
 import TesoureiroL from "../../assets/images/icones/light/Tesoureiro-L.png";
 import BibliotecaL from "../../assets/images/icones/light/Biblioteca-L.png";
 import HarmoniaL from "../../assets/images/icones/light/Harmonia-L.png";
-
-// Ícones para o tema Escuro
 import MacomD from "../../assets/images/icones/dark/Macom-D.png";
 import SecretarioD from "../../assets/images/icones/dark/Secretario-D.png";
 import ChancelerD from "../../assets/images/icones/dark/Chanceler-D.png";
@@ -20,7 +17,6 @@ import TesoureiroD from "../../assets/images/icones/dark/Tesoureiro-D.png";
 import BibliotecaD from "../../assets/images/icones/dark/Biblioteca-D.png";
 import HarmoniaD from "../../assets/images/icones/dark/Harmonia-D.png";
 
-// 1. Componentes SVG para Webmaster e Logout reintroduzidos
 const IconWebmaster = () => (
   <svg
     width="24"
@@ -52,7 +48,6 @@ const IconLogout = () => (
   </svg>
 );
 
-// Mapeamento dos ícones (agora apenas para os itens principais)
 const lightIcons = {
   macom: MacomL,
   secretario: SecretarioL,
@@ -61,7 +56,6 @@ const lightIcons = {
   biblioteca: BibliotecaL,
   harmonia: HarmoniaL,
 };
-
 const darkIcons = {
   macom: MacomD,
   secretario: SecretarioD,
@@ -107,7 +101,7 @@ const MainSidebar = ({ activeMenu, onMenuClick }) => {
                 className={`main-menu-button ${
                   activeMenu === item.id ? "active" : ""
                 }`}
-                onClick={() => onMenuClick(item.id)}
+                onClick={() => onMenuClick(item.id)} // Garantindo que o onClick está aqui
               >
                 {iconSrc && (
                   <img
@@ -124,7 +118,6 @@ const MainSidebar = ({ activeMenu, onMenuClick }) => {
         })}
       </ul>
       <div className="main-sidebar-footer">
-        {/* 2. Botões do rodapé agora usam os componentes SVG */}
         <button
           className={`main-menu-button ${
             activeMenu === "menu-webmaster" ? "active" : ""

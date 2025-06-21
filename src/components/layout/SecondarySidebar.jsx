@@ -1,9 +1,9 @@
-// src/components/layout/SecondarySidebar.jsx
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
-const menuData = {
+// A variável com os menus foi renomeada para menuConfig para maior clareza
+const menuConfig = {
   "menu-usuario": {
     title: "Painel do Usuário",
     items: [
@@ -77,27 +77,24 @@ const SecondarySidebar = ({ activeMenu }) => {
     return true;
   };
 
+  // CORREÇÃO: Utilizando a variável 'menuConfig' correta
+  const currentMenu = menuConfig[activeMenu] || menuConfig["menu-usuario"];
+
   return (
     <div className={finalClassName}>
-      {Object.entries(menuData).map(([key, menu]) => {
-        if (!shouldRenderMenu(menu)) return null;
-        const contentClassName = `menu-content ${
-          activeMenu === key ? "is-visible" : ""
-        }`;
-        return (
-          <div key={key} id={key} className={contentClassName}>
-            <h3>{menu.title}</h3>
-            <ul className="secondary-menu">
-              {menu.items.map((item) => (
-                // CORREÇÃO: A chave agora é uma combinação única do grupo e do caminho do item.
-                <li key={`${key}-${item.path}`}>
-                  <NavLink to={item.path}>{item.label}</NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
-      })}
+      {/* O código agora pode renderizar corretamente o menu */}
+      {shouldRenderMenu(currentMenu) && (
+        <div className="menu-content is-visible">
+          <h3>{currentMenu.title}</h3>
+          <ul className="secondary-menu">
+            {currentMenu.items.map((item) => (
+              <li key={`${activeMenu}-${item.path}`}>
+                <NavLink to={item.path}>{item.label}</NavLink>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

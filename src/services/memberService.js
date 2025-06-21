@@ -37,3 +37,43 @@ export const createMember = (memberData) => {
 export const updateMember = (id, memberData) => {
   return apiClient.put(`/lodgemembers/${id}`, memberData);
 };
+// ---FUNÇÕES PARA HISTÓRICO DE CARGOS ---
+
+/**
+ * Busca o histórico de cargos de um membro.
+ * @param {number} memberId - O ID do membro.
+ */
+export const getCargosMembro = (memberId) => {
+  return apiClient.get(`/lodgemembers/${memberId}/cargos`);
+};
+
+/**
+ * Adiciona um novo cargo (atual ou anterior) para um membro.
+ * @param {number} memberId - O ID do membro.
+ * @param {object} cargoData - Dados do cargo, como nomeCargo, dataInicio e opcionalmente dataTermino.
+ */
+export const addCargoMembro = (memberId, cargoData) => {
+  return apiClient.post(`/lodgemembers/${memberId}/cargos`, cargoData);
+};
+
+/**
+ * Atualiza um cargo existente (ex: para adicionar uma data de término).
+ * @param {number} memberId - O ID do membro.
+ * @param {number} cargoId - O ID do registro do cargo exercido.
+ * @param {object} cargoData - Dados a serem atualizados, ex: { dataTermino: 'YYYY-MM-DD' }.
+ */
+export const updateCargoMembro = (memberId, cargoId, cargoData) => {
+  return apiClient.put(
+    `/lodgemembers/${memberId}/cargos/${cargoId}`,
+    cargoData
+  );
+};
+
+/**
+ * Remove um registro de cargo do histórico de um membro.
+ * @param {number} memberId - O ID do membro.
+ * @param {number} cargoId - O ID do registro do cargo a ser removido.
+ */
+export const deleteCargoMembro = (memberId, cargoId) => {
+  return apiClient.delete(`/lodgemembers/${memberId}/cargos/${cargoId}`);
+};
