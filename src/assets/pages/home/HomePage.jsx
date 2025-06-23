@@ -29,16 +29,40 @@ const HomePage = () => {
   const cardData = useMemo(
     () => [
       {
-        title: "Soluções Completas",
-        text: "Oferecemos uma gama completa de serviços.",
+        title: "Nossa Missão",
+        text: "Promover o aperfeiçoamento constante de nossos membros, transformando homens bons em homens ainda melhores, e atuar como uma força positiva para o progresso moral, social e intelectual da comunidade de Anápolis, sempre pautados pelos princípios da Fraternidade e da Justiça.",
       },
       {
-        title: "Inovação Contínua",
-        text: "Estamos sempre buscando as últimas tecnologias.",
+        title: "Visão",
+        text: "Ser reconhecida em Anápolis e região como uma Oficina de referência na formação de líderes éticos e cidadãos exemplares, cujo trabalho incansável e ações filantrópicas contribuam ativamente para a construção de uma sociedade mais justa, harmônica e esclarecida para as futuras gerações.",
       },
       {
-        title: "Suporte Dedicado",
-        text: "Nossa equipe está pronta para ajudar você.",
+        title: "Valores",
+        // CORREÇÃO: O texto foi substituído por um elemento JSX para renderizar a lista HTML
+        content: (
+          <ul style={{ textAlign: "left", paddingLeft: "20px" }}>
+            <li>
+              <strong>Fraternidade:</strong> Cultivar laços de união, lealdade e
+              apoio mútuo entre os Irmãos.
+            </li>
+            <li>
+              <strong>Conhecimento:</strong> Buscar incessantemente a verdade, a
+              sabedoria e o desenvolvimento intelectual.
+            </li>
+            <li>
+              <strong>Retidão:</strong> Agir com integridade, honra e justiça em
+              todas as nossas ações.
+            </li>
+            <li>
+              <strong>Filantropia:</strong> Praticar a caridade e o serviço
+              desinteressado, visando o bem-estar da comunidade.
+            </li>
+            <li>
+              <strong>Tolerância:</strong> Respeitar a diversidade de opiniões,
+              crenças e origens, promovendo a paz e a harmonia.
+            </li>
+          </ul>
+        ),
       },
     ],
     []
@@ -64,6 +88,7 @@ const HomePage = () => {
         <FullscreenImageSlider images={minhasImagens} />
       </section>
       <section id="sobre-nos" aria-label="Sobre Nós">
+        {/* CORREÇÃO: A prop foi renomeada para 'cardTexts' para corresponder ao esperado pelo componente GridSection */}
         <GridSection cardTexts={cardData} />
       </section>
       <section id="localizacao" aria-label="Nossa Localização">

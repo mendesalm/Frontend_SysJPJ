@@ -4,6 +4,7 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import "./App.css";
 // Layouts e Componentes Estruturais
 import Header from "./components/header/Header.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
@@ -89,6 +90,24 @@ const GestaoEscalaPage = lazy(() =>
 const SessaoDetalhesPage = lazy(() =>
   import("./assets/pages/sessions/details/SessaoDetalhesPage.jsx")
 );
+const LegislacoesPage = lazy(() =>
+  import("./assets/pages/admin/files/GenericFileManagementPage.jsx").then(
+    (module) => ({ default: module.LegislacoesPage })
+  )
+);
+const DocumentosPage = lazy(() =>
+  import("./assets/pages/admin/files/GenericFileManagementPage.jsx").then(
+    (module) => ({ default: module.DocumentosPage })
+  )
+);
+const ArquivosPage = lazy(() =>
+  import("./assets/pages/admin/files/GenericFileManagementPage.jsx").then(
+    (module) => ({ default: module.ArquivosPage })
+  )
+);
+const ClassificadosPage = lazy(() =>
+  import("./assets/pages/classificados/ClassificadosPage.jsx")
+);
 
 const LoadingFallback = () => (
   <div
@@ -133,7 +152,16 @@ function App() {
                 </>
               }
             />
-            <Route path="/login-teste" element={<LoginPage />} />
+            <Route
+              path="/login"
+              element={
+                <>
+                  <Header />
+                  <LoginPage />
+                </>
+              }
+            />
+
             <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
             <Route
               path="/resetar-senha/:token"
@@ -154,9 +182,6 @@ function App() {
                 <Route path="/patrimonio" element={<PatrimonioPage />} />
                 <Route path="/relatorios" element={<RelatoriosPage />} />
                 <Route path="/admin/members" element={<MemberList />} />
-
-                {/* ATUALIZAÇÃO: Rota antiga para editar balaústre foi removida */}
-
                 <Route
                   path="/admin/members/create"
                   element={<MemberCreatePage />}
@@ -209,9 +234,11 @@ function App() {
                   path="/admin/escala-jantares"
                   element={<GestaoEscalaPage />}
                 />
-                {/* ATUALIZAÇÃO: Nova rota para a página de detalhes da sessão */}
+                <Route path="/classificados" element={<ClassificadosPage />} />
                 <Route path="/sessoes/:id" element={<SessaoDetalhesPage />} />
-
+                <Route path="/legislacoes" element={<LegislacoesPage />} />
+                <Route path="/documentos" element={<DocumentosPage />} />
+                <Route path="/arquivos-diversos" element={<ArquivosPage />} />
                 <Route
                   path="*"
                   element={

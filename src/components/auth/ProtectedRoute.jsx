@@ -1,6 +1,6 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth'
+import React from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 const ProtectedRoute = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -14,7 +14,7 @@ const ProtectedRoute = () => {
   // Se, após a verificação, o utilizador não estiver autenticado,
   // redireciona para a página de login.
   if (!isAuthenticated) {
-    return <Navigate to="/login-teste" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // Se estiver autenticado, renderiza a rota filha (ex: Dashboard).

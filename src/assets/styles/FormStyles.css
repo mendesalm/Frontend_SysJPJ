@@ -1,6 +1,6 @@
 /*
  * src/assets/styles/FormStyles.css
- * Estilos atualizados para usar a escala de tipografia do tema.
+ * Estilos centralizados para formulários, agora usando a escala de tipografia do tema.
  */
 
 /* Container principal para o formulário (geralmente dentro de um modal) */
@@ -60,8 +60,7 @@
   padding: 12px 15px;
   border: 1px solid var(--cor-borda-input);
   border-radius: 6px;
-  /* ANTES: font-size: 1rem; */
-  font-size: var(--font-size-base); /* DEPOIS */
+  font-size: var(--font-size-base);
   color: var(--cor-texto-primario);
   background-color: var(--cor-fundo-input);
   transition: border-color 0.2s ease, box-shadow 0.2s ease,
@@ -119,13 +118,11 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  /* ANTES: font-size: 1rem; */
-  font-size: var(--font-size-base); /* DEPOIS */
+  font-size: var(--font-size-base);
   font-weight: 600;
   transition: all 0.2s ease;
 }
 
-/* As cores dos botões podem ser mantidas ou também virar variáveis de tema */
 .btn-primary {
   background-color: #0ea5e9;
   color: white;
@@ -157,8 +154,7 @@
 /* Estilo para a mensagem de erro */
 .form-error-message {
   color: #e74c3c;
-  /* ANTES: font-size: 0.85rem; */
-  font-size: var(--font-size-sm); /* DEPOIS */
+  font-size: var(--font-size-sm);
   margin-top: 0.25rem;
   font-weight: 500;
 }
@@ -167,4 +163,42 @@
   align-items: flex-end;
   position: static;
   margin: auto 0;
+}
+
+/* NOVO: Estilos para familiares falecidos no formulário */
+.familiar-row.deceased {
+  opacity: 0.6;
+}
+
+.familiar-row.deceased label,
+.familiar-row.deceased input,
+.familiar-row.deceased select,
+.familiar-row.deceased option {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+/* NOVOS ESTILOS PARA O BOTÃO DE UPLOAD PERSONALIZADO */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.custom-file-upload-label {
+  display: inline-block;
+  cursor: pointer;
+  width: fit-content; /* Faz o botão ter a largura do seu conteúdo */
+}
+
+.file-name-display {
+  display: inline-block;
+  margin-left: 1rem;
+  font-style: italic;
+  color: var(--cor-texto-secundario);
 }

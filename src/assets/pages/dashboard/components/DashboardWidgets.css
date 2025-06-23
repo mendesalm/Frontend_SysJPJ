@@ -40,7 +40,10 @@
   background-color: rgba(17, 24, 39, 0.8);
   border-left-color: #facc15;
 }
-
+.widget-card.classificado-card {
+  background-color: rgba(17, 24, 39, 0.8);
+  border-left-color: #22c55e; /* Verde para classificados */
+}
 .widget-card h4 {
   margin: 0 0 0.5rem 0;
   color: var(--cor-texto-primario);

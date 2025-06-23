@@ -32,9 +32,6 @@ export const AuthProvider = ({ children }) => {
       password: password,
     });
 
-    // --- INÍCIO DA CORREÇÃO ---
-    // ANTES: const { token, refreshToken, user: userData } = response.data;
-    // DEPOIS: A chave do token de acesso agora é 'accessToken'
     const { accessToken, refreshToken, user: userData } = response.data;
 
     if (!accessToken) {
@@ -48,11 +45,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("refreshToken", refreshToken);
     }
 
-    // Define o cabeçalho padrão para todas as requisições futuras
     apiClient.defaults.headers.common[
       "Authorization"
     ] = `Bearer ${accessToken}`;
-    // --- FIM DA CORREÇÃO ---
 
     setUser(userData);
     return userData;

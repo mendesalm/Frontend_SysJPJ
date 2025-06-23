@@ -1,54 +1,44 @@
 /* GridSection.css */
-.grid-section {  
-  /*background-image: url("../../assets/images/background_jpj.jpg");*/
+.grid-section {
   background-color: transparent;
-  /*background-size: cover;
-  background-position: center;*/
   width: 100%;
   display: flex;
   align-items: center;
-  
-  
-  
 }
 
 .grid-container {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 3fr;
-  gap: 20px;
-  max-width: 1600px; /* Ocupa 100% da largura do seu contêiner pai (app-main-content) */
-  height: 88vh; /* Altura da seção */
+  grid-template-columns: repeat(3, 1fr);
+  /* ATUALIZADO: Adicionada uma terceira linha e redistribuído o espaço */
+  grid-template-rows: 1fr 2.5fr 1fr;
+  max-width: 1600px;
+  height: 92vh;
   box-sizing: border-box;
   margin: 0 auto;
-  
+  gap: 20px; /* Adicionado gap entre as linhas */
 }
-
-/* ... (restante do seu GridSection.css permanece o mesmo) ... */
 
 .grid-row-1 {
   grid-column: 1 / -1;
   padding: 20px;
-  background-color: rgba(0, 0, 0, 0.05); /* Levemente mais escuro para diferenciar */
+  background-color: rgba(0, 0, 0, 0.05);
   border-radius: 10px;
-  color: #333;
+  color: var(--cor-texto-primario);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  min-height: 100px; /* Altura mínima para garantir visibilidade */
-
 }
 
 .grid-row-1 h2 {
   font-size: 3.6rem;
-  color:antiquewhite;
+  color: var(--cor-texto-cabecalho);
 }
 
 .grid-row-1 p {
   font-size: 2.4rem;
-  color:antiquewhite;
+  color: var(--cor-texto-secundario);
 }
 
 .grid-row-2 {
@@ -57,9 +47,45 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   width: 100%;
-  overflow: hidden; /* Para conter os cards, especialmente se tiverem sombras grandes */
-  min-height: 500px; /* Altura mínima para garantir visibilidade */
-  padding-bottom: 10vh;
+  overflow: hidden;
+}
+
+/* NOVO: Estilos para a terceira linha */
+.grid-row-3 {
+  grid-column: 1 / -1;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  color: var(--cor-texto-primario);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.grid-row-3 h2 {
+  font-size: 2.5rem;
+  color: var(--cor-texto-cabecalho);
+  margin-bottom: 1rem;
+}
+
+.cta-button {
+  padding: 12px 28px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+  background-color: var(--cor-active-icon);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.cta-button:hover {
+  filter: brightness(1.15);
+  transform: translateY(-2px);
 }
 
 .card {
@@ -69,54 +95,63 @@
   border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-  padding: 10px;
-  color: #1a1a1a;
-  text-align: center;
+  padding: 20px;
+  color: var(--cor-texto-primario);
+  text-align: justify;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  /* Adicionado para garantir que os cards não causem overflow inesperado na altura se o conteúdo for grande */
-  overflow: hidden;
+  overflow: auto; /* Permite scroll se o conteúdo for muito grande */
 }
 
-/* ... (restante do GridSection.css) ... */
+.card h3 {
+  margin-bottom: 15px;
+  text-align: center;
+}
 
-/* Responsividade */
 @media (max-width: 999px) {
+  .grid-container {
+    height: auto;
+    grid-template-rows: auto; /* Deixa as linhas crescerem conforme o conteúdo */
+  }
+
   .grid-section {
     min-height: 90vh;
-    height: auto; /* Permite que a seção cresça se o conteúdo empilhado for alto */
+    height: auto;
     padding: 15px;
     gap: 15px;
   }
 
-  .grid-row-1 {
+  .grid-row-1,
+  .grid-row-3 {
     padding: 15px;
-    /* ... (outras estilizações responsivas para a linha 1, se necessário) ... */
   }
 
   .grid-row-2 {
-    /* Colapsa os cards para uma única coluna em telas menores */
-    grid-template-columns: 1fr; /* <--- ESTA É A LINHA CHAVE */
-    gap: 15px; /* Espaçamento entre os cards empilhados */
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
 
   .card {
     padding: 20px;
-    /* ... (outras estilizações responsivas para os cards, se necessário) ... */
   }
 }
 
 @media (max-width: 600px) {
-  .grid-row-1 h2 {
-    font-size: 1.5em;
+  .grid-row-1 h2,
+  .grid-row-3 h2 {
+    font-size: 1.8em;
+  }
+  .grid-row-1 p {
+    font-size: 1.2em;
   }
   .card h3 {
     font-size: 1.2em;
   }
-  .card p {
+  .card p,
+  .card ul {
     font-size: 0.9em;
   }
 }

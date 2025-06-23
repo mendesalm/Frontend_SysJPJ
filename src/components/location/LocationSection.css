@@ -5,13 +5,14 @@
    pelo .app-main-content e .app-main-content > section no App.css. */
 
 #localizacao {
-  width: 100%; 
+  width: 100%;
   box-sizing: border-box;
-  display: flex; 
+  display: flex;
   flex-direction: column;
-  align-items: center; 
-  min-height: 88vh; 
+  align-items: center;
+  min-height: 92vh;
   background-color: transparent;
+  min-width: 75vw;
 }
 
 .location-content-wrapper {
@@ -36,8 +37,8 @@
   margin-bottom: 30px;
   color: #eadddd;
   max-width: 800px; /* Limita a largura do texto para melhor legibilidade */
-  margin-left: auto;   /* Centraliza o bloco de texto se max-width for atingido */
-  margin-right: auto;  /* Centraliza o bloco de texto se max-width for atingido */
+  margin-left: auto; /* Centraliza o bloco de texto se max-width for atingido */
+  margin-right: auto; /* Centraliza o bloco de texto se max-width for atingido */
 }
 
 .map-responsive {
@@ -49,7 +50,7 @@
   height: 0;
   border: 1px solid #ccc;
   border-radius: 8px;
-  box-shadow: 0 6px 12px 2px rgba(0, 0, 0, 0.15);  
+  box-shadow: 0 6px 12px 2px rgba(0, 0, 0, 0.15);
   margin-top: 30px;
   width: 100%; /* Garante que o contêiner do mapa ocupe a largura do .location-content-wrapper */
 }

@@ -1,5 +1,8 @@
 import React from "react";
-import { GRAU_OPTIONS } from "../../../../../constants/userConstants";
+import {
+  GRAU_OPTIONS,
+  SITUACAO_MEMBRO,
+} from "../../../../../constants/userConstants";
 
 const MasonicDataFields = ({ register, errors, isReadOnly = false }) => {
   return (
@@ -17,19 +20,28 @@ const MasonicDataFields = ({ register, errors, isReadOnly = false }) => {
         </div>
         <div className="form-group">
           <label>Situação</label>
-          <input
-            type="text"
+          {/* CORREÇÃO: Campo alterado de input para select */}
+          <select
             {...register("Situacao")}
             disabled={isReadOnly}
-            className="form-input"
-          />
+            className={`form-select ${errors.Situacao ? "is-invalid" : ""}`}
+          >
+            {SITUACAO_MEMBRO.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+          {errors.Situacao && (
+            <p className="form-error-message">{errors.Situacao.message}</p>
+          )}
         </div>
         <div className="form-group">
           <label>Grau</label>
           <select
             {...register("Graduacao")}
             className={`form-select ${errors.Graduacao ? "is-invalid" : ""}`}
-            disabled={isReadOnly} // O grau só é editável pelo admin
+            disabled={isReadOnly}
           >
             {GRAU_OPTIONS.map((opt) => (
               <option key={opt} value={opt}>

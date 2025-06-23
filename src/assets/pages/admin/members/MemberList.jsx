@@ -23,11 +23,8 @@ const MemberList = () => {
     refetch,
   } = useDataFetching(getAllMembers);
 
-  // A filtragem de busca é feita no frontend com useMemo para eficiência.
   const filteredMembers = useMemo(() => {
     if (!allMembers) return [];
-    // CORREÇÃO: Adiciona uma verificação para garantir que as propriedades
-    // NomeCompleto e Email existam antes de chamar toLowerCase().
     return allMembers.filter(
       (member) =>
         (member.NomeCompleto &&
@@ -104,7 +101,13 @@ const MemberList = () => {
               </tr>
             ) : (
               filteredMembers.map((member) => (
-                <tr key={member.id}>
+                // NOVO: Adicionada classe condicional para membros falecidos
+                <tr
+                  key={member.id}
+                  className={
+                    member.Situacao === "Falecido" ? "deceased-row" : ""
+                  }
+                >
                   <td>{member.NomeCompleto}</td>
                   <td>{member.Email}</td>
                   <td>
@@ -118,21 +121,25 @@ const MemberList = () => {
                   </td>
                   <td>{member.credencialAcesso}</td>
                   <td className="actions-cell">
-                    {member.statusCadastro === "Pendente" && (
-                      <button
-                        className="btn-action btn-approve"
-                        onClick={() =>
-                          handleUpdateStatus(member.id, "Aprovado")
-                        }
-                      >
-                        Aprovar
-                      </button>
-                    )}
+                    {/* NOVO: Condição para não mostrar botão para membros falecidos */}
+                    {member.statusCadastro === "Pendente" &&
+                      member.Situacao !== "Falecido" && (
+                        <button
+                          className="btn-action btn-approve"
+                          onClick={() =>
+                            handleUpdateStatus(member.id, "Aprovado")
+                          }
+                        >
+                          Aprovar
+                        </button>
+                      )}
                     <button
                       className="btn-action btn-edit"
                       onClick={() =>
                         navigate(`/admin/members/edit/${member.id}`)
                       }
+                      // NOVO: Desabilita o botão para membros falecidos
+                      disabled={member.Situacao === "Falecido"}
                     >
                       Editar
                     </button>

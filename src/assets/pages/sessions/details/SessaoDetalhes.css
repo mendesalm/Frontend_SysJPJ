@@ -357,3 +357,50 @@
   align-items: center;
   margin-top: 1rem;
 }
+/* Adicione estas novas regras ao final do seu arquivo CSS existente */
+
+.visitor-form-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.5rem;
+}
+
+.search-group {
+  position: relative;
+  grid-column: 1 / -1; /* Ocupa a largura total */
+}
+
+.search-results-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--cor-fundo-input);
+  border: 1px solid var(--cor-borda-input);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  z-index: 10;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.search-results-list li {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--cor-borda-sidebar);
+}
+
+.search-results-list li:last-child {
+  border-bottom: none;
+}
+
+.search-results-list li:hover {
+  background-color: var(--cor-fundo-hover-sidebar);
+}
+
+.search-results-list li small {
+  color: var(--cor-texto-secundario);
+}

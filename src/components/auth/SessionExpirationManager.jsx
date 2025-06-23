@@ -36,7 +36,7 @@ const SessionExpirationManager = () => {
   const handleRedirectToLogin = () => {
     logout(); // Limpa o estado de autenticação e o token
     setIsModalVisible(false); // Esconde o modal
-    navigate("/login-teste"); // Redireciona para a página de login
+    navigate("/login"); // Redireciona para a página de login
   };
 
   if (!isModalVisible) {

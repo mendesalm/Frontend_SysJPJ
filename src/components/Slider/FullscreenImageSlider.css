@@ -6,10 +6,9 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 88vh; /* Altura definida para o slider (ex: abaixo de um header) */
+  height: 100vh; /* Altura definida para o slider (ex: abaixo de um header) */
   overflow: hidden;
   background-color: transparent;
-  
 }
 
 .slide {
@@ -27,17 +26,18 @@
 
 /* Ajustes para o react-slick */
 .slick-slider,
-.slick-list { 
+.slick-list {
   height: 100% !important; /* Ocupa 100% da altura do .fullscreen-slider-container */
-  width: 100% !important;  /* Ocupa 100% da largura do .fullscreen-slider-container */
+  width: 100% !important; /* Ocupa 100% da largura do .fullscreen-slider-container */
 }
 
 /* .slick-track: Deixe o react-slick gerenciar as dimensões do .slick-track.
    Remova quaisquer declarações de width/height forçadas daqui. */
 
-.slick-slide > div { /* Wrapper direto do react-slick em volta do seu .slide */
+.slick-slide > div {
+  /* Wrapper direto do react-slick em volta do seu .slide */
   height: 100%; /* Ocupa 100% da altura do .slick-slide (que será a altura do .slick-list) */
-  width: 100%;  /* Ocupa 100% da largura */
+  width: 100%; /* Ocupa 100% da largura */
 }
 
 /* Barras de Progresso */
@@ -52,8 +52,8 @@
 }
 
 .progress-bar {
-  width: 60px; 
-  height: 6px; 
+  width: 60px;
+  height: 6px;
   background-color: rgba(255, 255, 255, 0.3);
   border-radius: 3px;
   cursor: pointer;
@@ -84,23 +84,23 @@
   transform: translateY(-50%); /* Mantém o centramento vertical */
   padding: 25px 40px;
   color: white;
-  text-align: left; 
-  z-index: 5; 
-  max-width: 50%; 
+  text-align: left;
+  z-index: 5;
+  max-width: 50%;
   font-size: 1.8rem;
   font-weight: bold;
-  text-shadow: 0px 0px 8px rgba(0,0,0,0.3);
+  text-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
   opacity: 0; /* Começa invisível */
-  pointer-events: none; 
+  pointer-events: none;
 }
 
 .glassmorphism {
-  background: rgba(0, 0, 0, 0.25); 
+  background: rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px); 
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15); 
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 
 /* Animações para o Texto - HORIZONTAL */
@@ -108,12 +108,12 @@
   from {
     opacity: 0;
     /* Começa à esquerda da sua posição final (left: 60px) e mantém o translateY para centramento vertical */
-    transform: translateX(-100%) translateY(-50%); 
+    transform: translateX(-100%) translateY(-50%);
   }
   to {
     opacity: 1;
     /* Termina na sua posição final (left: 60px) e centrado verticalmente */
-    transform: translateX(0) translateY(-50%); 
+    transform: translateX(0) translateY(-50%);
   }
 }
 
@@ -125,14 +125,16 @@
   to {
     opacity: 0;
     /* Sai para a direita da sua posição final e mantém o translateY */
-    transform: translateX(100%) translateY(-50%); 
+    transform: translateX(100%) translateY(-50%);
   }
 }
 
 .slide-text-overlay.animate-enter {
-  animation: textEnterAnimation 0.7s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: textEnterAnimation 0.7s forwards
+    cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .slide-text-overlay.animate-exit {
-  animation: textExitAnimation 0.7s forwards cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  animation: textExitAnimation 0.7s forwards
+    cubic-bezier(0.55, 0.085, 0.68, 0.53);
 }

@@ -1,15 +1,14 @@
+// src/assets/pages/dashboard/DashboardPage.jsx
 import React, { useState, useEffect, useCallback } from "react";
-// CORREÇÃO: A importação de 'useAuth' foi removida pois não era utilizada.
 import { getDashboardData } from "../../../services/dashboardService";
 import AdminDashboard from "./AdminDashboard";
 import MemberDashboard from "./MemberDashboard";
 import DashboardAvisos from "./components/DashboardAvisos";
 import EventCalendar from "./components/EventCalendar";
+import DashboardClassificados from "./components/DashboardClassificados"; // Importa o novo componente
 import "./DashboardPage.css";
 
 const DashboardPage = () => {
-  // CORREÇÃO: A chamada ao hook `useAuth` e a variável 'user' foram removidas.
-  // A autenticação é garantida pelo ProtectedRoute e a API usa o token do localStorage.
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -61,10 +60,16 @@ const DashboardPage = () => {
       {/* Secção superior com as estatísticas */}
       {renderDashboardType()}
 
-      {/* Nova secção em grelha para Avisos e Calendário */}
+      {/* Grelha inferior atualizada */}
       <div className="dashboard-bottom-section">
         <div className="avisos-widget-container">
           <DashboardAvisos />
+        </div>
+        {/* NOVO: Widget de Classificados adicionado */}
+        <div className="classificados-widget-container">
+          <DashboardClassificados
+            classificados={dashboardData?.novosClassificados}
+          />
         </div>
         <div className="calendar-widget-container">
           <EventCalendar />

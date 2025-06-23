@@ -15,9 +15,9 @@
 
 .header-content {
   display: flex;
-  align-items:center;
+  align-items: center;
   justify-content: space-between;
-  height: 12vh; 
+  height: 8vh;
   max-width: 1600px;
   margin: 0 auto;
   padding: 0 20px;
@@ -26,13 +26,13 @@
 }
 
 .header-logo {
-  height: 10vh; 
+  height: 7vh;
   flex-shrink: 0;
   margin-right: 5vw;
 }
 
 .header-title {
-  font-size: clamp(1.2rem, 2rem + 2vw, 4rem); 
+  font-size: clamp(1.2rem, 2rem + 2vw, 4rem);
   margin: 0;
   margin-right: auto;
   white-space: nowrap;
@@ -43,7 +43,7 @@
 
 /* Navegação Desktop (Padrão) */
 .header-nav {
-  display: flex; 
+  display: flex;
 }
 
 .header-nav ul {
@@ -74,25 +74,24 @@
 
 /* BARRA ANIMADA NO HOVER DOS LINKS (Mantida) */
 .header-nav a::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 0;
   height: 2px;
-  bottom: -4px; 
-  left: 50%; 
+  bottom: -4px;
+  left: 50%;
   transform: translateX(-50%);
-  background-color: #61dafb; 
+  background-color: #61dafb;
   transition: width 0.3s ease-in-out;
 }
 
 .header-nav a:hover::after {
-  width: 100%; 
+  width: 100%;
 }
-
 
 /* Botão Sanduíche (Hamburger) (Padrão) */
 .hamburger-menu {
-  display: none; 
+  display: none;
   flex-direction: column;
   justify-content: space-around;
   width: 30px;
@@ -101,7 +100,7 @@
   border: none;
   cursor: pointer;
   padding: 0;
-  margin-left: 15px; 
+  margin-left: 15px;
   z-index: 1100;
   box-sizing: border-box;
 }
@@ -130,35 +129,35 @@
 /* --- ESTILOS RESPONSIVOS (Abaixo de 999px) --- */
 @media (max-width: 998px) {
   .header-nav {
-    display: none !important; 
+    display: none !important;
     position: absolute;
-    top: 12vh; 
+    top: 12vh;
     left: 0;
     right: 0;
     background-color: #3a3a3a; /* Cor de fundo para o menu mobile dropdown */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para o menu dropdown */
-    border-top: 1px solid #4a4a4a; 
+    border-top: 1px solid #4a4a4a;
     z-index: 1050;
   }
 
   .header-nav.active {
-    display: block !important; 
+    display: block !important;
   }
 
   .header-nav ul {
     flex-direction: column;
     width: 100%;
-    padding: 0; 
+    padding: 0;
   }
 
   .header-nav li {
-    margin: 0; 
+    margin: 0;
     width: 100%;
     text-align: left;
   }
 
   .header-nav li:not(:last-child) {
-    border-bottom: 1px solid #4a4a4a; 
+    border-bottom: 1px solid #4a4a4a;
   }
 
   .header-nav a {
@@ -169,11 +168,11 @@
   }
 
   .header-nav a:hover {
-    background-color: #4f4f4f; 
+    background-color: #4f4f4f;
   }
   /* A barra animada ::after também funcionará no menu mobile */
 
   .hamburger-menu {
-    display: flex !important; 
+    display: flex !important;
   }
 }

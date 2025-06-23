@@ -6,8 +6,7 @@
 }
 
 .avisos-header h1 {
-  /* ANTES: font-size: 2.5rem; */
-  font-size: var(--font-size-4xl); /* DEPOIS */
+  font-size: var(--font-size-4xl);
   color: var(--cor-texto-primario);
 }
 
@@ -18,8 +17,7 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  /* ANTES: font-size: 1rem; */
-  font-size: var(--font-size-base); /* DEPOIS */
+  font-size: var(--font-size-base);
   transition: background-color 0.3s;
 }
 
@@ -50,8 +48,7 @@
 }
 
 .aviso-card-header h2 {
-  /* ANTES: font-size: 1.5rem; */
-  font-size: var(--font-size-2xl); /* DEPOIS */
+  font-size: var(--font-size-2xl);
   margin: 0;
   color: var(--cor-texto-cabecalho);
 }
@@ -61,16 +58,14 @@
   color: #333;
   padding: 3px 8px;
   border-radius: 10px;
-  /* ANTES: font-size: 0.8rem; */
-  font-size: var(--font-size-xs); /* DEPOIS */
+  font-size: var(--font-size-xs);
   font-weight: bold;
   float: right;
   margin-left: 10px;
 }
 
 .aviso-conteudo {
-  /* ANTES: font-size: 1rem; */
-  font-size: var(--font-size-base); /* DEPOIS */
+  font-size: var(--font-size-base);
   line-height: 1.6;
   color: var(--cor-texto-primario);
   white-space: pre-wrap; /* Mantém quebras de linha e espaços */
@@ -80,97 +75,7 @@
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--cor-borda-input);
-  /* ANTES: font-size: 0.85rem; */
-  font-size: var(--font-size-sm); /* DEPOIS */
-  color: var(--cor-texto-secundario);
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
-} /* src/assets/pages/avisos/AvisosPage.css */
-
-.avisos-container {
-  /* O container principal já herda estilos de .table-page-container,
-     mas podemos adicionar ajustes específicos se necessário. */
-}
-
-.avisos-header h1 {
-  /* ANTES: font-size: 2.5rem; */
-  font-size: var(--font-size-4xl); /* DEPOIS */
-  color: var(--cor-texto-primario);
-}
-
-.btn-novo-aviso {
-  background-color: var(--cor-active-icon);
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  /* ANTES: font-size: 1rem; */
-  font-size: var(--font-size-base); /* DEPOIS */
-  transition: background-color 0.3s;
-}
-
-.btn-novo-aviso:hover {
-  opacity: 0.9;
-}
-
-.aviso-card {
-  background-color: var(--cor-conteudo-fundo, rgba(255, 255, 255, 0.05));
-  border-radius: 8px;
-  box-shadow: var(--sombra);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  border-left: 5px solid var(--cor-active-icon);
-  backdrop-filter: blur(10px);
-}
-
-.aviso-card.fixado {
-  border-left-color: #ffc107; /* Mantemos uma cor específica para destaque */
-  background-color: rgba(255, 193, 7, 0.05);
-}
-
-.aviso-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.aviso-card-header h2 {
-  /* ANTES: font-size: 1.5rem; */
-  font-size: var(--font-size-2xl); /* DEPOIS */
-  margin: 0;
-  color: var(--cor-texto-cabecalho);
-}
-
-.aviso-fixado-badge {
-  background-color: #ffc107;
-  color: #333;
-  padding: 3px 8px;
-  border-radius: 10px;
-  /* ANTES: font-size: 0.8rem; */
-  font-size: var(--font-size-xs); /* DEPOIS */
-  font-weight: bold;
-  float: right;
-  margin-left: 10px;
-}
-
-.aviso-conteudo {
-  /* ANTES: font-size: 1rem; */
-  font-size: var(--font-size-base); /* DEPOIS */
-  line-height: 1.6;
-  color: var(--cor-texto-primario);
-  white-space: pre-wrap; /* Mantém quebras de linha e espaços */
-}
-
-.aviso-footer {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--cor-borda-input);
-  /* ANTES: font-size: 0.85rem; */
-  font-size: var(--font-size-sm); /* DEPOIS */
+  font-size: var(--font-size-sm);
   color: var(--cor-texto-secundario);
   display: flex;
   justify-content: space-between;

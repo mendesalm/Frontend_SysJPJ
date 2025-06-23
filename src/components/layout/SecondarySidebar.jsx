@@ -12,6 +12,7 @@ const menuConfig = {
       { label: "Mural de Avisos", path: "/mural-de-avisos" },
       { label: "Publicações", path: "/publicacoes" },
       { label: "Minhas Visitações", path: "/minhas-visitacoes" },
+      { label: "Classificados", path: "/classificados" },
     ],
   },
   "menu-secretaria": {
@@ -20,6 +21,7 @@ const menuConfig = {
       { label: "Gestão de Membros", path: "/admin/members" },
       { label: "Gestão de Sessões e Balaústres", path: "/sessoes" },
       { label: "Gestão de Publicações", path: "/publicacoes" },
+      { label: "Arquivos Diversos", path: "/arquivos-diversos" },
     ],
   },
   "menu-chancelaria": {
@@ -32,6 +34,10 @@ const menuConfig = {
       { label: "Gestão de Eventos", path: "/eventos" },
       { label: "Gestão da Escala de Jantares", path: "/admin/escala-jantares" },
     ],
+  },
+  "menu-Oratoria": {
+    title: "Oratória",
+    items: [{ label: "Legislações", path: "/legislacoes" }],
   },
   "menu-tesouraria": {
     title: "Tesouraria",

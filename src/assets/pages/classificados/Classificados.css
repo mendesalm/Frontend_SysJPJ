@@ -1,0 +1,106 @@
+/* src/assets/pages/classificados/Classificados.css */
+.classificados-page {
+  padding: 1rem;
+}
+
+.classificados-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.classificado-card {
+  background: var(--cor-sidebar-primaria);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.classificado-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.card-image-container {
+  width: 100%;
+  height: 200px;
+  background-color: var(--cor-fundo-app);
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-tipo-anuncio {
+  background-color: var(--cor-active-icon);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  align-self: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.card-titulo {
+  font-size: 1.2rem;
+  color: var(--cor-texto-primario);
+  margin: 0 0 0.5rem 0;
+}
+
+.card-valor {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #22c55e;
+  margin: 0 0 1rem 0;
+}
+
+.card-autor {
+  margin-top: auto;
+  font-size: 0.8rem;
+  color: var(--cor-texto-secundario);
+}
+
+.card-actions {
+  display: flex;
+  border-top: 1px solid var(--cor-borda-sidebar);
+}
+
+.card-actions .btn-action {
+  flex: 1;
+  text-align: center;
+  padding: 0.75rem;
+  border-radius: 0;
+  font-weight: bold;
+}
+
+.card-actions .btn-action:first-child {
+  border-right: 1px solid var(--cor-borda-sidebar);
+}
+
+.image-previews {
+  display: flex;
+  gap: 10px;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.image-previews img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}

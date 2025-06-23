@@ -9,13 +9,14 @@
 /* --- Secção Inferior com Grelha --- */
 .dashboard-bottom-section {
   display: grid;
-  grid-template-columns: 1fr 2fr; /* Coluna de avisos ocupa 1/3 e calendário 2/3 */
+  grid-template-columns: 1fr 1fr 2fr;
   gap: 2rem;
-  align-items: start; /* Alinha os itens ao topo da sua célula */
+  align-items: start;
 }
 
 /* Garante que os widgets dentro das colunas ocupem toda a altura disponível */
 .avisos-widget-container,
+.classificados-widget-container,
 .calendar-widget-container {
   height: 100%;
 }

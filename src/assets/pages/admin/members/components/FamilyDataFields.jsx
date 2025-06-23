@@ -8,7 +8,10 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
       {fields.map((field, index) => (
         <div
           key={field.id}
-          className="form-grid"
+          // NOVO: Adiciona a classe 'deceased' se o familiar for falecido
+          className={`form-grid familiar-row ${
+            field.falecido ? "deceased" : ""
+          }`}
           style={{
             alignItems: "flex-end",
             marginBottom: "1rem",
@@ -18,7 +21,6 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
         >
           <div className="form-group">
             <label>Nome do Familiar</label>
-            {/* CORREÇÃO: Usando 'nomeCompleto' */}
             <input
               {...register(`familiares.${index}.nomeCompleto`)}
               className={`form-input ${
@@ -33,7 +35,6 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
           </div>
           <div className="form-group">
             <label>Parentesco</label>
-            {/* CORREÇÃO: Usando 'parentesco' */}
             <select
               {...register(`familiares.${index}.parentesco`)}
               className={`form-select ${
@@ -54,7 +55,6 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
           </div>
           <div className="form-group">
             <label>Data de Nasc.</label>
-            {/* CORREÇÃO: Usando 'dataNascimento' */}
             <input
               type="date"
               {...register(`familiares.${index}.dataNascimento`)}
@@ -67,6 +67,18 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
                 {errors.familiares[index].dataNascimento.message}
               </p>
             )}
+          </div>
+          {/* NOVO: Checkbox para status de falecimento */}
+          <div
+            className="form-group-inline"
+            style={{ alignSelf: "center", paddingTop: "1.5rem" }}
+          >
+            <input
+              type="checkbox"
+              {...register(`familiares.${index}.falecido`)}
+              id={`falecido-${index}`}
+            />
+            <label htmlFor={`falecido-${index}`}>Falecido(a)?</label>
           </div>
           <div>
             <button
@@ -82,9 +94,13 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
       ))}
       <button
         type="button"
-        // CORREÇÃO: Usando 'camelCase' ao adicionar novo familiar
         onClick={() =>
-          append({ nomeCompleto: "", parentesco: "Filho", dataNascimento: "" })
+          append({
+            nomeCompleto: "",
+            parentesco: "Filho",
+            dataNascimento: "",
+            falecido: false,
+          })
         }
         className="btn btn-secondary"
         style={{ marginTop: "1rem" }}

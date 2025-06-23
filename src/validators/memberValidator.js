@@ -1,6 +1,6 @@
 import * as yup from "yup";
+import { SITUACAO_MEMBRO } from "../constants/userConstants"; // Importa a nova constante
 
-// --- INÍCIO DA CORREÇÃO ---
 // Esquema para um familiar individual, padronizado para camelCase
 const familiarSchema = yup.object().shape({
   nomeCompleto: yup.string().required("O nome do familiar é obrigatório."),
@@ -16,8 +16,9 @@ const familiarSchema = yup.object().shape({
     .required("A data de nascimento do familiar é obrigatória.")
     .max(new Date(), "A data de nascimento não pode ser no futuro.")
     .typeError("Forneça uma data válida para o familiar (DD/MM/AAAA)."),
+  // NOVO: Adicionado campo para status de falecimento.
+  falecido: yup.boolean().default(false),
 });
-// --- FIM DA CORREÇÃO ---
 
 // Esquema principal para o formulário de membros com mensagens e transformações melhoradas
 export const memberValidationSchema = yup.object().shape({
@@ -89,7 +90,12 @@ export const memberValidationSchema = yup.object().shape({
     ),
 
   // --- Dados Maçónicos ---
-  // CORREÇÃO: Data de Iniciação agora é obrigatória.
+  // NOVO: Adicionada validação para o campo de Situação
+  Situacao: yup
+    .string()
+    .oneOf(SITUACAO_MEMBRO, "Situação inválida.")
+    .required("A situação do membro é obrigatória."),
+
   DataIniciacao: yup
     .date()
     .required("A data de iniciação é obrigatória.")
