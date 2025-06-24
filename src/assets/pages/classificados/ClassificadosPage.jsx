@@ -1,12 +1,12 @@
 // src/assets/pages/classificados/ClassificadosPage.jsx
 import React, { useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { useDataFetching } from "../../hooks/useDataFetching";
-import * as classificadosService from "../../services/classificadosService";
-import { showSuccessToast, showErrorToast } from "../../utils/notifications";
-import Modal from "../../components/modal/Modal";
+import { useAuth } from "../../../hooks/useAuth";
+import { useDataFetching } from "../../../hooks/useDataFetching";
+import * as classificadosService from "../../../services/classificadosService";
+import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
+import Modal from "../../../components/modal/Modal";
 import ClassificadoForm from "./ClassificadoForm";
-import apiClient from "../../services/apiClient";
+import apiClient from "../../../services/apiClient";
 import "./Classificados.css";
 
 const ClassificadosPage = () => {

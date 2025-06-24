@@ -2,7 +2,6 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
-// A variável com os menus foi renomeada para menuConfig para maior clareza
 const menuConfig = {
   "menu-usuario": {
     title: "Painel do Usuário",
@@ -21,6 +20,7 @@ const menuConfig = {
       { label: "Gestão de Membros", path: "/admin/members" },
       { label: "Gestão de Sessões e Balaústres", path: "/sessoes" },
       { label: "Gestão de Publicações", path: "/publicacoes" },
+      { label: "Documentos", path: "/documentos" },
       { label: "Arquivos Diversos", path: "/arquivos-diversos" },
     ],
   },
@@ -35,16 +35,23 @@ const menuConfig = {
       { label: "Gestão da Escala de Jantares", path: "/admin/escala-jantares" },
     ],
   },
-  "menu-Oratoria": {
-    title: "Oratória",
-    items: [{ label: "Legislações", path: "/legislacoes" }],
-  },
   "menu-tesouraria": {
     title: "Tesouraria",
     items: [
       { label: "Plano de Contas", path: "/financeiro/plano-contas" },
       { label: "Lançamentos", path: "/financeiro/lancamentos" },
       { label: "Orçamento", path: "/financeiro/orcamento" },
+    ],
+  },
+  "menu-oratoria": {
+    title: "Oratória",
+    items: [{ label: "Legislações", path: "/legislacoes" }],
+  },
+  "menu-arquiteto": {
+    title: "Arquitetura",
+    items: [
+      { label: "Gestão de Patrimônio", path: "/patrimonio" },
+      { label: "Locação do Salão", path: "/locacao-salao" },
     ],
   },
   "menu-biblioteca": {
@@ -83,12 +90,10 @@ const SecondarySidebar = ({ activeMenu }) => {
     return true;
   };
 
-  // CORREÇÃO: Utilizando a variável 'menuConfig' correta
   const currentMenu = menuConfig[activeMenu] || menuConfig["menu-usuario"];
 
   return (
     <div className={finalClassName}>
-      {/* O código agora pode renderizar corretamente o menu */}
       {shouldRenderMenu(currentMenu) && (
         <div className="menu-content is-visible">
           <h3>{currentMenu.title}</h3>

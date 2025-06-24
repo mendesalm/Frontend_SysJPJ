@@ -12,6 +12,12 @@ import imgSlider2 from "../../images/slider/slider2.jpg";
 import imgSlider3 from "../../images/slider/slider3.jpg";
 import imgSlider4 from "../../images/slider/slider4.jpg";
 
+// ATUALIZADO: Importação das novas imagens para os cards
+import missaoIcon from "../../images/esq.png";
+import visaoIcon from "../../images/esq.png";
+import valoresIcon from "../../images/esq.png";
+import ritoIcon from "../../images/RitoBrasileiro.png";
+
 const HomePage = () => {
   const location = useLocation();
 
@@ -30,17 +36,24 @@ const HomePage = () => {
     () => [
       {
         title: "Nossa Missão",
-        text: "Promover o aperfeiçoamento constante de nossos membros, transformando homens bons em homens ainda melhores, e atuar como uma força positiva para o progresso moral, social e intelectual da comunidade de Anápolis, sempre pautados pelos princípios da Fraternidade e da Justiça.",
+        text: "Promover o aperfeiçoamento moral e intelectual de nossos membros, desbastando a pedra bruta para transformar homens bons em líderes exemplares para suas famílias e para a sociedade. Através do estudo contínuo, do debate fraterno e da prática dos valores maçónicos, atuamos como uma força positiva e catalisadora para o progresso da comunidade de Anápolis, honrando o legado de nossa Loja e construindo um futuro mais justo e esclarecido.",
+        image: missaoIcon,
       },
       {
-        title: "Visão",
-        text: "Ser reconhecida em Anápolis e região como uma Oficina de referência na formação de líderes éticos e cidadãos exemplares, cujo trabalho incansável e ações filantrópicas contribuam ativamente para a construção de uma sociedade mais justa, harmônica e esclarecida para as futuras gerações.",
+        title: "Nossa Visão",
+        text: "Ser reconhecida em Anápolis e em todo o estado de Goiás como uma Oficina de excelência, um farol de sabedoria, ética e fraternidade. Almejamos ser um centro de formação de cidadãos conscientes e atuantes, cujas contribuições e ações filantrópicas deixem uma marca indelével e positiva, inspirando e iluminando o caminho para as futuras gerações na construção de uma sociedade mais justa, livre e igualitária.",
+        image: visaoIcon,
       },
       {
-        title: "Valores",
-        // CORREÇÃO: O texto foi substituído por um elemento JSX para renderizar a lista HTML
+        title: "Nossos Valores",
         content: (
-          <ul style={{ textAlign: "left", paddingLeft: "20px" }}>
+          <ul
+            style={{
+              textAlign: "left",
+              paddingLeft: "20px",
+              listStylePosition: "inside",
+            }}
+          >
             <li>
               <strong>Fraternidade:</strong> Cultivar laços de união, lealdade e
               apoio mútuo entre os Irmãos.
@@ -63,6 +76,12 @@ const HomePage = () => {
             </li>
           </ul>
         ),
+        image: valoresIcon,
+      },
+      {
+        title: "Aprimoramento Contínuo",
+        text: 'Nossa Loja pratica o Rito Brasileiro e oferece uma jornada completa de desenvolvimento maçônico. Para os Mestres que aspiram aprofundar seus conhecimentos, o caminho se estende através dos Graus Filosóficos. A loja sedia o Sublime Capítulo "José de Lima Júnior" e o Conselho Kadoshi "Pedro Moreira de Lima" conferidos pelo Supremo Conclave do Brasil para o Rito Brasileiro de Maçons Antigos, Livres e Aceitos. Esta via de aperfeiçoamento permite que os filiados alcancem o ápice do Rito, o Grau 33, consolidando uma formação filosófica e humanística de excelência. A Loja sedia os 30 primeiros graus dessa jornada!',
+        image: ritoIcon,
       },
     ],
     []
@@ -88,7 +107,6 @@ const HomePage = () => {
         <FullscreenImageSlider images={minhasImagens} />
       </section>
       <section id="sobre-nos" aria-label="Sobre Nós">
-        {/* CORREÇÃO: A prop foi renomeada para 'cardTexts' para corresponder ao esperado pelo componente GridSection */}
         <GridSection cardTexts={cardData} />
       </section>
       <section id="localizacao" aria-label="Nossa Localização">

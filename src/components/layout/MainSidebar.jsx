@@ -10,12 +10,16 @@ import ChancelerL from "../../assets/images/icones/light/Chanceler-L.png";
 import TesoureiroL from "../../assets/images/icones/light/Tesoureiro-L.png";
 import BibliotecaL from "../../assets/images/icones/light/Biblioteca-L.png";
 import HarmoniaL from "../../assets/images/icones/light/Harmonia-L.png";
+import OratoriaL from "../../assets/images/icones/light/Oratoria-L.png";
+import ArquitetoL from "../../assets/images/icones/light/Arquiteto-L.png";
 import MacomD from "../../assets/images/icones/dark/Macom-D.png";
 import SecretarioD from "../../assets/images/icones/dark/Secretario-D.png";
 import ChancelerD from "../../assets/images/icones/dark/Chanceler-D.png";
 import TesoureiroD from "../../assets/images/icones/dark/Tesoureiro-D.png";
 import BibliotecaD from "../../assets/images/icones/dark/Biblioteca-D.png";
 import HarmoniaD from "../../assets/images/icones/dark/Harmonia-D.png";
+import OratoriaD from "../../assets/images/icones/dark/Oratoria-D.png";
+import ArquitetoD from "../../assets/images/icones/dark/Arquiteto-D.png";
 
 const IconWebmaster = () => (
   <svg
@@ -55,6 +59,8 @@ const lightIcons = {
   tesoureiro: TesoureiroL,
   biblioteca: BibliotecaL,
   harmonia: HarmoniaL,
+  oratoria: OratoriaL,
+  arquiteto: ArquitetoL,
 };
 const darkIcons = {
   macom: MacomD,
@@ -63,6 +69,8 @@ const darkIcons = {
   tesoureiro: TesoureiroD,
   biblioteca: BibliotecaD,
   harmonia: HarmoniaD,
+  oratoria: OratoriaD,
+  arquiteto: ArquitetoD,
 };
 
 const MainSidebar = ({ activeMenu, onMenuClick }) => {
@@ -78,6 +86,8 @@ const MainSidebar = ({ activeMenu, onMenuClick }) => {
     { id: "menu-secretaria", tooltip: "Secretaria", iconName: "secretario" },
     { id: "menu-chancelaria", tooltip: "Chancelaria", iconName: "chanceler" },
     { id: "menu-tesouraria", tooltip: "Tesouraria", iconName: "tesoureiro" },
+    { id: "menu-oratoria", tooltip: "Oratória", iconName: "oratoria" },
+    { id: "menu-arquiteto", tooltip: "Arquiteto", iconName: "arquiteto" },
     { id: "menu-biblioteca", tooltip: "Biblioteca", iconName: "biblioteca" },
     { id: "menu-harmonia", tooltip: "Harmonia", iconName: "harmonia" },
   ];
@@ -101,15 +111,17 @@ const MainSidebar = ({ activeMenu, onMenuClick }) => {
                 className={`main-menu-button ${
                   activeMenu === item.id ? "active" : ""
                 }`}
-                onClick={() => onMenuClick(item.id)} // Garantindo que o onClick está aqui
+                onClick={() => onMenuClick(item.id)}
               >
-                {iconSrc && (
+                {iconSrc ? (
                   <img
                     src={iconSrc}
                     alt={item.tooltip}
                     className="sidebar-icon"
                     style={iconStyle}
                   />
+                ) : (
+                  item.iconComponent
                 )}
                 <span className="tooltip">{item.tooltip}</span>
               </button>

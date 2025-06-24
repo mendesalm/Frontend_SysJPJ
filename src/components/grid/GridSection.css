@@ -9,13 +9,12 @@
 .grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  /* ATUALIZADO: Adicionada uma terceira linha e redistribuído o espaço */
-  grid-template-rows: 1fr 2.5fr 1fr;
+  grid-template-rows: auto 2fr 1fr;
   max-width: 1600px;
   height: 92vh;
   box-sizing: border-box;
   margin: 0 auto;
-  gap: 20px; /* Adicionado gap entre as linhas */
+  gap: 20px;
 }
 
 .grid-row-1 {
@@ -48,44 +47,21 @@
   gap: 20px;
   width: 100%;
   overflow: hidden;
+  font-size: 1.6rem;
+  color: var(--cor-texto-secundario);
 }
 
-/* NOVO: Estilos para a terceira linha */
 .grid-row-3 {
   grid-column: 1 / -1;
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
-  color: var(--cor-texto-primario);
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  text-align: center;
+  padding-bottom: 6vh;
+  font-size: 1.6rem;
+  color: var(--cor-texto-secundario);
 }
 
-.grid-row-3 h2 {
-  font-size: 2.5rem;
-  color: var(--cor-texto-cabecalho);
-  margin-bottom: 1rem;
-}
-
-.cta-button {
-  padding: 12px 28px;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: white;
-  background-color: var(--cor-active-icon);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-}
-
-.cta-button:hover {
-  filter: brightness(1.15);
-  transform: translateY(-2px);
+.grid-row-3 .card {
+  width: 100%;
 }
 
 .card {
@@ -103,29 +79,78 @@
   align-items: center;
   justify-content: flex-start;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: auto; /* Permite scroll se o conteúdo for muito grande */
+  overflow: auto;
+}
+
+/* NOVO: Estilos para as imagens dos cards */
+.card-image-top {
+  height: 80px; /* Altura fixa para os ícones */
+  width: auto;
+  margin-bottom: 20px;
+  object-fit: contain;
+}
+
+.card-image-left {
+  height: 120px; /* Imagem um pouco maior para o card horizontal */
+  width: auto;
+  margin-right: 25px;
+  object-fit: contain;
+}
+
+/* NOVO: Classe para o layout do 4º card */
+.card-horizontal {
+  flex-direction: row;
+  align-items: center; /* Alinha a imagem e o texto verticalmente */
+}
+
+/* NOVO: Wrapper para o conteúdo textual no card horizontal */
+.card-horizontal .card-content {
+  text-align: justify;
 }
 
 .card h3 {
+  margin-top: 0;
   margin-bottom: 15px;
   text-align: center;
 }
 
-@media (max-width: 999px) {
+/* Responsividade Atualizada */
+@media (max-width: 1200px) {
+  .grid-row-2 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .grid-row-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid-row-3 .card {
+    width: 100%;
+  }
+  /* Faz o card horizontal virar vertical em ecrãs menores */
+  .card-horizontal {
+    flex-direction: column;
+  }
+  .card-image-left {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 768px) {
   .grid-container {
     height: auto;
-    grid-template-rows: auto; /* Deixa as linhas crescerem conforme o conteúdo */
+    grid-template-rows: auto;
+    grid-template-columns: 1fr;
   }
-
   .grid-section {
     min-height: 90vh;
     height: auto;
     padding: 15px;
-    gap: 15px;
   }
 
-  .grid-row-1,
-  .grid-row-3 {
+  .grid-row-1 {
     padding: 15px;
   }
 
@@ -134,14 +159,17 @@
     gap: 15px;
   }
 
+  .grid-row-3 .card {
+    width: 100%;
+  }
+
   .card {
     padding: 20px;
   }
 }
 
 @media (max-width: 600px) {
-  .grid-row-1 h2,
-  .grid-row-3 h2 {
+  .grid-row-1 h2 {
     font-size: 1.8em;
   }
   .grid-row-1 p {

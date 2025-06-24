@@ -1,0 +1,70 @@
+/* src/assets/pages/locacoes/LocacaoSalao.css */
+.locacao-page-container {
+  padding: 1rem;
+}
+
+.page-description {
+  font-size: 1rem;
+  color: var(--cor-texto-secundario);
+  margin-bottom: 2rem;
+  max-width: 800px;
+}
+
+.locacao-calendar-container {
+  background: var(--cor-sidebar-primaria);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--cor-borda-sidebar);
+  margin-bottom: 3rem;
+}
+
+/* Estilização do react-big-calendar */
+.rbc-calendar {
+  color: var(--cor-texto-primario);
+}
+.rbc-toolbar button {
+  color: var(--cor-texto-primario);
+  background-color: var(--cor-borda-sidebar);
+  border: 1px solid var(--cor-fundo-app);
+}
+.rbc-toolbar button.rbc-active {
+  background-color: var(--cor-active-icon);
+}
+.rbc-header {
+  color: var(--cor-texto-cabecalho);
+  border-bottom: 1px solid var(--cor-borda-sidebar);
+}
+.rbc-day-bg.rbc-today {
+  background-color: rgba(14, 165, 233, 0.1);
+}
+.rbc-event {
+  background-color: var(--cor-active-icon);
+}
+
+.management-section h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--cor-texto-cabecalho);
+  margin-bottom: 1.5rem;
+}
+
+/* Badges de Status para a tabela */
+.status-pendente {
+  background-color: #ca8a04;
+  color: #1f2937;
+}
+.status-confirmado {
+  background-color: #15803d;
+}
+.status-cancelado {
+  background-color: #b91c1c;
+}
+/* NOVO: Estilo para o status Concluído */
+.status-concluído {
+  background-color: #4b5563;
+}
+
+/* NOVO: Estilo para o botão de encerrar */
+.btn-concluir {
+  background-color: #0e7490;
+  color: white;
+}

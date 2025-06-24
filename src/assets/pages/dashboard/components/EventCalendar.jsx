@@ -1,78 +1,85 @@
+// src/assets/pages/dashboard/components/EventCalendar.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import {
-  getEventos,
-  confirmarPresenca,
-} from "../../../../services/eventosService";
+import { getCalendarioUnificado } from "../../../../services/dashboardService";
 import Modal from "../../../../components/modal/Modal";
 import "./EventCalendar.css";
+import { showErrorToast } from "../../../../utils/notifications";
 
 const localizer = momentLocalizer(moment);
+
+// Função para converter o tipo de evento (ex: "Sessão") numa classe CSS válida (ex: "sessao")
+const sanitizeEventType = (type) => {
+  return type
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+};
+
+// Componente para renderizar o evento com um ponto colorido
+const ColoredEvent = ({ event }) => (
+  <div className="rbc-event-content-wrapper">
+    <div className={`rbc-event-dot`}></div>
+    <span>{event.title}</span>
+  </div>
+);
 
 const EventCalendar = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [acompanhantes, setAcompanhantes] = useState(0);
-
-  // Estados para controlar a navegação do calendário
   const [date, setDate] = useState(new Date());
-  const [view, setView] = useState("month");
 
-  const fetchEvents = useCallback(async () => {
+  const fetchEvents = useCallback(async (currentDate) => {
     try {
       setLoading(true);
-      const response = await getEventos();
-      const formattedEvents = response.data.map((evento) => ({
-        id: evento.id,
-        title: evento.titulo,
-        start: new Date(evento.dataHoraInicio),
-        end: evento.dataHoraFim
-          ? new Date(evento.dataHoraFim)
-          : new Date(evento.dataHoraInicio),
-        allDay: false,
-        resource: evento, // Guarda o objeto original com todos os dados
+      const ano = currentDate.getFullYear();
+      const mes = currentDate.getMonth() + 1;
+      const response = await getCalendarioUnificado(ano, mes);
+
+      const formattedEvents = response.data.map((item) => ({
+        id: item.id,
+        title: item.titulo,
+        start: new Date(item.data),
+        end: new Date(item.data),
+        allDay: true,
+        resource: {
+          type: item.tipo || "geral",
+          status: item.status,
+        },
       }));
       setEvents(formattedEvents);
     } catch (error) {
       console.error("Erro ao buscar eventos para o calendário:", error);
+      showErrorToast("Não foi possível carregar os dados do calendário.");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+    fetchEvents(date);
+  }, [date, fetchEvents]);
 
-  // Função para lidar com o clique num evento do calendário
   const handleSelectEvent = (event) => {
-    setSelectedEvent(event.resource);
-    setAcompanhantes(0); // Reseta o contador de acompanhantes ao abrir o modal
+    setSelectedEvent(event);
     setIsModalOpen(true);
   };
 
-  const handleConfirmarPresenca = async (eventoId, status) => {
-    try {
-      await confirmarPresenca(eventoId, {
-        statusConfirmacao: status,
-        // Envia o número de acompanhantes, ou 0 se a presença for recusada
-        acompanhantes: status === "Confirmado" ? acompanhantes : 0,
-      });
-      setIsModalOpen(false);
-      fetchEvents(); // Recarrega os eventos para atualizar a lista de participantes
-    } catch (error) {
-      console.error("Erro ao confirmar presença:", error);
-      // Poderia adicionar um feedback de erro aqui
-    }
+  const handleNavigate = (newDate) => {
+    setDate(newDate);
   };
 
-  // Handlers para controlar a navegação e a mudança de vista do calendário
-  const handleNavigate = useCallback((newDate) => setDate(newDate), [setDate]);
-  const handleView = useCallback((newView) => setView(newView), [setView]);
+  // Aplica uma classe CSS customizada com base no tipo de evento
+  const eventPropGetter = useCallback((event) => {
+    const className = `rbc-event-${sanitizeEventType(event.resource.type)}`;
+    return {
+      className,
+    };
+  }, []);
 
   const messages = {
     allDay: "Dia todo",
@@ -90,23 +97,14 @@ const EventCalendar = () => {
     showMore: (total) => `+ Ver mais (${total})`,
   };
 
-  if (loading) {
-    return (
-      <div className="event-calendar-container">A carregar calendário...</div>
-    );
-  }
-
-  // Calcula o total de confirmados para exibir no modal
-  const totalConfirmados =
-    selectedEvent?.participantes?.reduce((acc, p) => {
-      // Acessa o número de acompanhantes através da tabela de junção
-      const numAcompanhantes = p.confirmacao?.acompanhantes || 0;
-      return acc + 1 + numAcompanhantes;
-    }, 0) || 0;
-
   return (
     <>
       <div className="event-calendar-container">
+        {loading && (
+          <div className="calendar-loading-overlay">
+            A carregar calendário...
+          </div>
+        )}
         <Calendar
           localizer={localizer}
           events={events}
@@ -114,78 +112,43 @@ const EventCalendar = () => {
           endAccessor="end"
           style={{ height: "calc(100vh - 250px)" }}
           messages={messages}
-          views={["month", "week", "day"]}
+          views={["month"]}
           onSelectEvent={handleSelectEvent}
           date={date}
-          view={view}
           onNavigate={handleNavigate}
-          onView={handleView}
+          eventPropGetter={eventPropGetter}
+          components={{
+            event: ColoredEvent,
+          }}
         />
       </div>
 
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={selectedEvent?.titulo}
+        title={selectedEvent?.title}
       >
         {selectedEvent && (
           <div className="event-details-modal">
             <p>
-              <strong>Quando:</strong>{" "}
-              {new Date(selectedEvent.dataHoraInicio).toLocaleString("pt-BR")}
+              <strong>Data:</strong>{" "}
+              {moment(selectedEvent.start).format("DD/MM/YYYY")}
             </p>
             <p>
-              <strong>Onde:</strong> {selectedEvent.local}
+              <strong>Tipo:</strong>{" "}
+              <span
+                className={`event-type-badge event-type-${sanitizeEventType(
+                  selectedEvent.resource.type
+                )}`}
+              >
+                {selectedEvent.resource.type}
+              </span>
             </p>
-            <p className="event-description">{selectedEvent.descricao}</p>
-
-            {selectedEvent.participantes &&
-              selectedEvent.participantes.length > 0 && (
-                <div className="participants-section">
-                  <strong>Presenças Confirmadas ({totalConfirmados}):</strong>
-                  <div className="participants-list">
-                    {selectedEvent.participantes.map((p) => (
-                      <span key={p.id} className="participant-tag">
-                        {p.NomeCompleto}
-                        {p.confirmacao?.acompanhantes > 0 &&
-                          ` (+${p.confirmacao.acompanhantes})`}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-            <div className="presenca-actions">
-              <p>Sua presença:</p>
-              <div className="acompanhantes-input">
-                <label htmlFor="acompanhantes">Acompanhantes:</label>
-                <input
-                  type="number"
-                  id="acompanhantes"
-                  value={acompanhantes}
-                  onChange={(e) =>
-                    setAcompanhantes(parseInt(e.target.value, 10) || 0)
-                  }
-                  min="0"
-                />
-              </div>
-              <button
-                onClick={() =>
-                  handleConfirmarPresenca(selectedEvent.id, "Confirmado")
-                }
-                className="btn-action btn-approve"
-              >
-                Confirmar
-              </button>
-              <button
-                onClick={() =>
-                  handleConfirmarPresenca(selectedEvent.id, "Recusado")
-                }
-                className="btn-action btn-delete"
-              >
-                Recusar
-              </button>
-            </div>
+            {selectedEvent.resource.status && (
+              <p>
+                <strong>Status:</strong> {selectedEvent.resource.status}
+              </p>
+            )}
           </div>
         )}
       </Modal>

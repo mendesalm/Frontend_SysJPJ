@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { classificadoValidationSchema } from "../../validators/classificadosValidator";
-import "../../assets/styles/FormStyles.css";
+import { classificadoValidationSchema } from "../../../validators/classificadosValidator";
+import "../../../assets/styles/FormStyles.css";
 
 const TIPOS_ANUNCIO = ["Venda", "Compra", "Aluguel", "Doação", "Serviço"];
 
