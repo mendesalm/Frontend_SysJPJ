@@ -202,3 +202,33 @@
   font-style: italic;
   color: var(--cor-texto-secundario);
 }
+.file-name-display {
+  display: inline-block;
+  margin-left: 1rem;
+  font-style: italic;
+  color: var(--cor-texto-secundario);
+}
+
+/* NOVOS ESTILOS PARA A SECÇÃO DA FOTO DE PERFIL */
+.profile-photo-section {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  grid-column: 1 / -1; /* Ocupa a largura toda na grelha */
+}
+
+.profile-photo-preview {
+  width: 120px;
+  height: 140px;
+  border-radius: 20px;
+  object-fit: cover;
+  border: 4px solid var(--cor-borda-sidebar);
+  background-color: #4b5563;
+}
+
+.profile-photo-section .form-group {
+  flex-grow: 1;
+}

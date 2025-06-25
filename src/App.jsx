@@ -111,6 +111,9 @@ const ClassificadosPage = lazy(() =>
 const LocacaoSalaoPage = lazy(() =>
   import("./assets/pages/locacoes/LocacaoSalaoPage.jsx")
 );
+const GeracaoCartoesPage = lazy(() =>
+  import("./assets/pages/chancelaria/GeracaoCartoesPage.jsx")
+);
 
 const LoadingFallback = () => (
   <div
@@ -239,6 +242,10 @@ function App() {
                 />
                 <Route path="/classificados" element={<ClassificadosPage />} />
                 <Route path="/locacao-salao" element={<LocacaoSalaoPage />} />
+                <Route
+                  path="/chancelaria/gerar-cartoes"
+                  element={<GeracaoCartoesPage />}
+                />
 
                 <Route path="/sessoes/:id" element={<SessaoDetalhesPage />} />
                 <Route path="/legislacoes" element={<LegislacoesPage />} />

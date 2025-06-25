@@ -1,5 +1,5 @@
 import React from "react";
-import "./LoadingOverlay.css";
+import "../../../../../components/layout/LoadingOverlay.css";
 
 const LoadingOverlay = ({ isLoading, message }) => {
   if (!isLoading) {

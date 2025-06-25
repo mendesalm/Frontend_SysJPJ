@@ -1,61 +1,86 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useDataFetching } from "../../../../hooks/useDataFetching";
 import {
   getMemberById,
   updateMember,
 } from "../../../../services/memberService";
 import MemberForm from "./MemberForm";
+import LoadingOverlay from "./components/LoadingOverlay";
+import Modal from "../../../../components/modal/Modal";
+import AdminPasswordResetForm from "./components/AdminPasswordResetForm";
+import {
+  showSuccessToast,
+  showErrorToast,
+} from "../../../../utils/notifications";
 
 const MemberEditPage = () => {
-  const [initialData, setInitialData] = useState(null);
-  const [error, setError] = useState("");
   const { memberId } = useParams();
   const navigate = useNavigate();
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
-  const fetchMemberData = useCallback(async () => {
-    try {
-      const response = await getMemberById(memberId);
-      setInitialData(response.data);
-    } catch (err) {
-      console.error("Erro ao carregar dados do membro:", err);
-      setError("Não foi possível carregar os dados para edição.");
+  const fetchMember = useCallback(() => {
+    if (memberId) {
+      return getMemberById(memberId);
     }
+    return Promise.resolve(null);
   }, [memberId]);
 
-  useEffect(() => {
-    fetchMemberData();
-  }, [fetchMemberData]);
+  const {
+    data, // Busca os dados brutos primeiro
+    isLoading,
+    error,
+  } = useDataFetching(fetchMember);
 
-  const handleSave = async (formData) => {
+  // CORREÇÃO: Extrai o objeto do membro, quer ele venha diretamente ou dentro de um array.
+  const member = data ? (Array.isArray(data) ? data[0] : data) : null;
+
+  const handleSave = async (data) => {
     try {
-      await updateMember(memberId, formData);
+      await updateMember(memberId, data);
+      showSuccessToast("Membro atualizado com sucesso!");
       navigate("/admin/members");
     } catch (err) {
-      console.error("Erro ao atualizar membro:", err);
-      setError(
-        err.response?.data?.message ||
-          "Ocorreu um erro ao salvar as alterações."
-      );
+      showErrorToast("Não foi possível atualizar o membro.");
+      console.error(err);
     }
   };
 
-  if (error)
+  if (isLoading) {
+    return <LoadingOverlay>A carregar dados do membro...</LoadingOverlay>;
+  }
+
+  if (error) {
     return (
-      <div className="table-page-container">
-        <p className="error-message">{error}</p>
-      </div>
+      <div className="error-message">{`Erro ao carregar dados: ${error}`}</div>
     );
-  if (!initialData)
-    return <div className="table-page-container">A carregar...</div>;
+  }
+
+  if (!member) {
+    return <div>Membro não encontrado ou falha ao carregar.</div>;
+  }
 
   return (
-    // A página agora simplesmente renderiza o MemberForm, que contém toda a sua própria lógica de layout.
-    <MemberForm
-      initialData={initialData}
-      onSave={handleSave}
-      isCreating={false}
-      onCancel={() => navigate("/admin/members")}
-    />
+    <>
+      <MemberForm
+        initialData={member}
+        onSave={handleSave}
+        isCreating={false}
+        onCancel={() => navigate("/admin/members")}
+        onOpenPasswordModal={() => setIsPasswordModalOpen(true)}
+      />
+
+      <Modal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        title={`Redefinir Senha para ${member.NomeCompleto}`}
+      >
+        <AdminPasswordResetForm
+          memberId={memberId}
+          onFinished={() => setIsPasswordModalOpen(false)}
+        />
+      </Modal>
+    </>
   );
 };
 

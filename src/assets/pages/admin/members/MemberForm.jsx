@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useForm, FormProvider, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { memberSchema } from "../../../../validators/memberValidator.js";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { memberValidationSchema } from "../../../../validators/memberValidator.js";
 import { consultarCEP } from "../../../../services/cepService.js";
+import { formatDateForInput } from "../../../../utils/dateUtils.js";
 import FormPageLayout from "../../../../components/layout/FormPageLayout.jsx";
 import "../../../styles/FormStyles.css";
 
@@ -12,7 +13,7 @@ import FamilyDataFields from "./components/FamilyDataFields.jsx";
 import AddressFields from "./components/AddressFields.jsx";
 import MasonicDataFields from "./components/MasonicDataFields.jsx";
 import ProfessionalDataFields from "./components/ProfessionalDataFields.jsx";
-import HistoricoCargos from "./components/HistoricoCargos"; // 1. IMPORTAÇÃO DO NOVO COMPONENTE
+import HistoricoCargos from "./components/HistoricoCargos";
 import {
   CREDENCIAIS,
   STATUS_CADASTRO,
@@ -23,12 +24,12 @@ const MemberForm = ({
   onSave,
   isCreating = false,
   onCancel,
+  onOpenPasswordModal,
 }) => {
   const [cepStatus, setCepStatus] = useState("");
 
-  // Usando FormProvider para compartilhar o estado do formulário com componentes aninhados
   const methods = useForm({
-    resolver: zodResolver(memberSchema),
+    resolver: yupResolver(memberValidationSchema),
     context: { isCreating },
     defaultValues: initialData,
   });
@@ -50,6 +51,29 @@ const MemberForm = ({
 
   const cepValue = watch("Endereco_CEP");
 
+  // Função atualizada para processar e enviar o formulário como FormData
+  const processAndSave = (data) => {
+    const formData = new FormData();
+
+    // Adiciona todos os campos ao FormData
+    for (const key in data) {
+      if (key === "FotoPessoal") {
+        if (data.FotoPessoal && data.FotoPessoal[0]) {
+          formData.append(key, data.FotoPessoal[0]);
+        }
+      } else if (key === "familiares") {
+        // Envia familiares como uma string JSON
+        formData.append(key, JSON.stringify(data[key] || []));
+      } else {
+        if (data[key] !== null && data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
+      }
+    }
+
+    onSave(formData);
+  };
+
   const handleCepBlur = async () => {
     const cepLimpo = (cepValue || "").replace(/\D/g, "");
     if (cepLimpo.length !== 8) {
@@ -69,35 +93,18 @@ const MemberForm = ({
   };
 
   useEffect(() => {
-    // Formata as datas para o formato YYYY-MM-DD que o input[type=date] espera
     const formattedData = {
       ...initialData,
-      DataNascimento: initialData.DataNascimento
-        ? new Date(initialData.DataNascimento).toISOString().split("T")[0]
-        : "",
-      DataCasamento: initialData.DataCasamento
-        ? new Date(initialData.DataCasamento).toISOString().split("T")[0]
-        : "",
-      DataIniciacao: initialData.DataIniciacao
-        ? new Date(initialData.DataIniciacao).toISOString().split("T")[0]
-        : "",
-      DataElevacao: initialData.DataElevacao
-        ? new Date(initialData.DataElevacao).toISOString().split("T")[0]
-        : "",
-      DataExaltacao: initialData.DataExaltacao
-        ? new Date(initialData.DataExaltacao).toISOString().split("T")[0]
-        : "",
-      DataFiliacao: initialData.DataFiliacao
-        ? new Date(initialData.DataFiliacao).toISOString().split("T")[0]
-        : "",
-      DataRegularizacao: initialData.DataRegularizacao
-        ? new Date(initialData.DataRegularizacao).toISOString().split("T")[0]
-        : "",
+      DataNascimento: formatDateForInput(initialData.DataNascimento),
+      DataCasamento: formatDateForInput(initialData.DataCasamento),
+      DataIniciacao: formatDateForInput(initialData.DataIniciacao),
+      DataElevacao: formatDateForInput(initialData.DataElevacao),
+      DataExaltacao: formatDateForInput(initialData.DataExaltacao),
+      DataFiliacao: formatDateForInput(initialData.DataFiliacao),
+      DataRegularizacao: formatDateForInput(initialData.DataRegularizacao),
       familiares: (initialData.familiares || []).map((f) => ({
         ...f,
-        dataNascimento: f.dataNascimento
-          ? new Date(f.dataNascimento).toISOString().split("T")[0]
-          : "",
+        dataNascimento: formatDateForInput(f.dataNascimento),
       })),
     };
     reset(formattedData);
@@ -118,6 +125,15 @@ const MemberForm = ({
       >
         {isSubmitting ? "A salvar..." : "Salvar Alterações"}
       </button>
+      {!isCreating && (
+        <button
+          type="button"
+          onClick={onOpenPasswordModal}
+          className="btn btn-secondary"
+        >
+          Redefinir Senha
+        </button>
+      )}
       <button type="button" onClick={onCancel} className="btn btn-secondary">
         Cancelar
       </button>
@@ -129,14 +145,19 @@ const MemberForm = ({
       title={isCreating ? "Criar Novo Membro" : "Editar Membro"}
       actionsComponent={<ActionButtons />}
     >
-      {/* Envolvemos o formulário com o FormProvider */}
       <FormProvider {...methods}>
         <form
           id="member-form"
-          onSubmit={handleSubmit(onSave)}
+          onSubmit={handleSubmit(processAndSave)}
           className="form-container"
         >
-          <PersonalDataFields register={register} errors={errors} />
+          {/* O componente PersonalDataFields agora recebe as props 'watch' e 'initialPhoto' */}
+          <PersonalDataFields
+            register={register}
+            errors={errors}
+            watch={watch}
+            initialPhoto={initialData?.FotoPessoal_Caminho}
+          />
           <FamilyDataFields
             fields={fields}
             register={register}
@@ -157,8 +178,6 @@ const MemberForm = ({
           />
           <ProfessionalDataFields control={control} register={register} />
 
-          {/* 2. O COMPONENTE DE HISTÓRICO É RENDERIZADO AQUI */}
-          {/* Ele só aparece se estivermos editando um membro que já existe (tem um ID) */}
           {!isCreating && initialData.id && (
             <HistoricoCargos memberId={initialData.id} />
           )}

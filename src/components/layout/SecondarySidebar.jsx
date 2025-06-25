@@ -33,6 +33,7 @@ const menuConfig = {
       { label: "Controle de Visitações", path: "/admin/visitacoes" },
       { label: "Gestão de Eventos", path: "/eventos" },
       { label: "Gestão da Escala de Jantares", path: "/admin/escala-jantares" },
+      { label: "Geração de Cartões", path: "/chancelaria/gerar-cartoes" },
     ],
   },
   "menu-tesouraria": {

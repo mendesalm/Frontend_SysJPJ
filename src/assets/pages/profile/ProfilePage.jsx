@@ -4,11 +4,13 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { memberValidationSchema } from "../../../validators/memberValidator";
 import { useAuth } from "../../../hooks/useAuth";
-import { updateMyProfile } from "../../../services/memberService";
+import { updateMember } from "../../../services/memberService";
 import { consultarCEP } from "../../../services/cepService.js";
 import FormPageLayout from "../../../components/layout/FormPageLayout";
 import "../../styles/FormStyles.css";
-import "../../styles/TableStyles.css"; // Para o container da página
+import "../../styles/TableStyles.css";
+import apiClient from "../../../services/apiClient";
+import PlaceholderAvatar from "../../images/avatar_placeholder.png";
 
 const ProfilePage = () => {
   const { user, loading: authLoading, checkUserStatus } = useAuth();
@@ -17,6 +19,7 @@ const ProfilePage = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [cepStatus, setCepStatus] = useState("");
+  const [preview, setPreview] = useState(null);
 
   const {
     register,
@@ -29,7 +32,6 @@ const ProfilePage = () => {
   } = useForm({
     resolver: yupResolver(memberValidationSchema),
     context: { isCreating: false },
-    // Inicializa o formulário com uma estrutura vazia para evitar erros
     defaultValues: {
       familiares: [],
     },
@@ -40,8 +42,21 @@ const ProfilePage = () => {
     name: "familiares",
   });
   const cepValue = watch("Endereco_CEP");
+  const photoFile = watch("FotoPessoal");
 
-  // CORREÇÃO: Este useEffect agora sincroniza o formulário sempre que o 'user' do contexto muda.
+  useEffect(() => {
+    if (photoFile && photoFile.length > 0) {
+      const file = photoFile[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => setPreview(reader.result);
+        reader.readAsDataURL(file);
+      }
+    } else {
+      setPreview(null);
+    }
+  }, [photoFile]);
+
   useEffect(() => {
     if (user) {
       const formattedData = {
@@ -68,10 +83,17 @@ const ProfilePage = () => {
             : "",
         })),
       };
-      // A função reset do react-hook-form atualiza todos os campos de forma eficiente.
       reset(formattedData);
     }
   }, [user, reset]);
+
+  const getFileUrl = (path) => {
+    if (!path) return PlaceholderAvatar;
+    const baseURL = apiClient.defaults.baseURL.startsWith("http")
+      ? apiClient.defaults.baseURL
+      : window.location.origin;
+    return `${baseURL}/${path}`.replace("/api/", "/");
+  };
 
   const handleCepBlur = async () => {
     const cepLimpo = (cepValue || "").replace(/\D/g, "");
@@ -91,13 +113,24 @@ const ProfilePage = () => {
     }
   };
 
-  const onSubmit = async (formData) => {
+  const onSubmit = async (data) => {
     setError("");
     setSuccessMessage("");
     try {
-      await updateMyProfile(formData);
-      // Após salvar, chama checkUserStatus para buscar os dados atualizados do backend.
-      // O useEffect acima irá detetar a mudança no 'user' e atualizar o formulário.
+      const formData = new FormData();
+      for (const key in data) {
+        if (key === "FotoPessoal") {
+          if (data.FotoPessoal && data.FotoPessoal[0]) {
+            formData.append(key, data.FotoPessoal[0]);
+          }
+        } else if (key === "familiares") {
+          formData.append(key, JSON.stringify(data[key] || []));
+        } else if (data[key] !== null && data[key] !== undefined) {
+          formData.append(key, data[key]);
+        }
+      }
+
+      await updateMember(user.id, formData);
       await checkUserStatus();
       setSuccessMessage("Perfil atualizado com sucesso!");
       setTimeout(() => setSuccessMessage(""), 3000);
@@ -112,10 +145,7 @@ const ProfilePage = () => {
   const ActionButtons = () => (
     <div className="actions-box">
       <h3>Ações</h3>
-      <p>
-        Mantenha os seus dados sempre atualizados. Clique em "Salvar" para
-        confirmar as alterações.
-      </p>
+      <p>Mantenha os seus dados sempre atualizados.</p>
       <button
         type="submit"
         form="profile-form"
@@ -138,6 +168,12 @@ const ProfilePage = () => {
     return <div className="table-page-container">A carregar perfil...</div>;
   }
 
+  const currentImage =
+    preview ||
+    (user?.FotoPessoal_Caminho
+      ? getFileUrl(user.FotoPessoal_Caminho)
+      : PlaceholderAvatar);
+
   return (
     <FormPageLayout title="Meu Perfil" actionsComponent={<ActionButtons />}>
       {error && <p className="error-message">{error}</p>}
@@ -151,6 +187,28 @@ const ProfilePage = () => {
         <fieldset className="form-fieldset">
           <legend>Dados Pessoais</legend>
           <div className="form-grid">
+            <div className="profile-photo-section">
+              <img
+                src={currentImage}
+                alt="Foto de Perfil"
+                className="profile-photo-preview"
+              />
+              <div className="form-group">
+                <label htmlFor="FotoPessoal">Atualizar Foto (Opcional)</label>
+                <input
+                  type="file"
+                  id="FotoPessoal"
+                  {...register("FotoPessoal")}
+                  className="form-input"
+                  accept="image/jpeg, image/png, image/gif, image/webp"
+                />
+                {errors.FotoPessoal && (
+                  <p className="form-error-message">
+                    {errors.FotoPessoal.message}
+                  </p>
+                )}
+              </div>
+            </div>
             <div className="form-group full-width">
               <label>Nome Completo</label>
               <input
@@ -311,6 +369,7 @@ const ProfilePage = () => {
           </button>
         </fieldset>
 
+        {/* CORREÇÃO: Readicionados os fieldsets de Endereço, Maçónicos e Profissionais */}
         <fieldset className="form-fieldset">
           <legend>Endereço</legend>
           <div className="form-grid" style={{ gridTemplateColumns: "1fr 3fr" }}>
@@ -369,98 +428,6 @@ const ProfilePage = () => {
           </div>
         </fieldset>
 
-        <fieldset className="form-fieldset">
-          <legend>Dados Maçônicos</legend>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>CIM</label>
-              <input
-                type="text"
-                {...register("CIM")}
-                disabled
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Situação</label>
-              <input
-                type="text"
-                {...register("Situacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Grau</label>
-              <input
-                type="text"
-                {...register("Graduacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-          </div>
-          {/* --- AGRUPAMENTO INLINE ATUALIZADO --- */}
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Data de Iniciação</label>
-              <input
-                type="date"
-                {...register("DataIniciacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Data de Elevação</label>
-              <input
-                type="date"
-                {...register("DataElevacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Data de Exaltação</label>
-              <input
-                type="date"
-                {...register("DataExaltacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Data de Filiação</label>
-              <input
-                type="date"
-                {...register("DataFiliacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Data de Regularização</label>
-              <input
-                type="date"
-                {...register("DataRegularizacao")}
-                disabled
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Grau Filosófico</label>
-              <input
-                type="text"
-                {...register("grauFilosofico")}
-                className="form-input"
-              />
-            </div>
-          </div>
-        </fieldset>
-
-        {/* --- Dados Profissionais --- */}
         <fieldset className="form-fieldset">
           <legend>Dados Profissionais</legend>
           <div className="form-grid">

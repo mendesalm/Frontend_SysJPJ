@@ -7,6 +7,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 1.5rem;
+  position: relative; /* Para o overlay de loading */
 }
 
 /* Sobrescreve os estilos padrão da biblioteca react-big-calendar */
@@ -55,11 +56,64 @@
   background-color: rgba(14, 165, 233, 0.1);
 }
 
-.rbc-event {
-  background-color: #0ea5e9;
-  border-color: #0284c7;
-  padding: 4px 8px;
-  font-size: 0.85rem;
+.rbc-off-range-bg {
+  background: #2b3a53;
+}
+
+.calendar-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(31, 41, 55, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 12px;
+}
+
+/* Estilização customizada para diferentes tipos de evento */
+/* ANTES:
+.rbc-event-locacao { background-color: #16a34a !important; border-color: #15803d !important; }
+.rbc-event-sessao { background-color: #9333ea !important; border-color: #7e22ce !important; }
+.rbc-event-evento { background-color: #d97706 !important; border-color: #b45309 !important; }
+*/
+
+/* DEPOIS: Nova paleta de cores */
+.rbc-event-locacao {
+  background-color: #22c55e !important;
+  border-color: #16a34a !important;
+} /* Verde */
+.rbc-event-sessao {
+  background-color: #3b82f6 !important;
+  border-color: #2563eb !important;
+} /* Azul */
+.rbc-event-evento {
+  background-color: #f97316 !important;
+  border-color: #ea580c !important;
+} /* Laranja */
+.rbc-event-geral {
+  background-color: #64748b !important;
+  border-color: #475569 !important;
+} /* Cinza */
+
+.rbc-event-content-wrapper {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.rbc-event-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+  background-color: rgba(255, 255, 255, 0.7);
 }
 
 /* --- Estilos para o Modal de Detalhes do Evento --- */
@@ -73,11 +127,38 @@
   line-height: 1.6;
 }
 
-.event-details-modal .event-description {
+.event-details-modal .event-type-badge {
+  text-transform: capitalize;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: white;
+}
+
+/* Cores específicas para os badges no modal, alinhadas com o calendário */
+.event-type-locacao {
+  background-color: #22c55e;
+}
+.event-type-sessao {
+  background-color: #3b82f6;
+}
+.event-type-evento {
+  background-color: #f97316;
+}
+.event-type-geral {
+  background-color: #64748b;
+}
+
+.event-description {
   background-color: rgba(0, 0, 0, 0.2);
   padding: 1rem;
   border-radius: 6px;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
+  white-space: pre-wrap;
+}
+
+.event-description p {
+  margin: 0;
 }
 
 .participants-section {
@@ -105,48 +186,4 @@
   padding: 4px 10px;
   border-radius: 15px;
   font-size: 0.85rem;
-}
-
-.presenca-actions {
-  border-top: 1px solid #374151;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.presenca-actions p {
-  margin: 0;
-  font-weight: 500;
-  color: #9ca3af;
-  flex-shrink: 0;
-}
-
-.acompanhantes-input {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: #374151;
-  padding: 5px 10px;
-  border-radius: 6px;
-}
-
-.acompanhantes-input label {
-  font-size: 0.9rem;
-}
-
-.acompanhantes-input input {
-  width: 60px;
-  background-color: #1f2937;
-  border: 1px solid #4b5563;
-  color: #f9fafb;
-  border-radius: 4px;
-  padding: 5px;
-  text-align: center;
-}
-
-.rbc-off-range-bg {
-  background: #2b3a53;
 }

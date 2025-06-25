@@ -1,0 +1,39 @@
+/* src/assets/pages/admin/members/components/HistoricoCargos.css */
+
+.cargo-form-container {
+  display: grid;
+  /* Cria uma grelha flexível com 3 colunas para os inputs e 1 para o botão */
+  grid-template-columns: repeat(3, 1fr) auto;
+  gap: 1rem;
+  align-items: flex-end; /* Alinha todos os itens na parte inferior */
+  padding-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--cor-borda-sidebar);
+}
+
+.cargo-form-container .form-group {
+  margin: 0; /* Remove margens extras dos form-groups */
+}
+
+/* Garante que o botão de adicionar fique alinhado corretamente */
+.cargo-form-container .btn {
+  margin-bottom: 0; /* Alinha com a base dos inputs */
+  white-space: nowrap; /* Evita que o texto do botão quebre */
+}
+
+.historico-table-container {
+  margin-top: 1rem; /* Espaçamento acima da tabela */
+}
+
+/* Em ecrãs menores, cada item do formulário ocupa uma linha */
+@media (max-width: 992px) {
+  .cargo-form-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .cargo-form-container .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

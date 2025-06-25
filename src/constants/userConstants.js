@@ -5,18 +5,13 @@ export const CREDENCIAIS = ["Webmaster", "Diretoria", "Membro"];
 export const STATUS_CADASTRO = ["Pendente", "Aprovado", "Rejeitado"];
 
 export const GRAU_OPTIONS = [
-  "Aprendiz Maçom",
-  "Companheiro Maçom",
-  "Mestre Maçom",
+  "Aprendiz",
+  "Companheiro",
+  "Mestre",
   "Mestre Instalado",
 ];
 
-export const GRAUS = [
-  "Aprendiz Maçom",
-  "Companheiro Maçom",
-  "Mestre Maçom",
-  "Mestre Instalado",
-];
+export const GRAUS = ["Aprendiz", "Companheiro", "Mestre", "Mestre Instalado"];
 
 export const TIPOS_SESSAO = ["Ordinária", "Magna", "Pública", "Comemorativa"];
 export const SITUACAO_MEMBRO = [
@@ -26,4 +21,36 @@ export const SITUACAO_MEMBRO = [
   "Irregular",
   "Remido",
   "Falecido",
+];
+export const CARGOS_LOJA = [
+  "Venerável Mestre",
+  "Primeiro Vigilante",
+  "Segundo Vigilante",
+  "Orador",
+  "Orador Adjunto",
+  "Secretário",
+  "Secretário Adjunto",
+  "Chanceler",
+  "Chanceler Adjunto",
+  "Tesoureiro",
+  "Tesoureiro Adjunto",
+  "Mestre de Cerimônias",
+  "Mestre de Harmonia",
+  "Mestre de Harmonia Adjunto",
+  "Arquiteto",
+  "Arquiteto Adjunto",
+  "Bibliotecário",
+  "Bibliotecário Adjunto",
+  "Primeiro Diácono",
+  "Segundo Diácono",
+  "Primeiro Experto",
+  "Segundo Experto",
+  "Cobridor Interno",
+  "Cobridor Externo",
+  "Hospitaleiro",
+  "Porta Bandeira",
+  "Porta Estandarte",
+  "Deputado Estadual",
+  "Deputado Federal",
+  "Sem cargo definido",
 ];

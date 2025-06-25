@@ -1,0 +1,30 @@
+/* src/assets/pages/chancelaria/GeracaoCartoes.css */
+.geracao-cartoes-page {
+  padding: 1rem;
+}
+
+.page-description {
+  font-size: 1rem;
+  color: var(--cor-texto-secundario);
+  margin-bottom: 2rem;
+  max-width: 800px;
+}
+
+.cards-generation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.generation-section h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--cor-texto-cabecalho);
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 992px) {
+  .cards-generation-grid {
+    grid-template-columns: 1fr;
+  }
+}
