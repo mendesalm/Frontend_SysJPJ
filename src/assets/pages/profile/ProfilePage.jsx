@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { memberValidationSchema } from "../../../validators/memberValidator";
 import { useAuth } from "../../../hooks/useAuth";
@@ -9,8 +9,8 @@ import { consultarCEP } from "../../../services/cepService.js";
 import FormPageLayout from "../../../components/layout/FormPageLayout";
 import "../../styles/FormStyles.css";
 import "../../styles/TableStyles.css";
-import apiClient from "../../../services/apiClient";
-import PlaceholderAvatar from "../../images/avatar_placeholder.png";
+// ATUALIZADO: Importa o componente reutilizável de dados pessoais
+import PersonalDataFields from "../admin/members/components/PersonalDataFields";
 
 const ProfilePage = () => {
   const { user, loading: authLoading, checkUserStatus } = useAuth();
@@ -19,7 +19,14 @@ const ProfilePage = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [cepStatus, setCepStatus] = useState("");
-  const [preview, setPreview] = useState(null);
+
+  const methods = useForm({
+    resolver: yupResolver(memberValidationSchema),
+    context: { isCreating: false },
+    defaultValues: {
+      familiares: [],
+    },
+  });
 
   const {
     register,
@@ -29,33 +36,13 @@ const ProfilePage = () => {
     reset,
     watch,
     setValue,
-  } = useForm({
-    resolver: yupResolver(memberValidationSchema),
-    context: { isCreating: false },
-    defaultValues: {
-      familiares: [],
-    },
-  });
+  } = methods;
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "familiares",
   });
   const cepValue = watch("Endereco_CEP");
-  const photoFile = watch("FotoPessoal");
-
-  useEffect(() => {
-    if (photoFile && photoFile.length > 0) {
-      const file = photoFile[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => setPreview(reader.result);
-        reader.readAsDataURL(file);
-      }
-    } else {
-      setPreview(null);
-    }
-  }, [photoFile]);
 
   useEffect(() => {
     if (user) {
@@ -86,14 +73,6 @@ const ProfilePage = () => {
       reset(formattedData);
     }
   }, [user, reset]);
-
-  const getFileUrl = (path) => {
-    if (!path) return PlaceholderAvatar;
-    const baseURL = apiClient.defaults.baseURL.startsWith("http")
-      ? apiClient.defaults.baseURL
-      : window.location.origin;
-    return `${baseURL}/${path}`.replace("/api/", "/");
-  };
 
   const handleCepBlur = async () => {
     const cepLimpo = (cepValue || "").replace(/\D/g, "");
@@ -168,297 +147,220 @@ const ProfilePage = () => {
     return <div className="table-page-container">A carregar perfil...</div>;
   }
 
-  const currentImage =
-    preview ||
-    (user?.FotoPessoal_Caminho
-      ? getFileUrl(user.FotoPessoal_Caminho)
-      : PlaceholderAvatar);
-
   return (
-    <FormPageLayout title="Meu Perfil" actionsComponent={<ActionButtons />}>
-      {error && <p className="error-message">{error}</p>}
-      {successMessage && <p className="success-message">{successMessage}</p>}
+    <FormProvider {...methods}>
+      <FormPageLayout title="Meu Perfil" actionsComponent={<ActionButtons />}>
+        {error && <p className="error-message">{error}</p>}
+        {successMessage && <p className="success-message">{successMessage}</p>}
 
-      <form
-        id="profile-form"
-        onSubmit={handleSubmit(onSubmit)}
-        className="form-container"
-      >
-        <fieldset className="form-fieldset">
-          <legend>Dados Pessoais</legend>
-          <div className="form-grid">
-            <div className="profile-photo-section">
-              <img
-                src={currentImage}
-                alt="Foto de Perfil"
-                className="profile-photo-preview"
-              />
-              <div className="form-group">
-                <label htmlFor="FotoPessoal">Atualizar Foto (Opcional)</label>
-                <input
-                  type="file"
-                  id="FotoPessoal"
-                  {...register("FotoPessoal")}
-                  className="form-input"
-                  accept="image/jpeg, image/png, image/gif, image/webp"
-                />
-                {errors.FotoPessoal && (
-                  <p className="form-error-message">
-                    {errors.FotoPessoal.message}
-                  </p>
-                )}
+        <form
+          id="profile-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="form-container"
+        >
+          {/* ATUALIZADO: O formulário agora usa o componente reutilizável para consistência */}
+          <PersonalDataFields
+            register={register}
+            errors={errors}
+            watch={watch}
+            initialPhoto={user?.FotoPessoal_Caminho}
+          />
+
+          <fieldset className="form-fieldset">
+            <legend>Familiares</legend>
+            {fields.map((field, index) => (
+              <div
+                key={field.id}
+                className="form-grid familiar-row"
+                style={{
+                  alignItems: "flex-end",
+                  marginBottom: "1rem",
+                  borderBottom: "1px solid var(--cor-borda-input)",
+                  paddingBottom: "1rem",
+                }}
+              >
+                <div className="form-group">
+                  <label>Nome</label>
+                  <input
+                    {...register(`familiares.${index}.nomeCompleto`)}
+                    className={`form-input ${
+                      errors.familiares?.[index]?.nomeCompleto
+                        ? "is-invalid"
+                        : ""
+                    }`}
+                  />
+                  {errors.familiares?.[index]?.nomeCompleto && (
+                    <p className="form-error-message">
+                      {errors.familiares[index].nomeCompleto.message}
+                    </p>
+                  )}
+                </div>
+                <div className="form-group">
+                  <label>Parentesco</label>
+                  <select
+                    {...register(`familiares.${index}.parentesco`)}
+                    className={`form-select ${
+                      errors.familiares?.[index]?.parentesco ? "is-invalid" : ""
+                    }`}
+                  >
+                    <option value="Cônjuge">Cônjuge</option>
+                    <option value="Esposa">Esposa</option>
+                    <option value="Filho">Filho</option>
+                    <option value="Filha">Filha</option>
+                  </select>
+                  {errors.familiares?.[index]?.parentesco && (
+                    <p className="form-error-message">
+                      {errors.familiares[index].parentesco.message}
+                    </p>
+                  )}
+                </div>
+                <div className="form-group">
+                  <label>Data de Nasc.</label>
+                  <input
+                    type="date"
+                    {...register(`familiares.${index}.dataNascimento`)}
+                    className={`form-input ${
+                      errors.familiares?.[index]?.dataNascimento
+                        ? "is-invalid"
+                        : ""
+                    }`}
+                  />
+                  {errors.familiares?.[index]?.dataNascimento && (
+                    <p className="form-error-message">
+                      {errors.familiares[index].dataNascimento.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => remove(index)}
+                    className="btn"
+                    style={{ backgroundColor: "#b91c1c" }}
+                  >
+                    Remover
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="form-group full-width">
-              <label>Nome Completo</label>
-              <input
-                type="text"
-                {...register("NomeCompleto")}
-                className={`form-input ${
-                  errors.NomeCompleto ? "is-invalid" : ""
-                }`}
-              />
-              {errors.NomeCompleto && (
-                <p className="form-error-message">
-                  {errors.NomeCompleto.message}
-                </p>
-              )}
-            </div>
-            <div className="form-group">
-              <label>CPF</label>
-              <input
-                type="text"
-                {...register("CPF")}
-                className="form-input"
-                disabled
-              />
-            </div>
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                {...register("Email")}
-                className={`form-input ${errors.Email ? "is-invalid" : ""}`}
-              />
-              {errors.Email && (
-                <p className="form-error-message">{errors.Email.message}</p>
-              )}
-            </div>
-            <div className="form-group">
-              <label>Identidade (RG)</label>
-              <input
-                type="text"
-                {...register("Identidade")}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Data de Nasc.</label>
-              <input
-                type="date"
-                {...register("DataNascimento")}
-                className={`form-input ${
-                  errors.DataNascimento ? "is-invalid" : ""
-                }`}
-              />
-              {errors.DataNascimento && (
-                <p className="form-error-message">
-                  {errors.DataNascimento.message}
-                </p>
-              )}
-            </div>
-            <div className="form-group">
-              <label>Telefone</label>
-              <input
-                type="tel"
-                {...register("Telefone")}
-                className="form-input"
-              />
-            </div>
-          </div>
-        </fieldset>
+            ))}
+            <button
+              type="button"
+              onClick={() =>
+                append({
+                  nomeCompleto: "",
+                  parentesco: "Filho",
+                  dataNascimento: "",
+                })
+              }
+              className="btn btn-secondary"
+              style={{ marginTop: "1rem" }}
+            >
+              + Adicionar Familiar
+            </button>
+          </fieldset>
 
-        <fieldset className="form-fieldset">
-          <legend>Familiares</legend>
-          {fields.map((field, index) => (
+          <fieldset className="form-fieldset">
+            <legend>Endereço</legend>
             <div
-              key={field.id}
               className="form-grid"
-              style={{
-                alignItems: "flex-end",
-                marginBottom: "1rem",
-                borderBottom: "1px solid var(--cor-borda-input)",
-                paddingBottom: "1rem",
-              }}
+              style={{ gridTemplateColumns: "1fr 3fr" }}
             >
               <div className="form-group">
-                <label>Nome</label>
-                <input
-                  {...register(`familiares.${index}.nomeCompleto`)}
-                  className={`form-input ${
-                    errors.familiares?.[index]?.nomeCompleto ? "is-invalid" : ""
-                  }`}
-                />
-                {errors.familiares?.[index]?.nomeCompleto && (
-                  <p className="form-error-message">
-                    {errors.familiares[index].nomeCompleto.message}
-                  </p>
-                )}
+                <label>CEP</label>
+                <div>
+                  <input
+                    type="text"
+                    {...register("Endereco_CEP")}
+                    className="form-input"
+                    onBlur={handleCepBlur}
+                  />
+                  {cepStatus && (
+                    <small
+                      style={{
+                        color: "var(--cor-foco-input)",
+                        marginTop: "5px",
+                      }}
+                    >
+                      {cepStatus}
+                    </small>
+                  )}
+                </div>
               </div>
               <div className="form-group">
-                <label>Parentesco</label>
-                <select
-                  {...register(`familiares.${index}.parentesco`)}
-                  className={`form-select ${
-                    errors.familiares?.[index]?.parentesco ? "is-invalid" : ""
-                  }`}
-                >
-                  <option value="Cônjuge">Cônjuge</option>
-                  <option value="Esposa">Esposa</option>
-                  <option value="Filho">Filho</option>
-                  <option value="Filha">Filha</option>
-                </select>
-                {errors.familiares?.[index]?.parentesco && (
-                  <p className="form-error-message">
-                    {errors.familiares[index].parentesco.message}
-                  </p>
-                )}
-              </div>
-              <div className="form-group">
-                <label>Data de Nasc.</label>
-                <input
-                  type="date"
-                  {...register(`familiares.${index}.dataNascimento`)}
-                  className={`form-input ${
-                    errors.familiares?.[index]?.dataNascimento
-                      ? "is-invalid"
-                      : ""
-                  }`}
-                />
-                {errors.familiares?.[index]?.dataNascimento && (
-                  <p className="form-error-message">
-                    {errors.familiares[index].dataNascimento.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <button
-                  type="button"
-                  onClick={() => remove(index)}
-                  className="btn"
-                  style={{ backgroundColor: "#b91c1c" }}
-                >
-                  Remover
-                </button>
-              </div>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() =>
-              append({
-                nomeCompleto: "",
-                parentesco: "Filho",
-                dataNascimento: "",
-              })
-            }
-            className="btn btn-secondary"
-            style={{ marginTop: "1rem" }}
-          >
-            + Adicionar Familiar
-          </button>
-        </fieldset>
-
-        {/* CORREÇÃO: Readicionados os fieldsets de Endereço, Maçónicos e Profissionais */}
-        <fieldset className="form-fieldset">
-          <legend>Endereço</legend>
-          <div className="form-grid" style={{ gridTemplateColumns: "1fr 3fr" }}>
-            <div className="form-group">
-              <label>CEP</label>
-              <div>
+                <label>Rua</label>
                 <input
                   type="text"
-                  {...register("Endereco_CEP")}
+                  {...register("Endereco_Rua")}
                   className="form-input"
-                  onBlur={handleCepBlur}
                 />
-                {cepStatus && (
-                  <small
-                    style={{ color: "var(--cor-foco-input)", marginTop: "5px" }}
-                  >
-                    {cepStatus}
-                  </small>
-                )}
               </div>
             </div>
-            <div className="form-group">
-              <label>Rua</label>
-              <input
-                type="text"
-                {...register("Endereco_Rua")}
-                className="form-input"
-              />
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Número</label>
+                <input
+                  type="text"
+                  {...register("Endereco_Numero")}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label>Bairro</label>
+                <input
+                  type="text"
+                  {...register("Endereco_Bairro")}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label>Cidade</label>
+                <input
+                  type="text"
+                  {...register("Endereco_Cidade")}
+                  className="form-input"
+                />
+              </div>
             </div>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Número</label>
-              <input
-                type="text"
-                {...register("Endereco_Numero")}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Bairro</label>
-              <input
-                type="text"
-                {...register("Endereco_Bairro")}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Cidade</label>
-              <input
-                type="text"
-                {...register("Endereco_Cidade")}
-                className="form-input"
-              />
-            </div>
-          </div>
-        </fieldset>
+          </fieldset>
 
-        <fieldset className="form-fieldset">
-          <legend>Dados Profissionais</legend>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Formação Académica</label>
-              <input
-                type="text"
-                {...register("FormacaoAcademica")}
-                className="form-input"
-              />
+          <fieldset className="form-fieldset">
+            <legend>Dados Maçônicos</legend>
+            <p>Esta secção apenas pode ser editada pela administração.</p>
+            {/* Campos desabilitados aqui */}
+          </fieldset>
+
+          <fieldset className="form-fieldset">
+            <legend>Dados Profissionais</legend>
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Formação Académica</label>
+                <input
+                  type="text"
+                  {...register("FormacaoAcademica")}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label>Ocupação/Profissão</label>
+                <input
+                  type="text"
+                  {...register("Ocupacao")}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label>Local de Trabalho</label>
+                <input
+                  type="text"
+                  {...register("LocalTrabalho")}
+                  className="form-input"
+                />
+              </div>
             </div>
-            <div className="form-group">
-              <label>Ocupação/Profissão</label>
-              <input
-                type="text"
-                {...register("Ocupacao")}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Local de Trabalho</label>
-              <input
-                type="text"
-                {...register("LocalTrabalho")}
-                className="form-input"
-              />
-            </div>
-          </div>
-        </fieldset>
-      </form>
-    </FormPageLayout>
+          </fieldset>
+        </form>
+      </FormPageLayout>
+    </FormProvider>
   );
 };
 

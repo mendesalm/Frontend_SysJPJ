@@ -1,81 +1,85 @@
-import React, { useState, useCallback } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import React, { useState, useEffect, useCallback } from "react";
+import { useForm } from "react-hook-form";
 import { useDataFetching } from "../../../../../hooks/useDataFetching";
-import apiClient from "../../../../../services/apiClient";
+// 1. Importando as funções do novo serviço
+import {
+  searchVisitantes,
+  getVisitantesDaSessao,
+  addVisitanteNaSessao,
+  deleteVisitanteDaSessao,
+} from "../../../../../services/visitantesService";
 import {
   showSuccessToast,
   showErrorToast,
 } from "../../../../../utils/notifications";
-
-const GRADUACAO_OPTIONS = [
-  "Aprendiz",
-  "Companheiro",
-  "Mestre",
-  "Mestre Instalado",
-];
-
-// Objeto com os valores padrão para uma nova linha de visitante
-const defaultVisitorRow = {
-  graduacao: "Mestre",
-  nomeCompleto: "",
-  cim: "",
-  loja: "",
-  oriente: "",
-  potencia: "",
-};
+import { GRADUACAO_OPTIONS } from "../../../../../constants/userConstants";
+import useDebounce from "../../../../../hooks/useDebounce";
 
 const VisitantesTab = ({ sessionId }) => {
-  const fetchVisitors = useCallback(() => {
-    return apiClient.get(`/sessions/${sessionId}/visitors`);
-  }, [sessionId]);
+  // 2. Usando a função de serviço correta com useCallback
+  const fetchVisitorsCallback = useCallback(
+    () => getVisitantesDaSessao(sessionId),
+    [sessionId]
+  );
+  const {
+    data: visitantesRegistrados = [],
+    isLoading: isLoadingList,
+    refetch,
+  } = useDataFetching(fetchVisitorsCallback);
 
   const {
-    data: visitantes = [],
-    isLoading,
-    refetch,
-  } = useDataFetching(fetchVisitors);
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { isSubmitting },
+  } = useForm();
 
-  const { register, control, handleSubmit, reset } = useForm({
-    defaultValues: {
-      newVisitors: [defaultVisitorRow], // Inicia com uma linha vazia
-    },
-  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "newVisitors",
-  });
-
-  const [isSaving, setIsSaving] = useState(false);
-
-  const onSaveAll = async (data) => {
-    setIsSaving(true);
-    const visitorsToCreate = data.newVisitors.filter(
-      (v) => v.nomeCompleto.trim() !== ""
-    );
-
-    if (visitorsToCreate.length === 0) {
-      showErrorToast("Nenhum visitante para adicionar.");
-      setIsSaving(false);
-      return;
+  useEffect(() => {
+    if (debouncedSearchTerm && debouncedSearchTerm.length >= 3) {
+      setIsSearching(true);
+      searchVisitantes(debouncedSearchTerm)
+        .then((response) => setSearchResults(response.data))
+        .catch((err) => console.error("Erro na busca de visitantes:", err))
+        .finally(() => setIsSearching(false));
+    } else {
+      setSearchResults([]);
     }
+  }, [debouncedSearchTerm]);
 
-    const savePromises = visitorsToCreate.map((visitor) =>
-      apiClient.post(`/sessions/${sessionId}/visitors`, visitor)
-    );
+  const handleSelectVisitor = (visitor) => {
+    setValue("nomeCompleto", visitor.nomeCompleto);
+    setValue("cim", visitor.cim);
+    setValue("graduacao", visitor.graduacao);
+    setValue("potencia", visitor.potencia);
+    setValue("loja", visitor.loja);
+    setValue("oriente", visitor.oriente);
+    setSearchTerm("");
+    setSearchResults([]);
+  };
 
+  const onSubmit = async (data) => {
     try {
-      await Promise.all(savePromises);
-      showSuccessToast(
-        `${visitorsToCreate.length} visitante(s) adicionado(s) com sucesso!`
-      );
-      reset({ newVisitors: [defaultVisitorRow] }); // Limpa o formulário
+      // 3. Usando a função de serviço para adicionar
+      await addVisitanteNaSessao(sessionId, data);
+      showSuccessToast("Visitante adicionado com sucesso!");
+      reset({
+        graduacao: "Mestre",
+        nomeCompleto: "",
+        cim: "",
+        loja: "",
+        oriente: "",
+        potencia: "",
+      });
       refetch();
     } catch (error) {
-      showErrorToast("Ocorreu um erro ao salvar um ou mais visitantes.");
-      console.error(error);
-    } finally {
-      setIsSaving(false);
+      console.error("Erro ao adicionar visitante:", error);
+      showErrorToast("Erro ao adicionar visitante.");
     }
   };
 
@@ -83,125 +87,136 @@ const VisitantesTab = ({ sessionId }) => {
     if (!window.confirm("Tem certeza que deseja remover este visitante?"))
       return;
     try {
-      await apiClient.delete(`/sessions/${sessionId}/visitors/${visitorId}`);
+      // 4. Usando a função de serviço para deletar
+      await deleteVisitanteDaSessao(sessionId, visitorId);
       showSuccessToast("Visitante removido!");
       refetch();
     } catch (error) {
+      console.error("Erro ao remover visitante:", error);
       showErrorToast("Não foi possível remover o visitante.");
-      console.error(error);
     }
   };
 
-  if (isLoading && !visitantes.length) return <p>Carregando visitantes...</p>;
+  if (isLoadingList && !visitantesRegistrados.length)
+    return <p>Carregando visitantes...</p>;
 
   return (
     <div className="card">
       <h3>Registro de Visitantes</h3>
-
-      <form onSubmit={handleSubmit(onSaveAll)}>
-        <div className="bulk-add-container">
-          <div className="visitor-row-bulk header">
-            <label>Graduação</label>
-            <label>Nome Completo</label>
-            <label>CIM</label>
-            <label>Loja de Origem</label>
-            <label>Oriente</label>
-            <label>Potência</label>
-            <span></span>
-          </div>
-
-          {fields.map((field, index) => (
-            <div key={field.id} className="visitor-row-bulk">
-              <select
-                {...register(`newVisitors.${index}.graduacao`)}
-                className="form-select"
-              >
-                {GRADUACAO_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </select>
-              <input
-                {...register(`newVisitors.${index}.nomeCompleto`)}
-                placeholder="Nome do Irmão"
-                className="form-input"
-              />
-              <input
-                {...register(`newVisitors.${index}.cim`)}
-                placeholder="Nº do CIM"
-                className="form-input"
-              />
-              <input
-                {...register(`newVisitors.${index}.loja`)}
-                placeholder="Nome da Loja"
-                className="form-input"
-              />
-              <input
-                {...register(`newVisitors.${index}.oriente`)}
-                placeholder="Cidade da Loja"
-                className="form-input"
-              />
-              <input
-                {...register(`newVisitors.${index}.potencia`)}
-                placeholder="Potência"
-                className="form-input"
-              />
-              <button
-                type="button"
-                className="btn-action btn-delete"
-                onClick={() => remove(index)}
-              >
-                X
-              </button>
+      <form onSubmit={handleSubmit(onSubmit)} className="visitor-form-layout">
+        <div className="form-group search-group">
+          <label>Buscar Visitante Recorrente</label>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Digite o nome ou CIM (mín. 3 caracteres)"
+            className="form-input"
+          />
+          {isSearching && (
+            <div className="search-results-list">
+              <p>Buscando...</p>
             </div>
-          ))}
+          )}
+          {searchResults.length > 0 && (
+            <ul className="search-results-list">
+              {searchResults.map((visitor) => (
+                <li
+                  key={visitor.id}
+                  onClick={() => handleSelectVisitor(visitor)}
+                >
+                  <strong>{visitor.nomeCompleto}</strong> (CIM: {visitor.cim}){" "}
+                  <br />
+                  <small>
+                    Loja: {visitor.loja} - {visitor.oriente}
+                  </small>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
-        <div className="bulk-actions">
+        <hr style={{ gridColumn: "1 / -1", margin: "1rem 0" }} />
+
+        <div className="form-group">
+          <label>Nome Completo</label>
+          <input
+            {...register("nomeCompleto", { required: true })}
+            className="form-input"
+          />
+        </div>
+        <div className="form-group">
+          <label>CIM</label>
+          <input {...register("cim")} className="form-input" />
+        </div>
+        <div className="form-group">
+          <label>Graduação</label>
+          <select {...register("graduacao")} className="form-select">
+            {GRADUACAO_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Potência</label>
+          <input {...register("potencia")} className="form-input" />
+        </div>
+        <div className="form-group">
+          <label>Loja de Origem</label>
+          <input {...register("loja")} className="form-input" />
+        </div>
+        <div className="form-group">
+          <label>Oriente</label>
+          <input {...register("oriente")} className="form-input" />
+        </div>
+
+        <div className="form-group" style={{ gridColumn: "1 / -1" }}>
           <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => append(defaultVisitorRow)}
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting}
           >
-            + Adicionar Visitante
-          </button>
-          <button type="submit" className="btn btn-primary" disabled={isSaving}>
-            {isSaving ? "Salvando..." : `Salvar Visitante(s)`}
+            {isSubmitting ? "Adicionando..." : "Adicionar Visitante à Sessão"}
           </button>
         </div>
       </form>
 
       <hr style={{ margin: "2rem 0" }} />
 
-      <h4>Visitantes Registrados ({visitantes.length})</h4>
-      <ul className="lista-simples">
-        {visitantes.length > 0 ? (
-          visitantes.map((v) => (
-            <li key={v.id}>
-              <div className="visitor-info">
-                <span className="nome">
-                  <strong>{v.nomeCompleto}</strong> - {v.graduacao} (CIM:{" "}
-                  {v.cim || "N/A"})
-                </span>
-                <span className="loja">
-                  Loja: {v.loja || "Não informada"} | Oriente:{" "}
-                  {v.oriente || "Não informado"} | Potência:{" "}
-                  {v.potencia || "Não informada"}
-                </span>
-              </div>
-              <button
-                className="btn-action btn-delete"
-                onClick={() => handleDeleteVisitor(v.id)}
-              >
-                Remover
-              </button>
-            </li>
-          ))
-        ) : (
-          <p>Nenhum visitante registrado para esta sessão.</p>
-        )}
-      </ul>
+      <h4>Visitantes Registrados na Sessão ({visitantesRegistrados.length})</h4>
+      {isLoadingList ? (
+        <p>Carregando...</p>
+      ) : (
+        <ul className="lista-simples">
+          {visitantesRegistrados.length > 0 ? (
+            visitantesRegistrados.map((v) => (
+              <li key={v.id}>
+                <div className="visitor-info">
+                  <span className="nome">
+                    <strong>{v.nomeCompleto}</strong> - {v.graduacao} (CIM:{" "}
+                    {v.cim || "N/A"})
+                  </span>
+                  <span className="loja">
+                    Loja: {v.loja || "Não informada"} | Oriente:{" "}
+                    {v.oriente || "Não informado"} | Potência:{" "}
+                    {v.potencia || "Não informada"}
+                  </span>
+                </div>
+                <button
+                  className="btn-action btn-delete"
+                  onClick={() => handleDeleteVisitor(v.id)}
+                >
+                  Remover
+                </button>
+              </li>
+            ))
+          ) : (
+            <p>Nenhum visitante registrado para esta sessão.</p>
+          )}
+        </ul>
+      )}
     </div>
   );
 };

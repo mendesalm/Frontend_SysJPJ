@@ -1,4 +1,3 @@
-// src/services/chancelerService.js
 import apiClient from "./apiClient";
 
 /**
@@ -8,4 +7,17 @@ import apiClient from "./apiClient";
  */
 export const gerarCartao = (data) => {
   return apiClient.post("/chanceler/gerar-cartao", data);
+};
+
+/**
+ * Busca os dados para o painel do Chanceler.
+ * @param {string} dataInicio - A data de início no formato AAAA-MM-DD.
+ * @param {string} dataFim - A data de fim no formato AAAA-MM-DD.
+ * @returns {Promise<axios.AxiosResponse<any>>}
+ */
+export const getPainelChanceler = (dataInicio, dataFim) => {
+  // CORREÇÃO: Enviando ambos os parâmetros que o backend agora exige.
+  return apiClient.get("/chanceler/panel", {
+    params: { dataInicio, dataFim },
+  });
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useForm, FormProvider, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { memberValidationSchema } from "../../../../validators/memberValidator.js";
@@ -62,8 +62,19 @@ const MemberForm = ({
           formData.append(key, data.FotoPessoal[0]);
         }
       } else if (key === "familiares") {
-        // Envia familiares como uma string JSON
-        formData.append(key, JSON.stringify(data[key] || []));
+        // Envia familiares como uma string JSON para compatibilidade com o backend
+        formData.append(key, JSON.stringify(data[key]));
+      } else if (
+        (key === "DataCasamento" ||
+          key === "DataFiliacao" ||
+          key === "DataRegularizacao") &&
+        data[key] === ""
+      ) {
+        // Se o campo de data estiver vazio, envie null
+        formData.append(key, null);
+      } else if (key === "SenhaHash" && !isCreating) {
+        // Não envia SenhaHash se não estiver criando um novo membro
+        continue;
       } else {
         if (data[key] !== null && data[key] !== undefined) {
           formData.append(key, data[key]);
@@ -71,6 +82,10 @@ const MemberForm = ({
       }
     }
 
+    // Log the formData content for debugging
+    for (let pair of formData.entries()) {
+      console.log(pair[0]+ ', ' + pair[1]); 
+    }
     onSave(formData);
   };
 
@@ -92,23 +107,25 @@ const MemberForm = ({
     }
   };
 
+  const memoizedInitialData = useMemo(() => initialData, [initialData]);
+
   useEffect(() => {
     const formattedData = {
-      ...initialData,
-      DataNascimento: formatDateForInput(initialData.DataNascimento),
-      DataCasamento: formatDateForInput(initialData.DataCasamento),
-      DataIniciacao: formatDateForInput(initialData.DataIniciacao),
-      DataElevacao: formatDateForInput(initialData.DataElevacao),
-      DataExaltacao: formatDateForInput(initialData.DataExaltacao),
-      DataFiliacao: formatDateForInput(initialData.DataFiliacao),
-      DataRegularizacao: formatDateForInput(initialData.DataRegularizacao),
-      familiares: (initialData.familiares || []).map((f) => ({
+      ...memoizedInitialData,
+      DataNascimento: formatDateForInput(memoizedInitialData.DataNascimento),
+      DataCasamento: formatDateForInput(memoizedInitialData.DataCasamento),
+      DataIniciacao: formatDateForInput(memoizedInitialData.DataIniciacao),
+      DataElevacao: formatDateForInput(memoizedInitialData.DataElevacao),
+      DataExaltacao: formatDateForInput(memoizedInitialData.DataExaltacao),
+      DataFiliacao: formatDateForInput(memoizedInitialData.DataFiliacao),
+      DataRegularizacao: formatDateForInput(memoizedInitialData.DataRegularizacao),
+      familiares: (memoizedInitialData.familiares || []).map((f) => ({
         ...f,
         dataNascimento: formatDateForInput(f.dataNascimento),
       })),
     };
     reset(formattedData);
-  }, [initialData, reset]);
+  }, [memoizedInitialData, reset]);
 
   const ActionButtons = () => (
     <div className="actions-box">

@@ -1,224 +1,98 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useForm } from "react-hook-form";
-import { useDataFetching } from "../../../../../hooks/useDataFetching";
-// 1. Importando as funções do novo serviço
-import {
-  searchVisitantes,
-  getVisitantesDaSessao,
-  addVisitanteNaSessao,
-  deleteVisitanteDaSessao,
-} from "../../../../../services/visitantesService";
-import {
-  showSuccessToast,
-  showErrorToast,
-} from "../../../../../utils/notifications";
-import { GRADUACAO_OPTIONS } from "../../../../../constants/userConstants";
-import useDebounce from "../../../../../hooks/useDebounce";
+import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
+import { updateSessionAttendance } from "../../../../../services/sessionService";
+import { showSuccessToast, showErrorToast } from "../../../../../utils/notifications";
 
-const VisitantesTab = ({ sessionId }) => {
-  // 2. Usando a função de serviço correta com useCallback
-  const fetchVisitorsCallback = useCallback(
-    () => getVisitantesDaSessao(sessionId),
-    [sessionId]
-  );
-  const {
-    data: visitantesRegistrados = [],
-    isLoading: isLoadingList,
-    refetch,
-  } = useDataFetching(fetchVisitorsCallback);
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { isSubmitting },
-  } = useForm();
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+const ParticipantesTab = forwardRef(({ sessionId, attendees: initialAttendees, refetchSession }, ref) => {
+  const [attendees, setAttendees] = useState(initialAttendees);
+  const [originalAttendees, setOriginalAttendees] = useState(initialAttendees);
 
   useEffect(() => {
-    if (debouncedSearchTerm && debouncedSearchTerm.length >= 3) {
-      setIsSearching(true);
-      searchVisitantes(debouncedSearchTerm)
-        .then((response) => setSearchResults(response.data))
-        .catch((err) => console.error("Erro na busca de visitantes:", err))
-        .finally(() => setIsSearching(false));
-    } else {
-      setSearchResults([]);
-    }
-  }, [debouncedSearchTerm]);
+    setAttendees(initialAttendees);
+    setOriginalAttendees(initialAttendees);
+  }, [initialAttendees]);
 
-  const handleSelectVisitor = (visitor) => {
-    setValue("nomeCompleto", visitor.nomeCompleto);
-    setValue("cim", visitor.cim);
-    setValue("graduacao", visitor.graduacao);
-    setValue("potencia", visitor.potencia);
-    setValue("loja", visitor.loja);
-    setValue("oriente", visitor.oriente);
-    setSearchTerm("");
-    setSearchResults([]);
+  const handleStatusChange = (memberId, newStatus) => {
+    setAttendees((prevAttendees) =>
+      prevAttendees.map((attendee) =>
+        attendee.membro.id === memberId
+          ? { ...attendee, statusPresenca: newStatus }
+          : attendee
+      )
+    );
   };
 
-  const onSubmit = async (data) => {
-    try {
-      // 3. Usando a função de serviço para adicionar
-      await addVisitanteNaSessao(sessionId, data);
-      showSuccessToast("Visitante adicionado com sucesso!");
-      reset({
-        graduacao: "Mestre",
-        nomeCompleto: "",
-        cim: "",
-        loja: "",
-        oriente: "",
-        potencia: "",
-      });
-      refetch();
-    } catch (error) {
-      console.error("Erro ao adicionar visitante:", error);
-      showErrorToast("Erro ao adicionar visitante.");
-    }
-  };
+  const handleSaveAttendance = useCallback(async () => {
+    const changedAttendees = attendees.filter((attendee) => {
+      const original = originalAttendees.find(
+        (orig) => orig.membro.id === attendee.membro.id
+      );
+      return original && original.statusPresenca !== attendee.statusPresenca;
+    }).map(attendee => ({
+        lodgeMemberId: attendee.membro.id,
+        statusPresenca: attendee.statusPresenca
+    }));
 
-  const handleDeleteVisitor = async (visitorId) => {
-    if (!window.confirm("Tem certeza que deseja remover este visitante?"))
+    if (changedAttendees.length === 0) {
+      showErrorToast("Nenhuma alteração para salvar.");
       return;
-    try {
-      // 4. Usando a função de serviço para deletar
-      await deleteVisitanteDaSessao(sessionId, visitorId);
-      showSuccessToast("Visitante removido!");
-      refetch();
-    } catch (error) {
-      console.error("Erro ao remover visitante:", error);
-      showErrorToast("Não foi possível remover o visitante.");
     }
-  };
 
-  if (isLoadingList && !visitantesRegistrados.length)
-    return <p>Carregando visitantes...</p>;
+    try {
+      await updateSessionAttendance(sessionId, changedAttendees);
+      showSuccessToast("Presença atualizada com sucesso!");
+      refetchSession(); // Refetch parent session data to update counts
+    } catch (err) {
+      console.error("Erro ao salvar presença:", err);
+      showErrorToast("Falha ao atualizar a presença.");
+    }
+  }, [attendees, originalAttendees, sessionId, refetchSession]);
+
+  useImperativeHandle(ref, () => ({
+    handleSaveAttendance,
+  }));
 
   return (
-    <div className="card">
-      <h3>Registro de Visitantes</h3>
-      <form onSubmit={handleSubmit(onSubmit)} className="visitor-form-layout">
-        <div className="form-group search-group">
-          <label>Buscar Visitante Recorrente</label>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Digite o nome ou CIM (mín. 3 caracteres)"
-            className="form-input"
-          />
-          {isSearching && (
-            <div className="search-results-list">
-              <p>Buscando...</p>
-            </div>
-          )}
-          {searchResults.length > 0 && (
-            <ul className="search-results-list">
-              {searchResults.map((visitor) => (
-                <li
-                  key={visitor.id}
-                  onClick={() => handleSelectVisitor(visitor)}
-                >
-                  <strong>{visitor.nomeCompleto}</strong> (CIM: {visitor.cim}){" "}
-                  <br />
-                  <small>
-                    Loja: {visitor.loja} - {visitor.oriente}
-                  </small>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <hr style={{ gridColumn: "1 / -1", margin: "1rem 0" }} />
-
-        <div className="form-group">
-          <label>Nome Completo</label>
-          <input
-            {...register("nomeCompleto", { required: true })}
-            className="form-input"
-          />
-        </div>
-        <div className="form-group">
-          <label>CIM</label>
-          <input {...register("cim")} className="form-input" />
-        </div>
-        <div className="form-group">
-          <label>Graduação</label>
-          <select {...register("graduacao")} className="form-select">
-            {GRADUACAO_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-group">
-          <label>Potência</label>
-          <input {...register("potencia")} className="form-input" />
-        </div>
-        <div className="form-group">
-          <label>Loja de Origem</label>
-          <input {...register("loja")} className="form-input" />
-        </div>
-        <div className="form-group">
-          <label>Oriente</label>
-          <input {...register("oriente")} className="form-input" />
-        </div>
-
-        <div className="form-group" style={{ gridColumn: "1 / -1" }}>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Adicionando..." : "Adicionar Visitante à Sessão"}
-          </button>
-        </div>
-      </form>
-
-      <hr style={{ margin: "2rem 0" }} />
-
-      <h4>Visitantes Registrados na Sessão ({visitantesRegistrados.length})</h4>
-      {isLoadingList ? (
-        <p>Carregando...</p>
-      ) : (
-        <ul className="lista-simples">
-          {visitantesRegistrados.length > 0 ? (
-            visitantesRegistrados.map((v) => (
-              <li key={v.id}>
-                <div className="visitor-info">
-                  <span className="nome">
-                    <strong>{v.nomeCompleto}</strong> - {v.graduacao} (CIM:{" "}
-                    {v.cim || "N/A"})
-                  </span>
-                  <span className="loja">
-                    Loja: {v.loja || "Não informada"} | Oriente:{" "}
-                    {v.oriente || "Não informado"} | Potência:{" "}
-                    {v.potencia || "Não informada"}
-                  </span>
-                </div>
-                <button
-                  className="btn-action btn-delete"
-                  onClick={() => handleDeleteVisitor(v.id)}
-                >
-                  Remover
-                </button>
-              </li>
-            ))
-          ) : (
-            <p>Nenhum visitante registrado para esta sessão.</p>
-          )}
-        </ul>
-      )}
+    <div className="card participantes-tab-card">
+      <h3>Registro de Presença</h3>
+      <div className="table-responsive">
+        <table className="custom-table">
+          <thead>
+            <tr>
+              <th>Nome do Irmão</th>
+              <th>Status de Presença</th>
+            </tr>
+          </thead>
+          <tbody>
+            {attendees.length > 0 ? (
+              attendees
+                .filter(attendee => attendee.membro && attendee.membro.id)
+                .map((attendee) => (
+                  <tr key={attendee.membro.id}>
+                    <td>{attendee.membro?.NomeCompleto}</td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={attendee.statusPresenca === "Presente"}
+                        onChange={(e) =>
+                          handleStatusChange(
+                            attendee.membro.id,
+                            e.target.checked ? "Presente" : "Ausente"
+                          )
+                        }
+                      />
+                    </td>
+                  </tr>
+                ))
+            ) : (
+              <tr>
+                <td colSpan="2">Nenhum participante encontrado para esta sessão.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
-};
+});
 
-export default VisitantesTab;
+export default ParticipantesTab;

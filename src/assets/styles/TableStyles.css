@@ -1,9 +1,8 @@
 /*
  * src/assets/styles/TableStyles.css
- * Estilos centralizados para tabelas, agora usando a escala de tipografia do tema.
+ * Estilos Neumórficos aplicados globalmente a todas as tabelas.
  */
 
-/* Container que envolve o título da página e a tabela */
 .table-page-container {
   padding: 1rem;
 }
@@ -20,56 +19,69 @@
   color: var(--cor-texto-primario);
 }
 
+/* ATUALIZADO: O container da tabela agora tem o fundo e a sombra interna do Neumorfismo */
 .table-responsive {
   overflow-x: auto;
-  border-radius: 12px;
-  border: 1px solid var(--cor-borda-vidro);
-  background: var(--cor-fundo-tabela);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  background: #2d3748; /* Fundo base para o efeito */
+  padding: 1.5rem;
+  box-shadow: inset 7px 7px 15px #252e3c, inset -7px -7px 15px #354054;
 }
 
+/* ATUALIZADO: A tabela agora tem espaçamento entre as linhas */
 .custom-table {
   width: 100%;
-  border-collapse: collapse;
-  color: var(--cor-texto-secundario);
-  font-size: var(--font-size-base);
+  border-collapse: separate;
+  /* Espaçamento vertical entre as linhas ligeiramente reduzido */
+  border-spacing: 0 0.8rem;
 }
 
 .custom-table thead {
-  background-color: var(--cor-cabecalho-tabela);
+  background-color: transparent;
 }
 
 .custom-table th {
-  padding: 12px 15px;
+  padding: 0 1.5rem 1rem 1.5rem;
   text-align: left;
   font-weight: 600;
-  color: var(--cor-texto-primario);
+  color: var(--cor-texto-secundario);
   text-transform: uppercase;
-  font-size: var(--font-size-sm);
-  border-bottom: 1px solid var(--cor-borda-linha);
+  font-size: 0.8rem;
+  border-bottom: 2px solid #354054;
 }
 
+/* ATUALIZADO: As linhas agora têm o efeito de relevo neumórfico */
 .custom-table tbody tr {
-  border-bottom: 1px solid var(--cor-borda-linha);
-  transition: background-color 0.2s ease-in-out;
-}
-
-.custom-table tbody tr:last-of-type {
-  border-bottom: none;
+  background: linear-gradient(145deg, #303b4e, #293241);
+  border-radius: 15px;
+  box-shadow: 7px 7px 14px #252e3c, -7px -7px 14px #354054;
+  transition: all 0.2s ease-in-out;
 }
 
 .custom-table tbody tr:hover {
-  background-color: var(--cor-hover-linha);
+  box-shadow: 4px 4px 10px #252e3c, -4px -4px 10px #354054;
+  transform: translateY(2px);
 }
 
 .custom-table td {
-  padding: 12px 15px;
+  /* Padding vertical reduzido para diminuir a altura da linha */
+  padding: 1rem 1.5rem;
   color: var(--cor-texto-primario);
+  border: none;
 }
 
-/* --- Estilos para Células Específicas --- */
+/* Cantos arredondados para as células das extremidades */
+.custom-table td:first-child {
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+
+.custom-table td:last-child {
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+
+/* --- Estilos para Células Específicas (mantidos) --- */
 .actions-cell {
   white-space: nowrap;
   display: flex;
@@ -110,7 +122,6 @@
   color: white;
 }
 
-/* --- Badges de Status --- */
 .status-badge {
   padding: 4px 10px;
   border-radius: 15px;
@@ -141,10 +152,11 @@
   background-color: #0e7490;
 }
 
-/* NOVO: Estilos para linhas de membros falecidos */
 .custom-table tbody tr.deceased-row {
   background-color: rgba(75, 85, 99, 0.2);
   color: #9ca3af;
+  text-decoration: line-through;
+  opacity: 0.6;
 }
 
 .custom-table tbody tr.deceased-row:hover {
@@ -158,5 +170,5 @@
 }
 
 .custom-table tbody tr.deceased-row .btn-action {
-  pointer-events: none; /* Desabilita completamente os eventos de clique */
+  pointer-events: none;
 }

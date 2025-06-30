@@ -68,6 +68,36 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
               </p>
             )}
           </div>
+          <div className="form-group">
+            <label>Telefone</label>
+            <input
+              type="text"
+              {...register(`familiares.${index}.telefone`)}
+              className={`form-input ${
+                errors.familiares?.[index]?.telefone ? "is-invalid" : ""
+              }`}
+            />
+            {errors.familiares?.[index]?.telefone && (
+              <p className="form-error-message">
+                {errors.familiares[index].telefone.message}
+              </p>
+            )}
+          </div>
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              {...register(`familiares.${index}.email`)}
+              className={`form-input ${
+                errors.familiares?.[index]?.email ? "is-invalid" : ""
+              }`}
+            />
+            {errors.familiares?.[index]?.email && (
+              <p className="form-error-message">
+                {errors.familiares[index].email.message}
+              </p>
+            )}
+          </div>
           {/* NOVO: Checkbox para status de falecimento */}
           <div
             className="form-group-inline"
@@ -100,6 +130,8 @@ const FamilyDataFields = ({ fields, register, errors, remove, append }) => {
             parentesco: "Filho",
             dataNascimento: "",
             falecido: false,
+            telefone: "",
+            email: "",
           })
         }
         className="btn btn-secondary"

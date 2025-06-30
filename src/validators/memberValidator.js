@@ -10,6 +10,12 @@ const SUPPORTED_PHOTO_FORMATS = [
   "image/webp",
 ];
 
+const condecoracaoSchema = yup.object().shape({
+  titulo: yup.string().nullable(),
+  dataRecebimento: yup.date().nullable().transform((curr, orig) => orig === '' ? null : curr).typeError('Forneça uma data válida se preenchida.'),
+  observacoes: yup.string().nullable(),
+});;
+
 const familiarSchema = yup.object().shape({
   nomeCompleto: yup.string().required("O nome do familiar é obrigatório."),
   parentesco: yup
@@ -53,12 +59,23 @@ export const memberValidationSchema = yup.object().shape({
   CPF: yup
     .string()
     .transform((value) => (value ? value.replace(/[^\d]/g, "") : value))
-    .matches(
-      /^\d{11}$/,
-      "Se informado, o CPF deve conter exatamente 11 dígitos."
+    .test(
+      "len",
+      "Se informado, o CPF deve conter exatamente 11 dígitos.",
+      (val) => !val || val.length === 11
     )
     .nullable(),
 
   // ... (resto do esquema de validação)
   familiares: yup.array().of(familiarSchema),
+  condecoracoes: yup.array().of(condecoracaoSchema),
+
+  SenhaHash: yup.string().when("$isCreating", {
+    is: true,
+    then: (schema) =>
+      schema
+        .required("A senha é obrigatória para novos membros.")
+        .min(6, "A senha deve ter pelo menos 6 caracteres."),
+    otherwise: (schema) => schema.notRequired(),
+  }),
 });

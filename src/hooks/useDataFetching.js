@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 /**
  * Hook customizado e universal para buscar dados.
@@ -64,5 +64,9 @@ export const useDataFetching = (serviceFunction, params = []) => {
     fetchData();
   }, [fetchData]);
 
-  return { ...state, isLoading, error, refetch: fetchData, setState };
+  const memoizedValue = useMemo(() => {
+    return { ...state, isLoading, error, refetch: fetchData, setState };
+  }, [state, isLoading, error, fetchData]);
+
+  return memoizedValue;
 };

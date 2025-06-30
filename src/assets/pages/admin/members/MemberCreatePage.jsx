@@ -4,6 +4,8 @@ import { createMember } from "../../../../services/memberService";
 import MemberForm from "./MemberForm";
 import "../../../styles/FormStyles.css";
 
+const initialData = {}; // Define stable empty object
+
 const MemberCreatePage = () => {
   const navigate = useNavigate();
 
@@ -23,7 +25,7 @@ const MemberCreatePage = () => {
   return (
     <div className="member-form-container">
       <h1>Criar Novo Membro</h1>
-      <MemberForm onSave={handleSave} isCreating={true} />
+      <MemberForm onSave={handleSave} isCreating={true} initialData={initialData} />
     </div>
   );
 };

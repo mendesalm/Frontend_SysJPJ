@@ -75,7 +75,6 @@ const EscalaRow = ({
         >
           <option value="Ativo">Ativo</option>
           <option value="Pausado">Pausado</option>
-          <option value="Cumprido">Cumprido</option>
         </select>
       </td>
       <td className="actions-cell">

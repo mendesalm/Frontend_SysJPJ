@@ -11,9 +11,15 @@ export const GRAU_OPTIONS = [
   "Mestre Instalado",
 ];
 
-export const GRAUS = ["Aprendiz", "Companheiro", "Mestre", "Mestre Instalado"];
+export const GRADUACAO_OPTIONS = [
+  "Aprendiz",
+  "Companheiro",
+  "Mestre",
+  "Mestre Instalado",
+];
+export const GRAUS = ["Aprendiz", "Companheiro", "Mestre", "Exaltação", "Iniciação", "Elevação", "Pública"];
 
-export const TIPOS_SESSAO = ["Ordinária", "Magna", "Pública", "Comemorativa"];
+export const TIPOS_SESSAO = ["Ordinária", "Magna", "Especial", "Econômica"];
 export const SITUACAO_MEMBRO = [
   "Ativo",
   "Regular",

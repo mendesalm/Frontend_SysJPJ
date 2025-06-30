@@ -1,167 +1,241 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../../../hooks/useAuth";
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
 import { useDataFetching } from "../../../../hooks/useDataFetching";
 import { getSessionById } from "../../../../services/sessionService";
-import PainelChanceler from "./components/PainelChanceler";
-import BalaustreEditor from "./components/BalaustreEditor";
+import { getAllMembers } from "../../../../services/memberService";
+import { getCalendarioUnificado } from "../../../../services/dashboardService";
+import LoadingOverlay from "../../../../components/layout/LoadingOverlay";
 import ParticipantesTab from "./components/ParticipantesTab";
 import VisitantesTab from "./components/VisitantesTab";
 import JantarTab from "./components/JantarTab";
-
+import BalaustreEditor from "./components/BalaustreEditor";
+import PainelChanceler from "./components/PainelChanceler";
 import "./SessaoDetalhes.css";
+import moment from "moment";
 
 const SessaoDetalhesPage = () => {
-  const { id: sessionId } = useParams();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { user } = useAuth();
+  const { id } = useParams();
+  const [activeTab, setActiveTab] = useState("chanceler");
 
-  const balaustreId = location.state?.balaustreId;
-  const [activeTab, setActiveTab] = useState("");
-
-  // CORREÇÃO: Renomeado para 'sessionData' para indicar que é a resposta do hook
+  const fetchSession = useCallback(() => getSessionById(id), [id]);
   const {
     data: sessionData,
-    isLoading,
-    error,
-  } = useDataFetching(getSessionById, [sessionId]);
+    isLoading: isLoadingSession,
+    error: sessionError,
+    refetch,
+  } = useDataFetching(fetchSession);
 
-  // CORREÇÃO: Extrai o objeto da sessão do array retornado pelo hook.
-  // useMemo garante que isso só seja recalculado quando os dados mudarem.
+  const { data: members, isLoading: isLoadingMembers } =
+    useDataFetching(getAllMembers);
+
+  const participantesTabRef = useRef(null);
+
+  const handleSaveClick = () => {
+    if (participantesTabRef.current) {
+      participantesTabRef.current.handleSaveAttendance();
+    }
+  };
+
   const session = useMemo(() => {
-    if (sessionData && Array.isArray(sessionData) && sessionData.length > 0) {
-      return sessionData[0];
-    }
-    // Fallback para caso a API retorne um objeto único (mais robusto)
-    if (
-      sessionData &&
-      typeof sessionData === "object" &&
-      !Array.isArray(sessionData)
-    ) {
-      return sessionData;
-    }
-    return null;
+    const s = sessionData
+      ? Array.isArray(sessionData)
+        ? sessionData[0]
+        : sessionData
+      : null;
+    console.log("Session Data received:", s);
+    console.log("Attendees in Session Data:", s?.attendees);
+    return s;
   }, [sessionData]);
 
-  const permissoes = useMemo(() => {
-    const isAdmin = ["Webmaster", "Diretoria"].includes(user?.credencialAcesso);
-    return {
-      chanceler:
-        isAdmin || user?.permissoes?.includes("visualizarPainelChanceler"),
-      balaustre: isAdmin || user?.permissoes?.includes("editarBalaustre"),
-      presenca:
-        isAdmin || user?.permissoes?.includes("gerenciarPresentesSessao"),
-      visitantes:
-        isAdmin || user?.permissoes?.includes("gerenciarVisitantesSessao"),
-      jantar: isAdmin || user?.permissoes?.includes("gerenciarEscalaJantar"),
-    };
-  }, [user]);
+  const [calendarioData, setCalendarioData] = useState([]);
+  const [isLoadingCalendario, setIsLoadingCalendario] = useState(false);
 
   useEffect(() => {
-    if (!session || activeTab) return;
-
-    const abasDisponiveis = [
-      "chanceler",
-      "balaustre",
-      "presentes",
-      "visitantes",
-      "jantar",
-    ];
-    const primeiraAbaValida = abasDisponiveis.find((aba) => permissoes[aba]);
-
-    if (primeiraAbaValida) {
-      setActiveTab(primeiraAbaValida);
+    if (session && session.dataSessao) {
+      const fetchCalendarData = async () => {
+        setIsLoadingCalendario(true);
+        try {
+          const sessionDate = moment.utc(session.dataSessao).toDate();
+          const ano = sessionDate.getFullYear();
+          const mes = sessionDate.getMonth() + 1;
+          const response = await getCalendarioUnificado(ano, mes);
+          setCalendarioData(response.data);
+        } catch (error) {
+          console.error(
+            "Erro ao buscar dados do calendário para o painel",
+            error
+          );
+        } finally {
+          setIsLoadingCalendario(false);
+        }
+      };
+      fetchCalendarData();
     }
-  }, [session, activeTab, permissoes]);
+  }, [session]);
 
-  if (isLoading)
-    return <div className="page-container">Carregando dados da sessão...</div>;
-  if (error) return <div className="page-container error-message">{error}</div>;
-  if (!session)
-    return <div className="page-container">Sessão não encontrada.</div>;
+  const dadosChancelaria = useMemo(() => {
+    if (!session || !members || !calendarioData) return null;
+
+    const responsavel = members.find(
+      (m) => m.id === session.responsavelJantarLodgeMemberId
+    );
+    const esposa = responsavel?.familiares?.find(
+      (f) => f.parentesco === "Esposa" || f.parentesco === "Cônjuge"
+    );
+
+    const aniversariosDoMes = calendarioData.filter(
+      (e) => e.tipo === "Aniversário"
+    );
+    const aniversariantesCivis = [];
+    const aniversariosCasamento = [];
+    const aniversariantesMaconicos = [];
+
+    aniversariosDoMes.forEach((aniv) => {
+      const lowerTitle = aniv.titulo.toLowerCase();
+      const anosMatch = aniv.titulo.match(/\((\d+)\s*anos\)/);
+      const anos = anosMatch ? anosMatch[1] : "";
+
+      if (
+        lowerTitle.includes("iniciação") ||
+        lowerTitle.includes("elevação") ||
+        lowerTitle.includes("exaltação")
+      ) {
+        aniversariantesMaconicos.push({
+          ...aniv,
+          nome: aniv.titulo.replace(/\s\(.*/, ""),
+          anos,
+        });
+      } else if (lowerTitle.includes("casamento")) {
+        aniversariosCasamento.push({
+          ...aniv,
+          nome: aniv.titulo.replace(/\s\(.*/, ""),
+          anos,
+        });
+      } else {
+        aniversariantesCivis.push({
+          ...aniv,
+          nome: aniv.titulo,
+          tipo: "Civil",
+        });
+      }
+    });
+
+    return {
+      jantar: { responsavel, esposa },
+      aniversariantesCivis,
+      aniversariosCasamento,
+      aniversariantesMaconicos,
+    };
+  }, [session, members, calendarioData]);
+
+  const isLoading = isLoadingSession || isLoadingMembers || isLoadingCalendario;
+
+  if (isLoading) {
+    return <LoadingOverlay>A carregar detalhes da sessão...</LoadingOverlay>;
+  }
+
+  if (sessionError) {
+    return (
+      <div className="error-message">
+        Erro ao carregar sessão: {sessionError}
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <div className="error-message">Sessão não encontrada.</div>;
+  }
 
   return (
-    <div className="page-container sessao-detalhes-container">
-      <div className="table-header">
-        <h1>
-          {/* Agora 'session.dataSessao' terá o valor correto, evitando 'Invalid Date' */}
-          Gestão da Sessão de{" "}
-          {new Date(session.dataSessao).toLocaleDateString("pt-BR", {
-            timeZone: "UTC",
-          })}
-        </h1>
-        <button
-          onClick={() => navigate("/sessoes")}
-          className="btn btn-secondary"
-        >
-          Voltar
-        </button>
-      </div>
+    <div className="session-details-container">
+      <div className="session-main-content">
+        <div className="session-header">
+          <h1>
+            Sessão {session.tipoSessao} de {session.subtipoSessao}
+          </h1>
+          <p className="session-date">
+            {moment.utc(session.dataSessao).format("DD [de] MMMM [de] YYYY")}
+          </p>
+        </div>
 
-      <div className="tabs">
-        {permissoes.chanceler && (
+        <div className="tabs-container">
           <button
-            className={`tab-button ${
-              activeTab === "chanceler" ? "active" : ""
-            }`}
+            className={`tab-button ${activeTab === "chanceler" ? "active" : ""}`}
             onClick={() => setActiveTab("chanceler")}
           >
             Painel do Chanceler
           </button>
-        )}
-        {permissoes.balaustre && (
           <button
             className={`tab-button ${
-              activeTab === "balaustre" ? "active" : ""
+              activeTab === "participantes" ? "active" : ""
             }`}
-            onClick={() => setActiveTab("balaustre")}
+            onClick={() => setActiveTab("participantes")}
           >
-            Balaústre
+            Participantes ({session.presentes?.length || 0})
           </button>
-        )}
-        {permissoes.presenca && (
           <button
-            className={`tab-button ${
-              activeTab === "presentes" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("presentes")}
-          >
-            Presentes
-          </button>
-        )}
-        {permissoes.visitantes && (
-          <button
-            className={`tab-button ${
-              activeTab === "visitantes" ? "active" : ""
-            }`}
+            className={`tab-button ${activeTab === "visitantes" ? "active" : ""}`}
             onClick={() => setActiveTab("visitantes")}
           >
-            Visitantes
+            Visitantes ({session.visitantes?.length || 0})
           </button>
-        )}
-        {permissoes.jantar && (
           <button
             className={`tab-button ${activeTab === "jantar" ? "active" : ""}`}
             onClick={() => setActiveTab("jantar")}
           >
             Jantar
           </button>
-        )}
-      </div>
+          <button
+            className={`tab-button ${activeTab === "balaustre" ? "active" : ""}`}
+            onClick={() => setActiveTab("balaustre")}
+          >
+            Balaústre
+          </button>
+        </div>
 
-      <div className="tab-content">
-        {/* Renderiza o conteúdo da aba ativa */}
-        {activeTab === "chanceler" && <PainelChanceler sessionId={sessionId} />}
-        {activeTab === "balaustre" && (
-          <BalaustreEditor balaustreId={balaustreId} />
-        )}
-        {activeTab === "presentes" && (
-          <ParticipantesTab sessionId={sessionId} />
-        )}
-        {activeTab === "visitantes" && <VisitantesTab sessionId={sessionId} />}
-        {activeTab === "jantar" && <JantarTab sessionId={sessionId} />}
+        <div className="tab-content">
+          {activeTab === "chanceler" && (
+            <PainelChanceler
+              dadosChancelaria={dadosChancelaria}
+              dataSessao={session.dataSessao}
+            />
+          )}
+          {activeTab === "participantes" && (
+            <ParticipantesTab
+              ref={participantesTabRef}
+              attendees={session.attendees || []}
+              sessionId={id}
+              refetchSession={refetch}
+            />
+          )}
+          {activeTab === "visitantes" && (
+            <VisitantesTab
+              visitantes={session.visitantes || []}
+              sessionId={id}
+              refetchSession={refetch}
+            />
+          )}
+          {activeTab === "jantar" && (
+            <JantarTab
+              sessionId={id}
+              membros={members || []}
+              responsavelId={session.responsavelJantarLodgeMemberId}
+              esposaNome={session.conjugeResponsavelJantarNome}
+              refetchSession={refetch}
+            />
+          )}
+          {activeTab === "balaustre" && (
+            <BalaustreEditor balaustre={session.Balaustre} />
+          )}
+        </div>
       </div>
+      {activeTab === "participantes" && (
+        <div className="session-sidebar-right">
+          <button onClick={handleSaveClick} className="btn btn-primary">
+            Salvar Presença
+          </button>
+        </div>
+      )}
     </div>
   );
 };

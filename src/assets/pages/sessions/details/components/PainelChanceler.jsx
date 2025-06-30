@@ -1,68 +1,52 @@
 import React, { useState, useEffect } from "react";
-import { getDadosPainelChanceler } from "../../../../../services/sessionService";
+import { getPainelChanceler } from "../../../../../services/chancelerService";
 import { getProximoResponsavel } from "../../../../../services/escalaService";
 import { showErrorToast } from "../../../../../utils/notifications";
 
-const PainelChanceler = ({ sessionId }) => {
+const PainelChanceler = () => {
+  // CORREÇÃO: Agora temos estados para ambas as datas.
+  const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
-  const [dadosPainel, setDadosPainel] = useState(null); // Para o responsável ATUAL e aniversariantes
-  const [proximoJantar, setProximoJantar] = useState(null); // Para o PRÓXIMO responsável
+
+  const [dadosPainel, setDadosPainel] = useState(null);
+  const [proximoJantar, setProximoJantar] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Efeito para buscar o próximo da escala (informação estática)
   useEffect(() => {
-    console.log(
-      "[PainelChanceler] Buscando o próximo responsável da escala..."
-    );
     getProximoResponsavel()
-      .then((response) => {
-        console.log(
-          "[PainelChanceler] Resposta de getProximoResponsavel:",
-          response.data
-        );
-        setProximoJantar(response.data);
-      })
-      .catch((error) => {
-        console.error(
-          "[PainelChanceler] Erro ao buscar próximo responsável:",
-          error
-        );
-      });
-  }, []); // Executa apenas uma vez quando o componente monta
+      .then((response) => setProximoJantar(response.data))
+      .catch((error) =>
+        console.error("Erro ao buscar próximo responsável:", error)
+      );
+  }, []);
 
-  // Efeito para buscar os dados do painel (que dependem da data)
   useEffect(() => {
-    if (!sessionId) return;
+    let dataInicioBusca = dataInicio;
+    let dataFimBusca = dataFim;
 
-    // Define a data final padrão se ainda não estiver definida
-    let dataParaBusca = dataFim;
-    if (!dataParaBusca) {
-      const hoje = new Date();
-      hoje.setDate(hoje.getDate() + 7);
-      dataParaBusca = hoje.toISOString().split("T")[0];
-      setDataFim(dataParaBusca);
+    // Define valores padrão para as datas se estiverem vazias.
+    if (!dataInicioBusca) {
+      dataInicioBusca = new Date().toISOString().split("T")[0];
+      setDataInicio(dataInicioBusca);
+    }
+    if (!dataFimBusca) {
+      const dataFinalPadrao = new Date(dataInicioBusca);
+      dataFinalPadrao.setDate(dataFinalPadrao.getDate() + 30); // Padrão de 30 dias de intervalo
+      dataFimBusca = dataFinalPadrao.toISOString().split("T")[0];
+      setDataFim(dataFimBusca);
     }
 
     const fetchPanelData = async () => {
-      console.log(
-        `[PainelChanceler] Buscando dados do painel para sessão ${sessionId} até ${dataParaBusca}`
-      );
       setIsLoading(true);
       try {
-        const response = await getDadosPainelChanceler(
-          sessionId,
-          dataParaBusca
-        );
-        console.log(
-          "[PainelChanceler] Resposta de getDadosPainelChanceler:",
-          response.data
+        // CORREÇÃO: Passando ambas as datas para o serviço.
+        const response = await getPainelChanceler(
+          dataInicioBusca,
+          dataFimBusca
         );
         setDadosPainel(response.data);
       } catch (error) {
-        console.error(
-          "[PainelChanceler] Erro ao buscar dados do painel:",
-          error
-        );
+        console.error("Erro ao buscar dados do painel:", error);
         showErrorToast(
           "Não foi possível carregar os dados de aniversariantes."
         );
@@ -72,7 +56,7 @@ const PainelChanceler = ({ sessionId }) => {
     };
 
     fetchPanelData();
-  }, [sessionId, dataFim]);
+  }, [dataInicio, dataFim]); // O efeito agora depende de ambas as datas.
 
   const formatDate = (dateStr) =>
     new Date(dateStr).toLocaleDateString("pt-BR", {
@@ -89,42 +73,33 @@ const PainelChanceler = ({ sessionId }) => {
     <div className="painel-chanceler">
       <div className="painel-header">
         <h3>Painel do Chanceler</h3>
-        <div className="form-group">
-          <label htmlFor="dataFim">Eventos até:</label>
-          <input
-            type="date"
-            id="dataFim"
-            value={dataFim}
-            onChange={(e) => setDataFim(e.target.value)}
-            className="form-input"
-          />
+        {/* CORREÇÃO: Agora temos dois inputs de data */}
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <div className="form-group">
+            <label htmlFor="dataInicio">De:</label>
+            <input
+              type="date"
+              id="dataInicio"
+              value={dataInicio}
+              onChange={(e) => setDataInicio(e.target.value)}
+              className="form-input"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="dataFim">Até:</label>
+            <input
+              type="date"
+              id="dataFim"
+              value={dataFim}
+              onChange={(e) => setDataFim(e.target.value)}
+              className="form-input"
+            />
+          </div>
         </div>
       </div>
 
       <div className="painel-grid">
-        {/* CARD DO RESPONSÁVEL ATUAL - Usa o estado 'dadosPainel' */}
-        <div className="painel-card">
-          <div className="painel-card-header">
-            <span className="icon">🍽️</span>
-            <h4>Jantar da Sessão Atual</h4>
-          </div>
-          <div className="painel-card-body">
-            <p>
-              <strong>Responsável:</strong>{" "}
-              {isLoading
-                ? "..."
-                : dadosPainel?.jantar?.responsavelNome || "Não definido"}
-            </p>
-            <p>
-              <strong>Cônjuge:</strong>{" "}
-              {isLoading
-                ? "..."
-                : dadosPainel?.jantar?.conjugeNome || "Não informado"}
-            </p>
-          </div>
-        </div>
-
-        {/* CARD DO PRÓXIMO DA ESCALA - Usa o estado 'proximoJantar' */}
+        {/* CARD DO PRÓXIMO DA ESCALA */}
         <div className="painel-card">
           <div className="painel-card-header">
             <span className="icon">➡️</span>
@@ -142,8 +117,9 @@ const PainelChanceler = ({ sessionId }) => {
           </div>
         </div>
 
+        {/* Renderização do restante do painel (aniversariantes, etc.) */}
         {isLoading ? (
-          <div className="card">
+          <div className="painel-card">
             <p>Carregando aniversariantes...</p>
           </div>
         ) : (

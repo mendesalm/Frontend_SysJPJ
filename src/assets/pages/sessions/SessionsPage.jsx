@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Slider from "react-slick";
 import { useAuth } from "../../../hooks/useAuth";
@@ -10,8 +10,10 @@ import {
 } from "../../../services/sessionService";
 import Modal from "../../../components/modal/Modal";
 import SessionForm from "./SessionForm.jsx";
-import LoadingOverlay from "../../../components/layout/LoadingOverlay"; // Importa o componente de overlay
+import LoadingOverlay from "../../../components/layout/LoadingOverlay";
+import SessionStatusFilter from "./SessionStatusFilter.jsx";
 import "./SessionsPage.css";
+import "./SessionStatusFilter.css";
 import "../../styles/TableStyles.css";
 import {
   showSuccessToast,
@@ -19,31 +21,45 @@ import {
 } from "../../../utils/notifications.js";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-
-const formatDate = (dateString) => {
-  if (!dateString) return "Data inválida";
-  const date = new Date(dateString);
-  const timezoneOffset = date.getTimezoneOffset() * 60000;
-  const adjustedDate = new Date(date.getTime() + timezoneOffset);
-  return adjustedDate.toLocaleDateString("pt-BR", { timeZone: "UTC" });
-};
+import {
+  FaTrash,
+  FaLink,
+  FaCoins,
+  FaUtensils,
+  FaUsers,
+  FaUserTie,
+} from "react-icons/fa";
+import moment from "moment";
+import apiClient from "../../../services/apiClient";
 
 const SessionsPage = () => {
-  const fetchParams = {
-    page: 1,
-    limit: 999,
-    sortBy: "dataSessao",
-    order: "DESC",
-  };
+  const [statusFilter, setStatusFilter] = useState("Agendada");
+
+  useEffect(() => {
+    console.log("Current status filter:", statusFilter);
+  }, [statusFilter]);
+  const fetchParams = useMemo(
+    () => ({
+      page: 1,
+      limit: 50,
+      sortBy: "dataSessao",
+      order: "DESC",
+      status: statusFilter,
+    }),
+    [statusFilter]
+  );
+
+  const fetcher = useCallback(() => getSessions(fetchParams), [fetchParams]);
+
   const {
     data: sessions,
-    isLoading,
+    isLoading: isLoadingSessions,
     error: fetchError,
     refetch,
-  } = useDataFetching(getSessions, [fetchParams]);
+  } = useDataFetching(fetcher);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCreatingSession, setIsCreatingSession] = useState(false); // Novo estado para o loading
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -52,14 +68,11 @@ const SessionsPage = () => {
     ["Secretário", "Secretário Adjunto"].includes(user?.cargoAtual);
 
   const handleSaveSession = async (formData) => {
-    setIsCreatingSession(true); // Ativa o loading
+    setIsCreatingSession(true);
     try {
       const dadosParaEnviar = { ...formData };
       if (dadosParaEnviar.dataSessao) {
-        const date = new Date(dadosParaEnviar.dataSessao);
-        const timezoneOffset = date.getTimezoneOffset() * 60000;
-        const adjustedDate = new Date(date.getTime() + timezoneOffset);
-        dadosParaEnviar.dataSessao = adjustedDate;
+        dadosParaEnviar.dataSessao = moment(dadosParaEnviar.dataSessao).format('YYYY-MM-DD');
       }
 
       await createSession(dadosParaEnviar);
@@ -71,11 +84,12 @@ const SessionsPage = () => {
         err.response?.data?.message || "Erro ao registrar a sessão."
       );
     } finally {
-      setIsCreatingSession(false); // Desativa o loading
+      setIsCreatingSession(false);
     }
   };
 
-  const handleDeleteSession = async (sessionId) => {
+  const handleDeleteSession = async (sessionId, e) => {
+    e.stopPropagation();
     if (
       window.confirm(
         "Tem a certeza que deseja apagar esta sessão? Esta ação não pode ser desfeita e irá remover também o balaústre associado."
@@ -93,35 +107,38 @@ const SessionsPage = () => {
     }
   };
 
+  const getFileUrl = (path) => {
+    if (!path) return "#";
+    const baseURL = apiClient.defaults.baseURL.startsWith("http")
+      ? apiClient.defaults.baseURL
+      : window.location.origin;
+    return `${baseURL}/${path}`.replace("/api/", "/");
+  };
+
   const sliderSettings = {
     dots: true,
     infinite: false,
     speed: 500,
     slidesToShow: 3,
     slidesToScroll: 1,
-    centerMode: true,
-    centerPadding: "0px",
-    initialSlide: 0,
     responsive: [
       {
-        breakpoint: 1024,
+        breakpoint: 1200,
         settings: {
           slidesToShow: 2,
         },
       },
       {
-        breakpoint: 600,
+        breakpoint: 768,
         settings: {
           slidesToShow: 1,
-          centerMode: false,
         },
       },
     ],
   };
 
   return (
-    <div className="table-page-container">
-      {/* O overlay será renderizado aqui quando isCreatingSession for true */}
+    <div className="sessions-page">
       <LoadingOverlay
         isLoading={isCreatingSession}
         message="Criando sessão e gerando documentos, por favor aguarde..."
@@ -132,15 +149,22 @@ const SessionsPage = () => {
         <button
           onClick={() => setIsModalOpen(true)}
           className="btn-action btn-approve"
+          style={{ padding: "12px 24px", borderRadius: "8px" }}
         >
           Registar Nova Sessão
         </button>
       </div>
 
+      
+      <SessionStatusFilter
+        selectedStatus={statusFilter}
+        onStatusChange={setStatusFilter}
+      />
+
       {fetchError && <p className="error-message">{fetchError}</p>}
 
       <div className="carousel-container">
-        {isLoading ? (
+        {isLoadingSessions ? (
           <p>A carregar sessões...</p>
         ) : !sessions || sessions.length === 0 ? (
           <p>Nenhuma sessão registada.</p>
@@ -148,65 +172,117 @@ const SessionsPage = () => {
           <Slider {...sliderSettings}>
             {sessions
               .filter((session) => session && session.id)
-              .map((session) => (
-                <div key={session.id} className="session-slide">
-                  <div className="session-card">
-                    <div className="session-card-header">
-                      <h3>
-                        {session.tipoSessao} de {session.subtipoSessao}
-                      </h3>
-                      <span className="session-date">
-                        {formatDate(session.dataSessao)}
-                      </span>
-                    </div>
-                    <div className="session-card-body">
-                      <p>
-                        <strong>Presentes:</strong>{" "}
-                        {session.presentesCount || 0} Obreiros
-                      </p>
-                      <p>
-                        <strong>Visitantes:</strong>{" "}
-                        {session.visitantesCount || 0}
-                      </p>
-                    </div>
-                    <div className="session-card-footer management-footer">
-                      <button
-                        onClick={() =>
-                          navigate(`/sessoes/${session.id}`, {
-                            state: { balaustreId: session.Balaustre?.id },
-                          })
-                        }
-                        className="btn btn-primary"
-                      >
-                        Gerenciar Sessão
-                      </button>
-                      {canDeleteSession && (
+              .map((session) => {
+                // ATUALIZADO: Lógica simplificada usando os novos campos da API
+                const tituloSessao =
+                  session.classeSessao || `Sessão ${session.tipoSessao}`;
+
+                let infoJantar = "A definir.";
+                if (session.responsavelJantar) {
+                  const esposaResponsavel =
+                    session.responsavelJantar.familiares?.find(
+                      (f) => f.parentesco === "Cônjuge"
+                    );
+                  infoJantar = `Oferecido por Ir. ${session.responsavelJantar.NomeCompleto}`;
+                  if (esposaResponsavel) {
+                    infoJantar += ` e Cunhada ${esposaResponsavel.nomeCompleto}`;
+                  }
+                }
+
+                return (
+                  <div key={session.id} className="session-slide">
+                    <div className="session-card-neumorphic">
+                      <div className="session-card-header">
+                        <div className="date-box">
+                          <span className="month">
+                            {moment(session.dataSessao)
+                              .format("MMM")
+                              .toUpperCase()}
+                          </span>
+                          <span className="day">
+                            {moment(session.dataSessao).format("DD")}
+                          </span>
+                        </div>
+                        <div className="header-info">
+                          <h3>{tituloSessao}</h3>
+                          <span
+                            className={`session-status status-${(
+                              session.status || "agendada"
+                            ).toLowerCase()}`}
+                          >
+                            {session.status || "Agendada"}
+                          </span>
+                        </div>
+                        {canDeleteSession && session.status === "Agendada" && (
+                          <button
+                            onClick={(e) => handleDeleteSession(session.id, e)}
+                            className="btn-action btn-delete session-delete-btn"
+                            title="Apagar Sessão"
+                          >
+                            <FaTrash />
+                          </button>
+                        )}
+                      </div>
+                      <div className="session-card-body">
+                        <div className="info-item">
+                          <FaLink />
+                          <span>
+                            Balaústre:{" "}
+                            {session.Balaustre?.caminhoPdfLocal ? (
+                              <a
+                                href={getFileUrl(
+                                  session.Balaustre.caminhoPdfLocal
+                                )}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                Ver PDF
+                              </a>
+                            ) : (
+                              "N/A"
+                            )}
+                          </span>
+                        </div>
+                        <div className="info-item">
+                          <FaCoins />
+                          <span>
+                            Tronco: R${" "}
+                            {parseFloat(
+                              session.troncoDeBeneficencia || 0
+                            ).toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="info-item">
+                          <FaUtensils />
+                          <span>Jantar: {infoJantar}</span>
+                        </div>
+                        <div className="info-item">
+                          <FaUsers />
+                          <span>
+                            {session.presentesCount || 0} irmãos do quadro e{" "}
+                            {session.visitantesCount || 0} visitantes
+                          </span>
+                        </div>
+                      </div>
+                      <div className="session-card-footer">
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteSession(session.id);
-                          }}
-                          className="btn-action btn-delete"
-                          title="Apagar Sessão"
-                          style={{
-                            position: "absolute",
-                            top: "10px",
-                            right: "10px",
-                            background: "#b91c1c",
-                            borderRadius: "50%",
-                            width: "30px",
-                            height: "30px",
-                            fontSize: "1rem",
-                            lineHeight: "1",
-                          }}
+                          onClick={() => navigate(`/sessoes/${session.id}`)}
+                          className={`btn-manage ${
+                            session.status === "Cancelada"
+                              ? "btn-manage-disabled"
+                              : ""
+                          }`}
+                          disabled={session.status === "Cancelada"}
                         >
-                          X
+                          {session.status === "Realizada"
+                            ? "Ver Detalhes"
+                            : "Gerir Sessão"}
                         </button>
-                      )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
           </Slider>
         )}
       </div>
@@ -219,7 +295,7 @@ const SessionsPage = () => {
         <SessionForm
           onSave={handleSaveSession}
           onCancel={() => setIsModalOpen(false)}
-          isSubmitting={isCreatingSession} // Passa o estado para o formulário
+          isSubmitting={isCreatingSession}
         />
       </Modal>
     </div>

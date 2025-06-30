@@ -1,0 +1,19 @@
+
+.session-status-filter {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.btn-filter {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.btn-filter.active {
+  background-color: #007bff;
+  color: white;
+}

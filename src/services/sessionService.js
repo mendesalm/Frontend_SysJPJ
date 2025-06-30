@@ -55,3 +55,12 @@ export const getDadosPainelChanceler = (sessionId, dataFim) => {
 export const updateResponsavelJantar = (sessionId, data) => {
   return apiClient.put(`/sessions/${sessionId}/jantar`, data);
 };
+
+/**
+ * Atualiza o status de presença dos membros em uma sessão.
+ * @param {string} sessionId - O ID da sessão.
+ * @param {Array<Object>} attendanceData - Array de objetos com { lodgeMemberId, statusPresenca }.
+ */
+export const updateSessionAttendance = (sessionId, attendanceData) => {
+  return apiClient.put(`/sessions/${sessionId}/attendance`, { attendees: attendanceData });
+};

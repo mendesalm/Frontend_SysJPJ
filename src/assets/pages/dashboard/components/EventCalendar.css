@@ -74,14 +74,13 @@
   border-radius: 12px;
 }
 
-/* Estilização customizada para diferentes tipos de evento */
-/* ANTES:
-.rbc-event-locacao { background-color: #16a34a !important; border-color: #15803d !important; }
-.rbc-event-sessao { background-color: #9333ea !important; border-color: #7e22ce !important; }
-.rbc-event-evento { background-color: #d97706 !important; border-color: #b45309 !important; }
-*/
+.calendar-error-message {
+  padding: 2rem;
+  text-align: center;
+  color: #ef4444;
+}
 
-/* DEPOIS: Nova paleta de cores */
+/* Estilização customizada para diferentes tipos de evento */
 .rbc-event-locacao {
   background-color: #22c55e !important;
   border-color: #16a34a !important;
@@ -98,6 +97,20 @@
   background-color: #64748b !important;
   border-color: #475569 !important;
 } /* Cinza */
+
+/* NOVO: Cores específicas para os subtipos de aniversário */
+.rbc-event-aniversario-membro {
+  background-color: #eab308 !important;
+  border-color: #ca8a04 !important;
+} /* Amarelo/Dourado */
+.rbc-event-aniversario-familiar {
+  background-color: #ec4899 !important;
+  border-color: #db2777 !important;
+} /* Rosa */
+.rbc-event-aniversario-maconico {
+  background-color: #8b5cf6 !important;
+  border-color: #7c3aed !important;
+} /* Roxo */
 
 .rbc-event-content-wrapper {
   display: flex;
@@ -145,6 +158,17 @@
 .event-type-evento {
   background-color: #f97316;
 }
+/* NOVO: Cores dos badges para os subtipos de aniversário */
+.event-type-aniversario-membro {
+  background-color: #eab308;
+  color: #422006;
+}
+.event-type-aniversario-familiar {
+  background-color: #ec4899;
+}
+.event-type-aniversario-maconico {
+  background-color: #8b5cf6;
+}
 .event-type-geral {
   background-color: #64748b;
 }
@@ -186,4 +210,43 @@
   padding: 4px 10px;
   border-radius: 15px;
   font-size: 0.85rem;
+}
+
+/* Estilos para o container de filtros */
+.calendar-filters-container {
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #4b5563;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-title {
+  font-weight: 500;
+  color: var(--cor-texto-secundario);
+}
+
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-checkbox input[type="checkbox"] {
+  width: 1em;
+  height: 1em;
+  accent-color: var(--cor-foco-input-borda);
+}
+
+.filter-checkbox label {
+  cursor: pointer;
+  font-size: var(--font-size-sm);
 }

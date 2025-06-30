@@ -1,6 +1,31 @@
 /* Container principal da página de detalhes */
 .sessao-detalhes-container {
   width: 100%;
+  display: flex; /* Use flexbox for main layout */
+  gap: 20px; /* Space between main content and sidebar */
+}
+
+.session-main-content {
+  flex-grow: 1; /* Main content takes up available space */
+}
+
+.session-sidebar-right {
+  width: 200px; /* Fixed width for the sidebar */
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+  position: sticky; /* Make it sticky */
+  top: 20px; /* Distance from the top of the viewport */
+  align-self: flex-start; /* Align to the top */
+  padding: 1.5rem;
+  background: var(--cor-sidebar-primaria);
+  border: 1px solid var(--cor-borda-sidebar);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.session-sidebar-right .btn {
+  width: 100%;
 }
 
 /*
@@ -403,4 +428,35 @@
 
 .search-results-list li small {
   color: var(--cor-texto-secundario);
+}
+
+.participantes-tab-card {
+  /* No specific width here, it will be managed by its parent container */
+}
+
+.participantes-content-wrapper {
+  display: flex;
+  gap: 20px; /* Adjust as needed */
+  align-items: flex-start; /* Align items to the top */
+}
+
+.participantes-content-wrapper .table-responsive {
+  flex-grow: 1; /* Allow table to take up available space */
+}
+
+.participantes-actions-box {
+  flex-shrink: 0; /* Prevent button from shrinking */
+  width: 200px; /* Adjust width as needed */
+  padding: 1.5rem;
+  background: var(--cor-sidebar-primaria);
+  border: 1px solid var(--cor-borda-sidebar);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.participantes-actions-box .btn {
+  width: 100%;
+  margin-top: 0; /* Override default margin-top */
 }

@@ -18,12 +18,14 @@ const BalaustreForm = ({
     reset,
   } = useForm({
     resolver: yupResolver(balaustreValidationSchema),
-    defaultValues: initialData || {},
+    defaultValues: { Escrutinio: "Não houve", ...(initialData || {}) },
   });
 
   useEffect(() => {
     if (initialData) {
-      reset(initialData);
+      reset({ Escrutinio: "Não houve", ...initialData });
+    } else {
+      reset({ Escrutinio: "Não houve" });
     }
   }, [initialData, reset]);
 
@@ -317,6 +319,14 @@ const BalaustreForm = ({
             {...register("OrdemDia")}
             className="form-textarea"
             rows="4"
+          ></textarea>
+        </div>
+        <div className="form-group full-width">
+          <label>Escrutínio</label>
+          <textarea
+            {...register("Escrutinio")}
+            className="form-textarea"
+            rows="3"
           ></textarea>
         </div>
         <div className="form-group full-width">

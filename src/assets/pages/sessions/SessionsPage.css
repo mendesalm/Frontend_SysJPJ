@@ -1,110 +1,192 @@
 /* src/assets/pages/sessions/SessionsPage.css */
+.sessions-page {
+  padding: 1rem;
+}
 
-/* --- Container Principal do Carrossel --- */
 .carousel-container {
   padding: 2rem 0;
 }
 
-/* --- Estilos para os Slides e Cards --- */
-.session-slide {
-  padding: 0 15px; /* Espaçamento entre os cards */
+/* Slick Carousel Overrides */
+.slick-slide > div {
+  padding: 0 1rem;
 }
 
-.session-card {
-  background: rgba(31, 41, 55, 0.6);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--cor-borda-vidro);
-  border-radius: 12px;
-  color: var(--cor-texto-secundario);
+.slick-dots li button:before {
+  font-size: 12px;
+  color: var(--cor-foco-input-borda);
+}
+
+.slick-dots li.slick-active button:before {
+  color: var(--cor-foco-input-borda);
+}
+
+/* Card Neumórfico */
+.session-card-neumorphic {
+  background: #2d3748;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 10px 10px 20px #252e3c, -10px -10px 20px #354054;
+  transition: all 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
-  min-height: 280px; /* Altura mínima para consistência */
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  transform: scale(0.95); /* Slides não ativos são menores */
-  opacity: 0.7;
+  min-height: 420px; /* Altura aumentada para o novo conteúdo */
 }
 
-.slick-center .session-card {
-  transform: scale(1); /* Slide ativo tem o tamanho normal */
-  opacity: 1;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+.session-card-neumorphic:hover {
+  transform: translateY(-5px);
+  box-shadow: 12px 12px 24px #252e3c, -12px -12px 24px #354054;
 }
 
 .session-card-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--cor-borda-sidebar);
+  background: linear-gradient(145deg, #303b4e, #293241);
+  padding: 1.5rem;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
+  gap: 1.5rem;
+  border-bottom: 1px solid #252e3c;
+  position: relative;
 }
 
-.session-card-header h3 {
-  margin: 0;
-  font-size: var(--font-size-lg);
-  color: var(--cor-texto-cabecalho);
-}
-
-.session-date {
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--cor-active-icon);
+.date-box {
+  background-color: #e2e8f0;
+  color: #1a202c;
+  border-radius: 12px;
+  text-align: center;
   flex-shrink: 0;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-weight: bold;
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.2),
+    inset -3px -3px 5px rgba(255, 255, 255, 0.8);
+}
+
+.date-box .month {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.date-box .day {
+  font-size: 2rem;
+  line-height: 1.1;
+  color: #3b82f6;
+}
+
+.header-info h3 {
+  margin: 0;
+  font-size: 1.1rem; /* Ajustado para caber o texto */
+  color: var(--cor-texto-primario);
+  line-height: 1.3;
+}
+
+.header-info .session-status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  text-transform: capitalize;
+}
+
+.session-status.status-agendada {
+  background-color: #ca8a04;
+  color: #422006;
+}
+.session-status.status-realizada {
+  background-color: #15803d;
+  color: #f0fdf4;
+}
+.session-status.status-cancelada {
+  background-color: #b91c1c;
+  color: #fef2f2;
+}
+.session-status.status-desconhecido {
+  background-color: #4b5563;
+  color: #e5e7eb;
 }
 
 .session-card-body {
   padding: 1.5rem;
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem; /* Aumenta o espaçamento entre os itens */
+  flex-grow: 1;
 }
 
-.session-card-body p {
-  margin: 0;
-  font-size: var(--font-size-base);
-}
-
-.balaustre-actions {
+.info-item {
   display: flex;
-  gap: 0.5rem;
-  margin-top: auto; /* Empurra para o fundo */
-}
-
-.session-card-footer {
-  padding: 1rem 1.5rem;
-  margin-top: auto;
-  border-top: 1px solid var(--cor-borda-sidebar);
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* --- Estilos para as Flechas e Pontos do Carrossel --- */
-.slick-dots li button:before {
-  font-size: 12px;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
   color: var(--cor-texto-secundario);
 }
 
-.slick-dots li.slick-active button:before {
-  color: var(--cor-active-icon);
+.info-item svg {
+  width: 20px;
+  height: 20px;
+  color: #38bdf8;
+  flex-shrink: 0;
 }
 
-.slick-arrow {
-  z-index: 10;
+.info-item a {
+  color: var(--cor-foco-input-borda);
+  text-decoration: none;
+  font-weight: 500;
 }
 
-.slick-prev:before,
-.slick-next:before {
-  font-size: 25px;
-  color: var(--cor-active-icon);
-  opacity: 0.8;
+.info-item a:hover {
+  text-decoration: underline;
 }
 
-.slick-prev {
-  left: -40px;
+.session-card-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #252e3c;
+  margin-top: auto;
 }
 
-.slick-next {
-  right: -40px;
+.btn-manage {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #2563eb, #3b82f6);
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 5px 5px 10px #252e3c, -5px -5px 10px #354054;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-manage:hover {
+  filter: brightness(1.1);
+}
+.btn-manage:active {
+  box-shadow: inset 5px 5px 10px #252e3c, inset -5px -5px 10px #354054;
+}
+
+.btn-manage-disabled {
+  background: #4b5563;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.session-delete-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }

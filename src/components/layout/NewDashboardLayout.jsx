@@ -18,7 +18,7 @@ const NewDashboardLayout = () => {
         }
     }, [location]);
     
-    console.log('%c[Layout Pai] Renderizou. Estado activeMenu:', 'color: lightblue;', activeMenu);
+    
 
     const handleMenuClick = (menuId) => {
         console.log(`%c[Layout Pai] Clique recebido para: ${menuId}`, 'color: yellow; font-weight: bold;');

@@ -53,6 +53,7 @@ export const balaustreValidationSchema = yup.object().shape({
   ExpedienteExpedido: yup.string().required("Este campo é obrigatório."),
   SacoProposta: yup.string().required("Este campo é obrigatório."),
   OrdemDia: yup.string().required("Este campo é obrigatório."),
+  Escrutinio: yup.string().required("Este campo é obrigatório."),
   TempoInstrucao: yup.string().required("Este campo é obrigatório."),
   Palavra: yup.string().required("Este campo é obrigatório."),
   Emendas: yup.string().nullable(),

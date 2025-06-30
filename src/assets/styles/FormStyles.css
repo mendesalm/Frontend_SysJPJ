@@ -1,6 +1,6 @@
 /*
  * src/assets/styles/FormStyles.css
- * Estilos centralizados para formulários, agora usando a escala de tipografia do tema.
+ * Estilos centralizados para formulários, com altura dos campos ajustada.
  */
 
 /* Container principal para o formulário (geralmente dentro de um modal) */
@@ -23,7 +23,7 @@
   padding: 0 0.75rem;
   font-weight: 600;
   color: var(--cor-foco-input-borda);
-  font-size: var(--font-size-lg); /* Aumentando a legenda */
+  font-size: var(--font-size-lg);
 }
 
 /* Grid para alinhar campos em colunas */
@@ -47,9 +47,7 @@
 .form-group label {
   font-weight: 500;
   color: var(--cor-texto-secundario);
-  font-size: var(
-    --font-size-sm
-  ); /* Definindo um tamanho padrão para os rótulos */
+  font-size: var(--font-size-sm);
 }
 
 /* Inputs, Textareas e Selects */
@@ -57,7 +55,8 @@
 .form-textarea,
 .form-select {
   width: 100%;
-  padding: 12px 15px;
+  /* ATUALIZADO: O padding vertical foi reduzido de 12px para 8px para diminuir a altura. */
+  padding: 8px 15px;
   border: 1px solid var(--cor-borda-input);
   border-radius: 6px;
   font-size: var(--font-size-base);
@@ -78,7 +77,7 @@
 
 .form-textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 80px; /* Altura mínima também ajustada */
 }
 
 .form-select[multiple] {
@@ -94,7 +93,7 @@
   margin-top: 0.5rem;
 }
 .form-group-inline label {
-  font-weight: normal; /* Checkbox label pode ser normal */
+  font-weight: normal;
 }
 
 .form-group-inline input[type="checkbox"] {
@@ -114,7 +113,8 @@
 }
 
 .btn {
-  padding: 12px 24px;
+  /* ATUALIZADO: Padding dos botões ajustado para consistência */
+  padding: 10px 20px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -158,18 +158,11 @@
   margin-top: 0.25rem;
   font-weight: 500;
 }
-.fixed-button {
-  display: flex;
-  align-items: flex-end;
-  position: static;
-  margin: auto 0;
-}
 
-/* NOVO: Estilos para familiares falecidos no formulário */
+/* Estilos para familiares falecidos no formulário */
 .familiar-row.deceased {
   opacity: 0.6;
 }
-
 .familiar-row.deceased label,
 .familiar-row.deceased input,
 .familiar-row.deceased select,
@@ -178,46 +171,19 @@
   color: #9ca3af;
 }
 
-/* NOVOS ESTILOS PARA O BOTÃO DE UPLOAD PERSONALIZADO */
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
-.custom-file-upload-label {
-  display: inline-block;
-  cursor: pointer;
-  width: fit-content; /* Faz o botão ter a largura do seu conteúdo */
-}
-
-.file-name-display {
-  display: inline-block;
-  margin-left: 1rem;
-  font-style: italic;
-  color: var(--cor-texto-secundario);
-}
-.file-name-display {
-  display: inline-block;
-  margin-left: 1rem;
-  font-style: italic;
-  color: var(--cor-texto-secundario);
-}
-
-/* NOVOS ESTILOS PARA A SECÇÃO DA FOTO DE PERFIL */
-.profile-photo-section {
-  display: flex;
-  align-items: center;
+/* --- ESTILOS PARA O LAYOUT DE DADOS PESSOAIS --- */
+.personal-data-container {
+  display: grid;
+  grid-template-columns: auto 1fr;
   gap: 2rem;
-  padding: 1rem;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  grid-column: 1 / -1; /* Ocupa a largura toda na grelha */
+  align-items: flex-start;
+}
+
+.photo-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
 .profile-photo-preview {
@@ -229,6 +195,58 @@
   background-color: #4b5563;
 }
 
-.profile-photo-section .form-group {
-  flex-grow: 1;
+.fields-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.personal-fields-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.photo-actions-dropdown summary {
+  cursor: pointer;
+  padding: 8px 16px;
+  background-color: var(--cor-fundo-input);
+  border: 1px solid var(--cor-borda-input);
+  border-radius: 6px;
+  font-weight: 500;
+  text-align: center;
+  transition: background-color 0.2s;
+}
+
+.photo-actions-dropdown summary:hover {
+  background-color: var(--cor-borda-sidebar);
+}
+
+.photo-actions-dropdown[open] summary {
+  background-color: var(--cor-borda-sidebar);
+}
+
+.photo-actions-dropdown > div {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--cor-borda-input);
+  border-radius: 6px;
+  background-color: var(--cor-fundo-app);
+}
+
+/* Responsividade para o novo layout */
+@media (max-width: 992px) {
+  .personal-fields-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .personal-data-container {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .personal-fields-grid {
+    grid-template-columns: 1fr;
+  }
 }
