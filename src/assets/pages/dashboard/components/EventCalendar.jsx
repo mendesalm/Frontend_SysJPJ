@@ -229,7 +229,7 @@ const EventCalendar = () => {
     ordinalParse: /\d{1,2}º/,
     ordinal: '%dº',
     meridiemParse: /AM|PM/,
-    meridiem: function (hour, minute, isLower) {
+    meridiem: function (hour) {
       if (hour < 12) {
         return 'AM';
       } else {

@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { locacaoValidationSchema } from "../../validators/locacaoValidator";
-import { getAllMembers } from "../../services/memberService";
-import "../../assets/styles/FormStyles.css";
+import { locacaoValidationSchema } from "~/validators/locacaoValidator";
+import { getAllMembers } from "~/services/memberService";
+import "~/assets/styles/FormStyles.css";
 
 const LocacaoForm = ({ onSave, onCancel }) => {
   const [members, setMembers] = useState([]);

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { generatePrancha, generateConvite, generateCartao } from '../../services/documentoGeradoService';
-import useAuth from '../../hooks/useAuth';
+/* global placeholder */
+import { generatePrancha, generateConvite, generateCartao } from '~/services/documentoGeradoService';
+import useAuth from '~/hooks/useAuth';
 
 const CreateDocumentoGerado = () => {
     const [tipo, setTipo] = useState('Prancha');
@@ -84,6 +85,7 @@ const CreateDocumentoGerado = () => {
                                 type="text"
                                 value={placeholders[key]}
                                 onChange={(e) => handlePlaceholderValueChange(key, e.target.value)}
+                                placeholder={key}
                             />
                         </div>
                     ))}

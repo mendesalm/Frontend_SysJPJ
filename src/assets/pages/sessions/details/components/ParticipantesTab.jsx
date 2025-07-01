@@ -3,6 +3,7 @@ import { updateSessionAttendance } from "../../../../../services/sessionService"
 import { showSuccessToast, showErrorToast } from "../../../../../utils/notifications";
 
 const ParticipantesTab = forwardRef(({ sessionId, attendees: initialAttendees, refetchSession }, ref) => {
+  ParticipantesTab.displayName = 'ParticipantesTab';
   const [attendees, setAttendees] = useState(initialAttendees);
   const [originalAttendees, setOriginalAttendees] = useState(initialAttendees);
 

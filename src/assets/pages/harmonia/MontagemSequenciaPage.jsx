@@ -159,7 +159,7 @@ const MontagemSequenciaPage = () => {
         <div className="sequencia-column">
           {selectedTipoSessao ? (
             <>
-              <h3>Sequência para "{selectedTipoSessao.nome}"</h3>
+              <h3>Sequência para &quot;{selectedTipoSessao.nome}&quot;</h3>
               <div className="sequencia-editor">
                 <div className="playlist-list-container">
                   <h4>Playlists Disponíveis</h4>

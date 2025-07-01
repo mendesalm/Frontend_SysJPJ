@@ -184,7 +184,7 @@ const GestaoPlaylistsPage = () => {
         <div className="musicas-column">
           {selectedPlaylist ? (
             <>
-              <h3>Músicas em "{selectedPlaylist.nome}"</h3>
+              <h3>Músicas em &quot;{selectedPlaylist.nome}&quot;</h3>
               <div className="musicas-list">
                 {selectedPlaylist.musicas &&
                 selectedPlaylist.musicas.length > 0 ? (

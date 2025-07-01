@@ -15,34 +15,24 @@ const BalaustreEditor = ({ balaustreId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  console.log(
-    `[BalaustreEditor] Componente renderizado. ID recebido via prop: ${balaustreId}`
-  );
+  
 
   useEffect(() => {
-    console.log("[BalaustreEditor] useEffect disparado.", { balaustreId });
+    
 
     if (!balaustreId) {
-      console.log(
-        "[BalaustreEditor] Efeito abortado: ID do balaústre é nulo ou indefinido."
-      );
+      
       setIsLoading(false); // Para de carregar se não houver ID
       return;
     }
 
     setIsLoading(true);
-    console.log(
-      `[BalaustreEditor] Iniciando busca para o balaústre ID: ${balaustreId}`
-    );
+    
 
     getBalaustre(balaustreId)
       .then((response) => {
-        console.log(
-          "[BalaustreEditor] DADOS DO BALAÚSTRE RECEBIDOS:",
-          response.data
-        );
         const { dadosFormulario, presentesCount, visitantesCount } =
-          response.data;
+          response;
         const completeInitialData = {
           ...dadosFormulario,
           NumeroIrmaosQuadro: presentesCount,
@@ -55,9 +45,7 @@ const BalaustreEditor = ({ balaustreId }) => {
         showErrorToast("Erro ao carregar dados do balaústre.");
       })
       .finally(() => {
-        console.log(
-          "[BalaustreEditor] Busca finalizada. isLoading será definido como false."
-        );
+        
         setIsLoading(false);
       });
   }, [balaustreId]);
@@ -75,11 +63,7 @@ const BalaustreEditor = ({ balaustreId }) => {
     }
   };
 
-  console.log(
-    `[BalaustreEditor] Renderizando com os estados: isLoading=${isLoading}, initialData=${JSON.stringify(
-      initialData
-    )}`
-  );
+  
 
   if (!balaustreId) {
     return (
@@ -104,7 +88,7 @@ const BalaustreEditor = ({ balaustreId }) => {
     <div className="actions-box">
       <h3>Ações do Balaústre</h3>
       <p>
-        Altere os campos e clique em "Salvar" para atualizar o documento e gerar
+        Altere os campos e clique em &quot;Salvar&quot; para atualizar o documento e gerar
         um novo PDF.
       </p>
       <button

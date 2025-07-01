@@ -62,14 +62,16 @@ const DashboardPage = () => {
 
       {/* Grelha inferior atualizada */}
       <div className="dashboard-bottom-section">
-        <div className="avisos-widget-container">
-          <DashboardAvisos />
-        </div>
-        {/* NOVO: Widget de Classificados adicionado */}
-        <div className="classificados-widget-container">
-          <DashboardClassificados
-            classificados={dashboardData?.novosClassificados}
-          />
+        <div className="avisos-classificados-column">
+          <div className="avisos-widget-container">
+            <DashboardAvisos />
+          </div>
+          {/* NOVO: Widget de Classificados adicionado */}
+          <div className="classificados-widget-container">
+            <DashboardClassificados
+              classificados={dashboardData?.novosClassificados}
+            />
+          </div>
         </div>
         <div className="calendar-widget-container">
           <EventCalendar />

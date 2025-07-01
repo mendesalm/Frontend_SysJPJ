@@ -1,0 +1,9 @@
+feat: Improve member management table and add new features
+
+- Update member cargo display logic to use `member.cargoAtual` and default to "Obreiro" if null or "Sem cargo definido".
+- Fix member photo display by correctly handling `FotoPessoal_Caminho` paths from the backend, ensuring proper image loading.
+- Reduce member photo size to 30x30px for a more compact display.
+- Adjust table row height in member management for better visual density.
+- Add new routes and components for document generation and balaustre settings.
+- Implement permission checks in SecondarySidebar.
+- Update balaustre service.

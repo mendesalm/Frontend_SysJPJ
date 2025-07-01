@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let dragPrevTranslate = 0;
     let slideWidth = slidesWrapper.clientWidth;
     
-    let allSlidesInDom = []; 
+     
     let progressBars = [];
     let hoverPausedAutoplay = false;
 
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
             lastClone.classList.add('slide-clone');
             slidesWrapper.insertBefore(lastClone, slidesWrapper.firstChild);
         }
-        allSlidesInDom = Array.from(slidesWrapper.children);
+        
         
         currentTranslate = -(logicalCurrentIndex + getCloneOffset()) * slideWidth; 
         dragPrevTranslate = currentTranslate;
@@ -228,7 +228,14 @@ document.addEventListener('DOMContentLoaded', function () {
         return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
     }
 
-    // Event Listeners dos Botões de Navegação Manual
+    slidesWrapper.addEventListener('mousedown', handleTouchStart);
+    slidesWrapper.addEventListener('mouseup', handleTouchEnd);
+    slidesWrapper.addEventListener('mouseleave', handleTouchEnd);
+    slidesWrapper.addEventListener('mousemove', handleTouchMove);
+
+    slidesWrapper.addEventListener('touchstart', handleTouchStart);
+    slidesWrapper.addEventListener('touchend', handleTouchEnd);
+    slidesWrapper.addEventListener('touchmove', handleTouchMove);
     if (prevNavButton && nextNavButton) {
         if (numOriginalSlides > 1) {
             prevNavButton.addEventListener('click', () => {

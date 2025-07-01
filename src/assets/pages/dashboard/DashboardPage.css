@@ -9,7 +9,7 @@
 /* --- Secção Inferior com Grelha --- */
 .dashboard-bottom-section {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr;
+  grid-template-columns: 1fr 3fr;
   gap: 2rem;
   align-items: start;
 }
@@ -19,6 +19,12 @@
 .classificados-widget-container,
 .calendar-widget-container {
   height: 100%;
+}
+
+.avisos-classificados-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* Espaçamento entre avisos e classificados */
 }
 
 @media (max-width: 1200px) {

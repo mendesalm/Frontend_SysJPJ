@@ -1,16 +1,16 @@
 // src/assets/pages/locacoes/LocacaoSalaoPage.jsx
 import React, { useState, useEffect, useCallback } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { useDataFetching } from "../../hooks/useDataFetching";
-import * as locacaoService from "../../services/locacaoService";
-import { showSuccessToast, showErrorToast } from "../../utils/notifications";
-import Modal from "../../components/modal/Modal";
+import { useAuth } from "~/hooks/useAuth";
+import { useDataFetching } from "~/hooks/useDataFetching";
+import * as locacaoService from "~/services/locacaoService";
+import { showSuccessToast, showErrorToast } from "~/utils/notifications";
+import Modal from "~/components/modal/Modal";
 import LocacaoForm from "./LocacaoForm";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./LocacaoSalao.css";
-import "../../assets/styles/TableStyles.css";
+import "~/assets/styles/TableStyles.css";
 import { BiErrorCircle } from "react-icons/bi";
 
 const localizer = momentLocalizer(moment);

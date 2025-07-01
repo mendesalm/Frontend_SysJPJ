@@ -1,8 +1,8 @@
 // src/context/ThemeContext.jsx (CORRIGIDO)
 
-import React, { createContext, useState, useEffect } from "react"; // Removido 'useContext' daqui
+import React, { useState, useEffect, createContext } from "react";
 
-export const ThemeContext = createContext();
+export const ThemeContext = createContext(null);
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(

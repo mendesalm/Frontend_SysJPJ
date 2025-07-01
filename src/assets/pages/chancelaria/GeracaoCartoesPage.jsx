@@ -1,13 +1,13 @@
 // src/assets/pages/chancelaria/GeracaoCartoesPage.jsx
 import React, { useState, useMemo } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { useDataFetching } from "../../hooks/useDataFetching";
-import { getAllMembers } from "../../services/memberService";
-import { gerarCartao } from "../../services/chancelerService";
-import { showSuccessToast, showErrorToast } from "../../utils/notifications";
-import apiClient from "../../services/apiClient";
+import { useAuth } from "~/hooks/useAuth";
+import { useDataFetching } from "~/hooks/useDataFetching";
+import { getAllMembers } from "~/services/memberService";
+import { gerarCartao } from "~/services/chancelerService";
+import { showSuccessToast, showErrorToast } from "~/utils/notifications";
+import apiClient from "~/services/apiClient";
 import "./GeracaoCartoes.css";
-import "../../assets/styles/TableStyles.css";
+import "~/assets/styles/TableStyles.css";
 
 const GeracaoCartoesPage = () => {
   const { user } = useAuth();

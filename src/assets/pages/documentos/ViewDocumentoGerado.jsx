@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getGeneratedDocumentById } from '../../services/documentoGeradoService';
+import { getGeneratedDocumentById } from '../../../services/documentoGeradoService';
 
 const ViewDocumentoGerado = () => {
     const [documento, setDocumento] = useState(null);
