@@ -1,11 +1,10 @@
-import apiClient from "./apiClient.js";
+import apiClient from './apiClient';
 
-// Busca os detalhes de um balaústre específico pelo seu ID do BD
-export const getBalaustre = (id) => {
-  return apiClient.get(`/balaustres/${id}`);
-};
-
-// Atualiza um balaústre existente com novos dados
-export const updateBalaustre = (id, data) => {
-  return apiClient.put(`/balaustres/${id}`, data);
+export const setNextBalaustreNumber = async (nextNumber) => {
+  try {
+    const response = await apiClient.post('/balaustres/settings/next-number', { nextNumber });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };

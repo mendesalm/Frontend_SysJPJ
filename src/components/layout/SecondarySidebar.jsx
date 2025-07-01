@@ -73,14 +73,15 @@ const menuConfig = {
     items: [
       { label: "Gestão de Permissões", path: "/admin/permissions" },
       { label: "Gestão de Templates", path: "/admin/templates" },
-      { label: "Configurações Gerais", path: "#" },
+      { label: "Configurar Balaústre", path: "/admin/balaustre-settings", permission: "gerenciarConfiguracoes" },
+      { label: "Configurações Gerais", path: "/admin/general-settings" }, // TODO: Update with the correct path for general settings
     ],
     adminOnly: true,
   },
 };
 
 const SecondarySidebar = ({ activeMenu }) => {
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const finalClassName = `secondary-sidebar ${activeMenu ? "is-open" : ""}`;
 
   const isWebmaster = user?.credencialAcesso === "Webmaster";
@@ -100,9 +101,13 @@ const SecondarySidebar = ({ activeMenu }) => {
           <h3>{currentMenu.title}</h3>
           <ul className="secondary-menu">
             {currentMenu.items.map((item) => (
-              <li key={`${activeMenu}-${item.path}`}>
-                <NavLink to={item.path}>{item.label}</NavLink>
-              </li>
+              <React.Fragment key={`${activeMenu}-${item.path}`}>
+                {(!item.permission || hasPermission(item.permission)) && (
+                  <li>
+                    <NavLink to={item.path}>{item.label}</NavLink>
+                  </li>
+                )}
+              </React.Fragment>
             ))}
           </ul>
         </div>

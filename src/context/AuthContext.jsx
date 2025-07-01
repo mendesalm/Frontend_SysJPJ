@@ -60,6 +60,13 @@ export const AuthProvider = ({ children }) => {
     delete apiClient.defaults.headers.common["Authorization"];
   };
 
+  const hasPermission = useCallback((permissionKey) => {
+    if (!user || !user.permissions) {
+      return false;
+    }
+    return user.permissions.includes(permissionKey);
+  }, [user]);
+
   const value = {
     user,
     login,
@@ -67,6 +74,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!user,
     loading,
     checkUserStatus,
+    hasPermission,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

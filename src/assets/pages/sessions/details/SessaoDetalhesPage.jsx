@@ -225,7 +225,7 @@ const SessaoDetalhesPage = () => {
             />
           )}
           {activeTab === "balaustre" && (
-            <BalaustreEditor balaustre={session.Balaustre} />
+            <BalaustreEditor balaustreId={session.Balaustre?.id} />
           )}
         </div>
       </div>

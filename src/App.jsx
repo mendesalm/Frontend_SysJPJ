@@ -115,6 +115,20 @@ const GeracaoCartoesPage = lazy(() =>
   import("./assets/pages/chancelaria/GeracaoCartoesPage.jsx")
 );
 
+const DocumentosGeradosList = lazy(() =>
+  import("./assets/pages/documentos/DocumentosGeradosList.jsx")
+);
+const CreateDocumentoGerado = lazy(() =>
+  import("./assets/pages/documentos/CreateDocumentoGerado.jsx")
+);
+const ViewDocumentoGerado = lazy(() =>
+  import("./assets/pages/documentos/ViewDocumentoGerado.jsx")
+);
+
+const BalaustreSettingsPage = lazy(() =>
+  import("./assets/pages/admin/balaustre-settings/BalaustreSettings.jsx")
+);
+
 const LoadingFallback = () => (
   <div
     style={{
@@ -213,6 +227,10 @@ function App() {
                   element={<PermissionsPage />}
                 />
                 <Route
+                  path="/admin/balaustre-settings"
+                  element={<BalaustreSettingsPage />}
+                />
+                <Route
                   path="/player-harmonia"
                   element={<PlayerHarmoniaPage />}
                 />
@@ -250,6 +268,9 @@ function App() {
                 <Route path="/sessoes/:id" element={<SessaoDetalhesPage />} />
                 <Route path="/legislacoes" element={<LegislacoesPage />} />
                 <Route path="/documentos" element={<DocumentosPage />} />
+                <Route path="/documentos-gerados" element={<DocumentosGeradosList />} />
+                <Route path="/documentos-gerados/novo" element={<CreateDocumentoGerado />} />
+                <Route path="/documentos-gerados/:id" element={<ViewDocumentoGerado />} />
                 <Route path="/arquivos-diversos" element={<ArquivosPage />} />
                 <Route
                   path="*"

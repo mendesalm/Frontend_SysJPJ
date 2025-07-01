@@ -188,6 +188,60 @@ const EventCalendar = () => {
     showMore: (total) => `+ Ver mais (${total})`,
   };
 
+  // Configurações de localização para pt-BR
+  moment.locale('pt-br', {
+    months: 'Janeiro_Fevereiro_Março_Abril_Maio_Junho_Julho_Agosto_Setembro_Outubro_Novembro_Dezembro'.split('_'),
+    monthsShort: 'Jan_Fev_Mar_Abr_Mai_Jun_Jul_Ago_Set_Out_Nov_Dez'.split('_'),
+    weekdays: 'Domingo_Segunda-feira_Terça-feira_Quarta-feira_Quinta-feira_Sexta-feira_Sábado'.split('_'),
+    weekdaysShort: 'Dom_Seg_Ter_Qua_Qui_Sex_Sáb'.split('_'),
+    weekdaysMin: 'Do_2ª_3ª_4ª_5ª_6ª_Sá'.split('_'),
+    longDateFormat: {
+      LT: 'HH:mm',
+      LTS: 'HH:mm:ss',
+      L: 'DD/MM/YYYY',
+      LL: 'D [de] MMMM [de] YYYY',
+      LLL: 'D [de] MMMM [de] YYYY HH:mm',
+      LLLL: 'dddd, D [de] MMMM [de] YYYY HH:mm'
+    },
+    calendar: {
+      sameDay: '[Hoje às] LT',
+      nextDay: '[Amanhã às] LT',
+      nextWeek: 'dddd [às] LT',
+      lastDay: '[Ontem às] LT',
+      lastWeek: 'dddd [passada às] LT',
+      sameElse: 'L'
+    },
+    relativeTime: {
+      future: 'em %s',
+      past: 'há %s',
+      s: 'poucos segundos',
+      m: 'um minuto',
+      mm: '%d minutos',
+      h: 'uma hora',
+      hh: '%d horas',
+      d: 'um dia',
+      dd: '%d dias',
+      M: 'um mês',
+      MM: '%d meses',
+      y: 'um ano',
+      yy: '%d anos'
+    },
+    ordinalParse: /\d{1,2}º/,
+    ordinal: '%dº',
+    meridiemParse: /AM|PM/,
+    meridiem: function (hour, minute, isLower) {
+      if (hour < 12) {
+        return 'AM';
+      } else {
+        return 'PM';
+      }
+    },
+    week: {
+      dow: 1, // Monday is the first day of the week.
+      doy: 4  // The week that contains Jan 4th is the first week of the year.
+    }
+  });
+
   return (
     <>
       <div className="event-calendar-container">

@@ -65,7 +65,7 @@
 
 .custom-table td {
   /* Padding vertical reduzido para diminuir a altura da linha */
-  padding: 1rem 1.5rem;
+  padding: 0.5rem 1.5rem;
   color: var(--cor-texto-primario);
   border: none;
 }

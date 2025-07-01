@@ -1,0 +1,64 @@
+.balaustre-settings-container {
+  padding: 20px;
+  background-color: var(--dashboard-background);
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  color: var(--text-color);
+}
+
+.balaustre-settings-container h2 {
+  color: var(--header-color);
+  margin-bottom: 15px;
+}
+
+.balaustre-settings-container p {
+  margin-bottom: 20px;
+  color: var(--text-color-secondary);
+}
+
+.balaustre-settings-container .form-group {
+  margin-bottom: 15px;
+}
+
+.balaustre-settings-container label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.balaustre-settings-container input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--input-border-color);
+  border-radius: 4px;
+  background-color: var(--input-background);
+  color: var(--input-text-color);
+  box-sizing: border-box; /* Ensures padding doesn't increase width */
+}
+
+.balaustre-settings-container input[type="number"]:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+}
+
+.balaustre-settings-container button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.balaustre-settings-container button:hover:not(:disabled) {
+  background-color: var(--primary-color-dark);
+}
+
+.balaustre-settings-container button:disabled {
+  background-color: var(--button-disabled-background);
+  cursor: not-allowed;
+}

@@ -79,9 +79,12 @@ const MemberList = () => {
         <table className="custom-table">
           <thead>
             <tr>
-              <th>Nome Completo</th>
-              <th>Email</th>
-              <th>Status do Cadastro</th>
+              <th>Foto (thumbnail)</th>
+              <th>CIM</th>
+              <th>Nome</th>
+              <th>Grau</th>
+              <th>Cargo</th>
+              <th>Status Cadastro</th>
               <th>Credencial</th>
               <th>Ações</th>
             </tr>
@@ -89,13 +92,13 @@ const MemberList = () => {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan="5" style={{ textAlign: "center" }}>
+                <td colSpan="8" style={{ textAlign: "center" }}>
                   A carregar...
                 </td>
               </tr>
             ) : filteredMembers.length === 0 ? (
               <tr>
-                <td colSpan="5" style={{ textAlign: "center" }}>
+                <td colSpan="8" style={{ textAlign: "center" }}>
                   Nenhum membro encontrado.
                 </td>
               </tr>
@@ -108,8 +111,25 @@ const MemberList = () => {
                     member.Situacao === "Falecido" ? "deceased-row" : ""
                   }
                 >
+                  <td>
+                    {member.FotoPessoal_Caminho ? (
+                      <img
+                        src={member.FotoPessoal_Caminho.startsWith('http') ? member.FotoPessoal_Caminho : `/uploads/${member.FotoPessoal_Caminho.replace(/^(?:\/uploads\/|uploads\/)/, '')}` }
+                        alt="Foto do Membro"
+                        style={{ width: "30px", height: "30px", borderRadius: "50%" }}
+                      />
+                    ) : (
+                      <img
+                        src="/src/assets/images/avatar_placeholder.png"
+                        alt="Placeholder"
+                        style={{ width: "30px", height: "30px", borderRadius: "50%" }}
+                      />
+                    )}
+                  </td>
+                  <td>{member.CIM}</td>
                   <td>{member.NomeCompleto}</td>
-                  <td>{member.Email}</td>
+                  <td>{member.Graduacao}</td>
+                  <td>{member.cargoAtual === null || member.cargoAtual === "Sem cargo definido" ? "Obreiro" : member.cargoAtual}</td>
                   <td>
                     <span
                       className={`status-badge status-${
