@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
@@ -8,6 +8,7 @@ import {
 } from "../../../services/patrimonioService";
 import Modal from "../../../components/modal/Modal";
 import PatrimonioForm from "./PatrimonioForm";
+import PatrimonioFilter from "../../../components/filters/PatrimonioFilter";
 import "../../styles/TableStyles.css";
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
@@ -49,9 +50,16 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
 const PatrimonioPage = () => {
   // 1. Adicionando estado para paginação
   const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState({});
+
+  const handleFilterChange = useCallback((newFilters) => {
+    setFilters(newFilters);
+    setCurrentPage(1); // Reset to first page on filter change
+  }, []);
+
   const params = useMemo(
-    () => ({ page: currentPage, limit: 10 }),
-    [currentPage]
+    () => ({ page: currentPage, limit: 10, ...filters }),
+    [currentPage, filters]
   );
 
   // 2. Atualizando a chamada do hook e a extração de dados
@@ -112,6 +120,8 @@ const PatrimonioPage = () => {
 
       {fetchError && <p className="error-message">{fetchError}</p>}
 
+      <PatrimonioFilter onFilterChange={handleFilterChange} />
+
       <div className="table-responsive">
         <table className="custom-table">
           <thead>
@@ -119,6 +129,7 @@ const PatrimonioPage = () => {
               <th>Nome do Item</th>
               <th>Data de Aquisição</th>
               <th>Valor (R$)</th>
+              <th>Quantidade</th>
               <th>Estado</th>
               {canManage && <th>Ações</th>}
             </tr>
@@ -146,6 +157,7 @@ const PatrimonioPage = () => {
                     })}
                   </td>
                   <td>{parseFloat(item.valorAquisicao).toFixed(2)}</td>
+                  <td>{item.quantidade}</td>
                   <td>{item.estadoConservacao}</td>
                   {canManage && (
                     <td className="actions-cell">

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 /* global placeholder */
 import { generatePrancha, generateConvite, generateCartao } from '~/services/documentoGeradoService';
-import useAuth from '~/hooks/useAuth';
+import { useAuth } from '~/hooks/useAuth';
 
 const CreateDocumentoGerado = () => {
     const [tipo, setTipo] = useState('Prancha');

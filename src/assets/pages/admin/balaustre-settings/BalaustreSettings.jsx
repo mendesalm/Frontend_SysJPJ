@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../../hooks/useAuth';
 import { setNextBalaustreNumber } from '../../../../services/balaustreService';
-import { notifications } from '../../../../utils/notifications';
+import notifications from '../../../../utils/notifications';
 import './BalaustreSettings.css';
 
 const BalaustreSettings = () => {

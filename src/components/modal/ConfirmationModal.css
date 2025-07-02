@@ -1,0 +1,15 @@
+.confirmation-modal-content {
+  padding: 1.5rem;
+}
+
+.confirmation-modal-content p {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  color: var(--cor-texto-primario);
+}
+
+.confirmation-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}

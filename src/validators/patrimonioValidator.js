@@ -20,6 +20,13 @@ export const patrimonioValidationSchema = yup.object().shape({
     .required("O valor de aquisição é obrigatório.")
     .positive("O valor deve ser um número positivo."),
 
+  quantidade: yup
+    .number()
+    .typeError("A quantidade deve ser um número válido.")
+    .required("A quantidade é obrigatória.")
+    .integer("A quantidade deve ser um número inteiro.")
+    .min(1, "A quantidade mínima é 1."),
+
   estadoConservacao: yup
     .string()
     .required("O estado de conservação é obrigatório."),

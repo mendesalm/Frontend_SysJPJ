@@ -10,7 +10,26 @@
   max-width: 800px;
 }
 
+.locacao-content-wrapper {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  align-items: flex-start; /* Align items to the top */
+}
+
 .locacao-calendar-container {
+  flex: 2; /* Calendar takes more space */
+  min-width: 400px; /* Minimum width for calendar */
+  background: var(--cor-sidebar-primaria);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--cor-borda-sidebar);
+  margin-bottom: 3rem;
+}
+
+.locacao-form-section {
+  flex: 1; /* Form takes remaining space */
+  min-width: 300px; /* Minimum width for form */
   background: var(--cor-sidebar-primaria);
   padding: 1.5rem;
   border-radius: 12px;

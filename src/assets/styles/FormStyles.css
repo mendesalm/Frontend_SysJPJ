@@ -29,7 +29,7 @@
 /* Grid para alinhar campos em colunas */
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1.5rem;
 }
 
@@ -56,6 +56,7 @@
 .form-select {
   width: 100%;
   /* ATUALIZADO: O padding vertical foi reduzido de 12px para 8px para diminuir a altura. */
+  box-sizing: border-box; /* Garante que padding e borda sejam incluídos na largura */
   padding: 8px 15px;
   border: 1px solid var(--cor-borda-input);
   border-radius: 6px;
@@ -77,7 +78,7 @@
 
 .form-textarea {
   resize: vertical;
-  min-height: 80px; /* Altura mínima também ajustada */
+  min-height: 40px; /* Altura mínima ajustada para harmonizar */
 }
 
 .form-select[multiple] {
@@ -138,6 +139,14 @@
 }
 .btn-secondary:hover {
   background-color: #6b7280;
+}
+
+.table-filters {
+  margin-bottom: 1.5rem;
+}
+
+.table-filters .form-input {
+  max-width: 400px;
 }
 
 /* Estilos para campos inválidos */
@@ -233,7 +242,58 @@
   border-radius: 6px;
   background-color: var(--cor-fundo-app);
 }
+/* NOVOS ESTILOS PARA O FORMULÁRIO DE LIVROS */
+.livro-form-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Coluna da busca maior que a da capa */
+  gap: 2rem;
+  align-items: flex-start;
+}
 
+.isbn-search-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.isbn-search-section .form-grid {
+  display: flex;
+  gap: 1rem;
+}
+
+.search-status-message {
+  font-size: 0.8rem;
+  color: var(--cor-texto-secundario);
+  margin-top: 0.5rem;
+}
+
+.book-cover-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.book-cover-preview {
+  max-width: 150px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.book-cover-placeholder {
+  width: 150px;
+  height: 220px;
+  background-color: var(--cor-borda-input);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--cor-texto-secundario);
+  font-style: italic;
+  text-align: center;
+  border: 2px dashed var(--cor-texto-secundario);
+}
 /* Responsividade para o novo layout */
 @media (max-width: 992px) {
   .personal-fields-grid {
@@ -248,5 +308,13 @@
   }
   .personal-fields-grid {
     grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 768px) {
+  .livro-form-grid {
+    grid-template-columns: 1fr; /* Empilha em ecrãs menores */
+  }
+  .book-cover-container {
+    margin-top: 1rem;
   }
 }

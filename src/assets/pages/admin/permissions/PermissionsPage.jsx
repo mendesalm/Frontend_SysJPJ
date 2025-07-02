@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { useDataFetching } from "../../../../hooks/useDataFetching"; // 1. Importa o hook
+import React, { useState, useMemo, useEffect } from "react";
+import { useDataFetching } from "../../../../hooks/useDataFetching";
 import {
   getPermissoes,
   updatePermissao,
@@ -7,108 +7,147 @@ import {
 } from "../../../../services/permissionService";
 import { getAllCargos } from "../../../../services/cargoService";
 import Modal from "../../../../components/modal/Modal";
+import ConfirmationModal from "../../../../components/modal/ConfirmationModal";
 import "../../../../assets/styles/TableStyles.css";
 import "../../../../assets/styles/FormStyles.css";
-import { CREDENCIAIS } from "../../../../constants/userConstants"; // Usando nossa constante
+import { CREDENCIAIS } from "../../../../constants/userConstants";
 
 const PermissionsPage = () => {
-  // 2. Usando o hook para buscar as permissões
+  // 1. Busca os dados da API.
   const {
-    data: permissoes,
-    setData: setPermissoes, // Pegamos o setData para manipulação local
+    data: permissoesDaApi,
     isLoading: isLoadingPerms,
     error: errorPerms,
     refetch: refetchPerms,
   } = useDataFetching(getPermissoes);
 
-  // 3. Usando o hook uma segunda vez para buscar os cargos
   const {
     data: cargosResponse,
     isLoading: isLoadingCargos,
     error: errorCargos,
   } = useDataFetching(getAllCargos);
 
-  // Combina os estados de carregamento e erro
+  // 2. Cria um estado local para as permissões que podem ser modificadas.
+  const [localPermissoes, setLocalPermissoes] = useState([]);
+
+  // 3. Sincroniza o estado local com os dados da API quando eles chegam.
+  useEffect(() => {
+    if (permissoesDaApi) {
+      setLocalPermissoes(permissoesDaApi);
+    }
+  }, [permissoesDaApi]);
+
   const isLoading = isLoadingPerms || isLoadingCargos;
   const error = errorPerms || errorCargos;
 
-  // Usa useMemo para processar a lista de cargos apenas quando a resposta da API mudar
   const todosOsCargos = useMemo(() => {
-    if (!cargosResponse?.data) return [];
-    return cargosResponse.data.map((c) => c.NomeCargo).sort();
+    const cargosArray = Array.isArray(cargosResponse)
+      ? cargosResponse
+      : cargosResponse?.data;
+
+    if (!Array.isArray(cargosArray)) return [];
+
+    return cargosArray.map((c) => c.NomeCargo).sort();
   }, [cargosResponse]);
 
   const [successMessage, setSuccessMessage] = useState("");
   const [isCargoModalOpen, setIsCargoModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [permissionToDelete, setPermissionToDelete] = useState(null);
   const [featureEmEdicao, setFeatureEmEdicao] = useState(null);
   const [newPermission, setNewPermission] = useState({
     nomeFuncionalidade: "",
     descricao: "",
   });
   const [actionError, setActionError] = useState("");
+  const [modifiedPermissions, setModifiedPermissions] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
 
+  const filteredPermissoes = useMemo(() => {
+    if (!localPermissoes) return [];
+    return localPermissoes.filter((p) => {
+      const nome = p.nomeFuncionalidade || "";
+      const descricao = p.descricao || "";
+      return (
+        nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        descricao.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+  }, [localPermissoes, searchTerm]);
+
+  // CORREÇÃO: A função agora utiliza 'setLocalPermissoes' para atualizar o estado.
   const handleCredencialChange = (
     nomeFuncionalidade,
     credencial,
     isChecked
   ) => {
-    setPermissoes((permissoesAtuais) =>
-      permissoesAtuais.map((p) =>
-        p.nomeFuncionalidade === nomeFuncionalidade
-          ? {
-              ...p,
-              credenciaisPermitidas: isChecked
-                ? [...new Set([...(p.credenciaisPermitidas || []), credencial])]
-                : (p.credenciaisPermitidas || []).filter(
-                    (c) => c !== credencial
-                  ),
-            }
-          : p
-      )
+    setLocalPermissoes((permissoesAtuais) =>
+      permissoesAtuais.map((p) => {
+        if (p.nomeFuncionalidade === nomeFuncionalidade) {
+          const updatedCredenciais = isChecked
+            ? [...new Set([...(p.credenciaisPermitidas || []), credencial])]
+            : (p.credenciaisPermitidas || []).filter((c) => c !== credencial);
+
+          const updatedPermission = {
+            ...p,
+            credenciaisPermitidas: updatedCredenciais,
+          };
+          setModifiedPermissions((prev) => ({
+            ...prev,
+            [nomeFuncionalidade]: updatedPermission,
+          }));
+          return updatedPermission;
+        }
+        return p;
+      })
     );
   };
 
-  const handleSave = async (permissao) => {
+  const handleBulkSave = async () => {
+    const promises = Object.values(modifiedPermissions).map((p) =>
+      updatePermissao(p)
+    );
     try {
       setActionError("");
       setSuccessMessage("");
-      await updatePermissao(permissao);
-      setSuccessMessage(
-        `Permissões para "${permissao.nomeFuncionalidade}" salvas com sucesso!`
-      );
+      await Promise.all(promises);
+      setSuccessMessage("Alterações salvas com sucesso!");
+      setModifiedPermissions({});
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
-      console.error("Erro ao salvar permissão:", err);
-      setActionError(
-        `Falha ao salvar permissão para "${permissao.nomeFuncionalidade}".`
-      );
+      console.error("Erro ao salvar permissões:", err);
+      setActionError("Falha ao salvar algumas permissões.");
     }
   };
 
-  const handleDelete = async (nomeFuncionalidade) => {
-    if (
-      window.confirm(
-        `Tem a certeza que deseja deletar a funcionalidade "${nomeFuncionalidade}"?`
-      )
-    ) {
+  const handleDelete = (nomeFuncionalidade) => {
+    setPermissionToDelete(nomeFuncionalidade);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (permissionToDelete) {
       try {
         setActionError("");
         setSuccessMessage("");
-        // A API de deleção pode não estar implementada neste serviço, mas mantemos a lógica
-        await deletePermissao({ data: { nomeFuncionalidade } }); // Ajuste para enviar no corpo
+        await deletePermissao({
+          data: { nomeFuncionalidade: permissionToDelete },
+        });
         setSuccessMessage(
-          `Funcionalidade "${nomeFuncionalidade}" deletada com sucesso!`
+          `Funcionalidade "${permissionToDelete}" deletada com sucesso!`
         );
-        refetchPerms(); // 4. Atualiza a lista de permissões
+        refetchPerms();
       } catch (err) {
         console.error("Erro ao deletar permissão:", err);
         setActionError(
           err.response?.data?.message ||
-            `Falha ao deletar a funcionalidade "${nomeFuncionalidade}".`
+            `Falha ao deletar a funcionalidade "${permissionToDelete}".`
         );
       }
     }
+    setIsConfirmModalOpen(false);
+    setPermissionToDelete(null);
   };
 
   const openCargoModal = (funcionalidade) => {
@@ -125,14 +164,19 @@ const PermissionsPage = () => {
     }));
   };
 
+  // CORREÇÃO: A função agora utiliza 'setLocalPermissoes'.
   const handleSaveCargos = () => {
-    setPermissoes((permissoesAtuais) =>
+    setLocalPermissoes((permissoesAtuais) =>
       permissoesAtuais.map((p) =>
         p.nomeFuncionalidade === featureEmEdicao.nomeFuncionalidade
           ? featureEmEdicao
           : p
       )
     );
+    setModifiedPermissions((prev) => ({
+      ...prev,
+      [featureEmEdicao.nomeFuncionalidade]: featureEmEdicao,
+    }));
     setIsCargoModalOpen(false);
     setFeatureEmEdicao(null);
   };
@@ -157,7 +201,7 @@ const PermissionsPage = () => {
       );
       setIsCreateModalOpen(false);
       setNewPermission({ nomeFuncionalidade: "", descricao: "" });
-      refetchPerms(); // 4. Atualiza a lista de permissões
+      refetchPerms();
     } catch (err) {
       console.error("Erro ao criar nova permissão:", err);
       setActionError(
@@ -174,12 +218,31 @@ const PermissionsPage = () => {
     <div className="table-page-container">
       <div className="table-header">
         <h1>Gestão de Permissões</h1>
-        <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="btn-action btn-approve"
-        >
-          + Adicionar Funcionalidade
-        </button>
+        <div>
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="btn-action btn-approve"
+          >
+            + Adicionar Funcionalidade
+          </button>
+          <button
+            onClick={handleBulkSave}
+            className="btn-action btn-approve"
+            disabled={Object.keys(modifiedPermissions).length === 0}
+          >
+            Salvar Alterações
+          </button>
+        </div>
+      </div>
+
+      <div className="table-filters">
+        <input
+          type="text"
+          placeholder="Buscar por nome ou descrição..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="form-input"
+        />
       </div>
 
       {(error || actionError) && (
@@ -202,8 +265,13 @@ const PermissionsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {permissoes.map((p) => (
-              <tr key={p.id}>
+            {filteredPermissoes.map((p) => (
+              <tr
+                key={p.id}
+                className={
+                  modifiedPermissions[p.nomeFuncionalidade] ? "modified" : ""
+                }
+              >
                 <td>
                   {p.nomeFuncionalidade}
                   <span
@@ -245,12 +313,6 @@ const PermissionsPage = () => {
                   </button>
                 </td>
                 <td className="actions-cell">
-                  <button
-                    onClick={() => handleSave(p)}
-                    className="btn-action btn-approve"
-                  >
-                    Salvar
-                  </button>
                   <button
                     onClick={() => handleDelete(p.nomeFuncionalidade)}
                     className="btn-action btn-delete"
@@ -359,6 +421,14 @@ const PermissionsPage = () => {
           </div>
         </form>
       </Modal>
+
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Confirmar Exclusão"
+        message={`Tem a certeza que deseja deletar a funcionalidade "${permissionToDelete}"?`}
+      />
     </div>
   );
 };

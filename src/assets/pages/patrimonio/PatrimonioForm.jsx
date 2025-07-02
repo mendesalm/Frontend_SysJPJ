@@ -17,6 +17,7 @@ const PatrimonioForm = ({ itemToEdit, onSave, onCancel }) => {
       descricao: "",
       dataAquisicao: "",
       valorAquisicao: "",
+      quantidade: 1,
       estadoConservacao: "Bom",
       localizacao: "",
     },
@@ -101,9 +102,20 @@ const PatrimonioForm = ({ itemToEdit, onSave, onCancel }) => {
             </p>
           )}
         </div>
-      </div>
 
-      <div className="form-grid">
+        <div className="form-group">
+          <label htmlFor="quantidade">Quantidade</label>
+          <input
+            id="quantidade"
+            type="number"
+            {...register("quantidade")}
+            className={`form-input ${errors.quantidade ? "is-invalid" : ""}`}
+          />
+          {errors.quantidade && (
+            <p className="form-error-message">{errors.quantidade.message}</p>
+          )}
+        </div>
+
         <div className="form-group">
           <label htmlFor="estadoConservacao">Estado de Conservação</label>
           <select
@@ -124,19 +136,19 @@ const PatrimonioForm = ({ itemToEdit, onSave, onCancel }) => {
             </p>
           )}
         </div>
+      </div>
 
-        <div className="form-group">
-          <label htmlFor="localizacao">Localização</label>
-          <input
-            id="localizacao"
-            type="text"
-            {...register("localizacao")}
-            className={`form-input ${errors.localizacao ? "is-invalid" : ""}`}
-          />
-          {errors.localizacao && (
-            <p className="form-error-message">{errors.localizacao.message}</p>
-          )}
-        </div>
+      <div className="form-group">
+        <label htmlFor="patrimonioLocalizacao">Localização</label>
+        <textarea
+          id="patrimonioLocalizacao"
+          rows="3"
+          {...register("localizacao")}
+          className={`form-textarea ${errors.localizacao ? "is-invalid" : ""}`}
+        />
+        {errors.localizacao && (
+          <p className="form-error-message">{errors.localizacao.message}</p>
+        )}
       </div>
 
       <div className="form-actions">

@@ -58,6 +58,11 @@
   transition: all 0.2s ease-in-out;
 }
 
+.custom-table tbody tr.modified {
+  background: linear-gradient(145deg, #3a4f6e, #2e3f56);
+  box-shadow: 7px 7px 14px #252e3c, -7px -7px 14px #354054, inset 0 0 5px rgba(255, 255, 255, 0.1);
+}
+
 .custom-table tbody tr:hover {
   box-shadow: 4px 4px 10px #252e3c, -4px -4px 10px #354054;
   transform: translateY(2px);

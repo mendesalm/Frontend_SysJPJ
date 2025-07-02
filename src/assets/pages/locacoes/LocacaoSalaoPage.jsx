@@ -8,6 +8,7 @@ import Modal from "~/components/modal/Modal";
 import LocacaoForm from "./LocacaoForm";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
+import "moment/locale/pt-br"; // Import the pt-br locale
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./LocacaoSalao.css";
 import "~/assets/styles/TableStyles.css";
@@ -19,7 +20,6 @@ const LocacaoSalaoPage = () => {
   const { user } = useAuth();
   const [date, setDate] = useState(new Date());
   const [eventosCalendario, setEventosCalendario] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // CORREÇÃO: A variável 'error' (renomeada para 'locacoesError') agora é capturada.
   const {
@@ -119,41 +119,45 @@ const LocacaoSalaoPage = () => {
     <div className="locacao-page-container">
       <div className="table-header">
         <h1>Locação do Salão de Festas</h1>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn btn-primary"
-        >
-          + Solicitar Reserva
-        </button>
       </div>
 
       <p className="page-description">
         Consulte a disponibilidade no calendário abaixo. As datas em azul estão
-        ocupadas. Clique no botão acima para iniciar uma nova solicitação de
-        reserva.
+        ocupadas. Preencha o formulário ao lado para solicitar uma nova reserva.
       </p>
 
-      <div className="locacao-calendar-container">
-        <Calendar
-          localizer={localizer}
-          events={eventosCalendario}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: 500 }}
-          messages={{
-            today: "Hoje",
-            previous: "Anterior",
-            next: "Próximo",
-            month: "Mês",
-            week: "Semana",
-            day: "Dia",
-            agenda: "Agenda",
-            noEventsInRange: "Nenhuma data ocupada neste período.",
-          }}
-          onNavigate={handleNavigate}
-          date={date}
-          views={["month"]}
-        />
+      <div className="locacao-content-wrapper">
+        <div className="locacao-calendar-container">
+          <Calendar
+            localizer={localizer}
+            events={eventosCalendario}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: 500 }}
+            messages={{
+              today: "Hoje",
+              previous: "Anterior",
+              next: "Próximo",
+              month: "Mês",
+              week: "Semana",
+              day: "Dia",
+              agenda: "Agenda",
+              noEventsInRange: "Nenhuma data ocupada neste período.",
+            }}
+            onNavigate={handleNavigate}
+            date={date}
+            views={["month"]}
+            culture="pt-br"
+          />
+        </div>
+
+        <div className="locacao-form-section">
+          <h2>Solicitar Reserva do Salão de Festas</h2>
+          <LocacaoForm
+            onSave={handleSave}
+            onCancel={() => { /* No-op as form is always visible */ }}
+          />
+        </div>
       </div>
 
       {canManage && (
@@ -245,17 +249,6 @@ const LocacaoSalaoPage = () => {
           </div>
         </div>
       )}
-
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Solicitar Reserva do Salão de Festas"
-      >
-        <LocacaoForm
-          onSave={handleSave}
-          onCancel={() => setIsModalOpen(false)}
-        />
-      </Modal>
     </div>
   );
 };
