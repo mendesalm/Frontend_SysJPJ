@@ -6,7 +6,7 @@ import { searchBookByISBN } from "../../../services/bibliotecaService";
 import { FaSearch } from "react-icons/fa";
 import "../../../assets/styles/FormStyles.css";
 
-const LivroForm = ({ livro, onSave, onCancel }) => {
+const LivroForm = ({ livroToEdit, onSave, onCancel }) => {
   const {
     register,
     handleSubmit,
@@ -25,13 +25,20 @@ const LivroForm = ({ livro, onSave, onCancel }) => {
   const isbnValue = watch("isbn");
 
   useEffect(() => {
-    if (livro) {
-      reset(livro);
-      if (livro.capaUrl) {
-        setCapaUrl(livro.capaUrl);
+    if (livroToEdit) {
+      reset({
+        ...livroToEdit,
+        descricao: livroToEdit.observacoes || livroToEdit.descricao,
+      });
+      if (livroToEdit.capaUrl) {
+        setCapaUrl(livroToEdit.capaUrl);
       }
+    } else {
+      // Limpa o formulário e a capa se não houver livro para editar
+      reset();
+      setCapaUrl(null);
     }
-  }, [livro, reset]);
+  }, [livroToEdit, reset]);
 
   const handleIsbnSearch = async () => {
     if (!isbnValue) {
@@ -45,7 +52,7 @@ const LivroForm = ({ livro, onSave, onCancel }) => {
       const bookData = await searchBookByISBN(isbnValue);
 
       setValue("titulo", bookData.titulo, { shouldValidate: true });
-      setValue("autor", bookData.autor, { shouldValidate: true });
+      setValue("autores", bookData.autores, { shouldValidate: true });
       setValue("editora", bookData.editora, { shouldValidate: true });
       setValue("anoPublicacao", bookData.anoPublicacao, {
         shouldValidate: true,
@@ -64,8 +71,12 @@ const LivroForm = ({ livro, onSave, onCancel }) => {
     }
   };
 
+  const onSubmit = (formData) => {
+    onSave({ ...formData, capaUrl });
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSave)} className="form-container">
+    <form onSubmit={handleSubmit(onSubmit)} className="form-container">
       <fieldset className="form-fieldset">
         <legend>Busca Automática por ISBN</legend>
         <div className="livro-form-grid">
@@ -123,13 +134,13 @@ const LivroForm = ({ livro, onSave, onCancel }) => {
       </div>
 
       <div className="form-group">
-        <label>Autor</label>
+        <label>Autor(es)</label>
         <input
-          {...register("autor")}
-          className={`form-input ${errors.autor ? "is-invalid" : ""}`}
+          {...register("autores")}
+          className={`form-input ${errors.autores ? "is-invalid" : ""}`}
         />
-        {errors.autor && (
-          <p className="form-error-message">{errors.autor.message}</p>
+        {errors.autores && (
+          <p className="form-error-message">{errors.autores.message}</p>
         )}
       </div>
 
@@ -145,6 +156,29 @@ const LivroForm = ({ livro, onSave, onCancel }) => {
             {...register("anoPublicacao")}
             className="form-input"
           />
+        </div>
+        <div className="form-group">
+          <label>Número de Páginas</label>
+          <input
+            type="number"
+            {...register("numeroPaginas")}
+            className="form-input"
+          />
+        </div>
+        <div className="form-group">
+          <label>Classificação</label>
+          <select
+            {...register("classificacao")}
+            className={`form-input ${errors.classificacao ? "is-invalid" : ""}`}
+          >
+            <option value="">Selecione...</option>
+            <option value="Aprendiz">Aprendiz</option>
+            <option value="Companheiro">Companheiro</option>
+            <option value="Mestre">Mestre</option>
+          </select>
+          {errors.classificacao && (
+            <p className="form-error-message">{errors.classificacao.message}</p>
+          )}
         </div>
       </div>
 

@@ -57,7 +57,10 @@ const menuConfig = {
   },
   "menu-biblioteca": {
     title: "Biblioteca",
-    items: [{ label: "Acervo", path: "/biblioteca" }],
+    items: [
+      { label: "Acervo", path: "/biblioteca" },
+      { label: "Gerir Solicitações", path: "/admin/biblioteca/solicitacoes" },
+    ],
   },
   "menu-harmonia": {
     title: "Harmonia",
@@ -73,7 +76,11 @@ const menuConfig = {
     items: [
       { label: "Gestão de Permissões", path: "/admin/permissions" },
       { label: "Gestão de Templates", path: "/admin/templates" },
-      { label: "Configurar Balaústre", path: "/admin/balaustre-settings", permission: "gerenciarConfiguracoes" },
+      {
+        label: "Configurar Balaústre",
+        path: "/admin/balaustre-settings",
+        permission: "gerenciarConfiguracoes",
+      },
       { label: "Configurações Gerais", path: "/admin/general-settings" }, // TODO: Update with the correct path for general settings
     ],
     adminOnly: true,

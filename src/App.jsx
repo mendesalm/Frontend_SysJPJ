@@ -128,6 +128,9 @@ const ViewDocumentoGerado = lazy(() =>
 const BalaustreSettingsPage = lazy(() =>
   import("./assets/pages/admin/balaustre-settings/BalaustreSettings.jsx")
 );
+const GestaoSolicitacoesPage = lazy(() =>
+  import("./assets/pages/biblioteca/GestaoSolicitacoesPage.jsx")
+);
 
 const LoadingFallback = () => (
   <div
@@ -251,6 +254,11 @@ function App() {
                   element={<GestaoVisitacoesPage />}
                 />
                 <Route
+                  path="/admin/biblioteca/solicitacoes"
+                  element={<GestaoSolicitacoesPage />}
+                />
+
+                <Route
                   path="/minhas-visitacoes"
                   element={<MinhasVisitasPage />}
                 />
@@ -268,9 +276,19 @@ function App() {
                 <Route path="/sessoes/:id" element={<SessaoDetalhesPage />} />
                 <Route path="/legislacoes" element={<LegislacoesPage />} />
                 <Route path="/documentos" element={<DocumentosPage />} />
-                <Route path="/documentos-gerados" element={<DocumentosGeradosList />} />
-                <Route path="/documentos-gerados/novo" element={<CreateDocumentoGerado />} />
-                <Route path="/documentos-gerados/:id" element={<ViewDocumentoGerado />} />
+                <Route
+                  path="/documentos-gerados"
+                  element={<DocumentosGeradosList />}
+                />
+                <Route
+                  path="/documentos-gerados/novo"
+                  element={<CreateDocumentoGerado />}
+                />
+                <Route
+                  path="/documentos-gerados/:id"
+                  element={<ViewDocumentoGerado />}
+                />
+
                 <Route path="/arquivos-diversos" element={<ArquivosPage />} />
                 <Route
                   path="*"

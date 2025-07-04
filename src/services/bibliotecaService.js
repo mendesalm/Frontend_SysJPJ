@@ -1,35 +1,44 @@
 import apiClient from "./apiClient";
 import axios from "axios"; // Importa o axios diretamente para chamadas externas
 
-// --- Funções existentes ---
-export const getLivros = () => {
-  return apiClient.get("/biblioteca/livros");
+// --- Livros (Acervo) ---
+export const getLivros = (params) =>
+  apiClient.get("/biblioteca", { params: { ...params, withHistorico: true } });
+export const createLivro = (livroData) =>
+  apiClient.post("/biblioteca", livroData);
+export const updateLivro = (id, livroData) =>
+  apiClient.put(`/biblioteca/${id}`, livroData);
+export const deleteLivro = (id) => apiClient.delete(`/biblioteca/${id}`);
+
+// --- Empréstimos ---
+export const registrarEmprestimo = (emprestimoData) => {
+  // emprestimoData = { livroId, membroId, dataDevolucaoPrevista }
+  return apiClient.post("/emprestimos", emprestimoData);
 };
 
-export const getEmprestimos = () => {
-  return apiClient.get("/biblioteca/emprestimos");
+export const registrarDevolucao = (emprestimoId) => {
+  return apiClient.put(`/emprestimos/${emprestimoId}/devolver`);
 };
 
-export const createLivro = (data) => {
-  return apiClient.post("/biblioteca/livros", data);
+export const reservarLivro = (livroId) => {
+  return apiClient.post(`/biblioteca/${livroId}/reservas`);
+};
+export const solicitarEmprestimo = (livroId) => {
+  return apiClient.post("/biblioteca/solicitar-emprestimo", { livroId });
 };
 
-export const updateLivro = (id, data) => {
-  return apiClient.put(`/biblioteca/livros/${id}`, data);
+// 2. Rotas para Gestão (Admin)
+export const getSolicitacoesPendentes = () => {
+  return apiClient.get("/biblioteca/solicitacoes");
 };
 
-export const deleteLivro = (id) => {
-  return apiClient.delete(`/biblioteca/livros/${id}`);
+export const aprovarSolicitacao = (solicitacaoId) => {
+  return apiClient.put(`/biblioteca/solicitacoes/${solicitacaoId}/aprovar`);
 };
 
-export const createEmprestimo = (data) => {
-  return apiClient.post("/biblioteca/emprestimos", data);
+export const rejeitarSolicitacao = (solicitacaoId) => {
+  return apiClient.put(`/biblioteca/solicitacoes/${solicitacaoId}/rejeitar`);
 };
-
-export const devolverLivro = (emprestimoId) => {
-  return apiClient.put(`/biblioteca/emprestimos/${emprestimoId}/devolver`);
-};
-
 /**
  * Busca dados de um livro na Google Books API usando o ISBN.
  * @param {string} isbn - O ISBN do livro.
@@ -45,7 +54,7 @@ export const searchBookByISBN = async (isbn) => {
       const bookData = response.data.items[0].volumeInfo;
       return {
         titulo: bookData.title || "",
-        autor: bookData.authors ? bookData.authors.join(", ") : "",
+        autores: bookData.authors ? bookData.authors.join(", ") : "",
         editora: bookData.publisher || "",
         anoPublicacao: bookData.publishedDate
           ? bookData.publishedDate.substring(0, 4)
@@ -64,3 +73,8 @@ export const searchBookByISBN = async (isbn) => {
     );
   }
 };
+
+// --- Funções de validação (se existirem, devem ser movidas para um arquivo de validação) ---
+// Exemplo:
+// export const validateLivro = (livro) => { ... };
+// export const validateEmprestimo = (emprestimo) => { ... };

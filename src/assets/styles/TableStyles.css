@@ -19,6 +19,18 @@
   color: var(--cor-texto-primario);
 }
 
+.table-search {
+  flex-grow: 0.5; /* Permite que o campo de busca cresça */
+}
+
+.table-search .form-input {
+  width: 100%;
+  max-width: 400px; /* Limita a largura máxima do campo */
+  background-color: #3a475a; /* Cor de fundo um pouco mais clara */
+  border: 1px solid #4a5568;
+  color: var(--cor-texto-primario);
+}
+
 /* ATUALIZADO: O container da tabela agora tem o fundo e a sombra interna do Neumorfismo */
 .table-responsive {
   overflow-x: auto;
@@ -60,7 +72,8 @@
 
 .custom-table tbody tr.modified {
   background: linear-gradient(145deg, #3a4f6e, #2e3f56);
-  box-shadow: 7px 7px 14px #252e3c, -7px -7px 14px #354054, inset 0 0 5px rgba(255, 255, 255, 0.1);
+  box-shadow: 7px 7px 14px #252e3c, -7px -7px 14px #354054,
+    inset 0 0 5px rgba(255, 255, 255, 0.1);
 }
 
 .custom-table tbody tr:hover {
@@ -87,6 +100,31 @@
 }
 
 /* --- Estilos para Células Específicas (mantidos) --- */
+
+/* Adicionado para a capa do livro */
+.cover-cell {
+  width: 80px; /* Largura fixa para a coluna da capa */
+  text-align: center;
+}
+
+.cover-thumbnail {
+  max-width: 60px; /* Largura máxima da imagem */
+  height: auto;
+  border-radius: 4px; /* Cantos arredondados para a imagem */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+}
+
+.cover-placeholder {
+  width: 60px;
+  height: 80px; /* Altura similar à de uma capa de livro */
+  background-color: #4a5568; /* Cor de fundo para o placeholder */
+  color: #a0aec0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
 .actions-cell {
   white-space: nowrap;
   display: flex;
@@ -176,4 +214,8 @@
 
 .custom-table tbody tr.deceased-row .btn-action {
   pointer-events: none;
+}
+
+.custom-table tbody tr {
+  transition: background-color 0.2s ease-in;
 }

@@ -1,6 +1,6 @@
 // src/assets/pages/chancelaria/GeracaoCartoesPage.jsx
 import React, { useState, useMemo } from "react";
-import { useAuth } from "~/hooks/useAuth";
+
 import { useDataFetching } from "~/hooks/useDataFetching";
 import { getAllMembers } from "~/services/memberService";
 import { gerarCartao } from "~/services/chancelerService";
@@ -10,27 +10,49 @@ import "./GeracaoCartoes.css";
 import "~/assets/styles/TableStyles.css";
 
 const GeracaoCartoesPage = () => {
-  const { user } = useAuth();
+  
   const { data: members, isLoading, error } = useDataFetching(getAllMembers);
   const [isGenerating, setIsGenerating] = useState(null); // Controla o estado de loading de cada botão
 
-  const canGenerate = user?.permissoes?.some(
-    (p) => p.nomeFuncionalidade === "gerenciarCartoesAniversario"
-  );
+  
 
   // CORREÇÃO: Os hooks useMemo foram movidos para o topo do componente, antes de qualquer retorno condicional.
-  const allFamiliares = useMemo(() => {
+  // Helper function to calculate the next upcoming birthday
+  const getNextBirthday = (dateString) => {
+    const today = new Date();
+    const [_, month, day] = dateString.split('-').map(Number);
+    let birthdayThisYear = new Date(today.getFullYear(), month - 1, day);
+
+    if (birthdayThisYear < today) {
+      birthdayThisYear = new Date(today.getFullYear() + 1, month - 1, day);
+    }
+    return birthdayThisYear;
+  };
+
+  const sortedActiveMembers = useMemo(() => {
     if (!members) return [];
-    return members.flatMap((m) =>
-      m.familiares
-        .filter((f) => !f.falecido)
-        .map((f) => ({ ...f, membroNome: m.NomeCompleto }))
-    );
+    return members
+      .filter((m) => m.Situacao === "Ativo")
+      .sort((a, b) => {
+        const nextBirthdayA = getNextBirthday(a.DataNascimento);
+        const nextBirthdayB = getNextBirthday(b.DataNascimento);
+        return nextBirthdayA - nextBirthdayB;
+      });
   }, [members]);
 
-  const activeMembers = useMemo(() => {
+  const sortedAllFamiliares = useMemo(() => {
     if (!members) return [];
-    return members.filter((m) => m.Situacao === "Ativo");
+    const familiares = members.flatMap(
+      (m) =>
+        (m.familiares || [])
+          .filter((f) => !f.falecido)
+          .map((f) => ({ ...f, membroNome: m.NomeCompleto }))
+    );
+    return familiares.sort((a, b) => {
+      const nextBirthdayA = getNextBirthday(a.dataNascimento);
+      const nextBirthdayB = getNextBirthday(b.dataNascimento);
+      return nextBirthdayA - nextBirthdayB;
+    });
   }, [members]);
 
   const handleGenerateClick = async (id, type) => {
@@ -57,14 +79,7 @@ const GeracaoCartoesPage = () => {
     }
   };
 
-  if (!canGenerate) {
-    return (
-      <div className="table-page-container">
-        <h1>Acesso Negado</h1>
-        <p>Você não tem permissão para aceder a esta funcionalidade.</p>
-      </div>
-    );
-  }
+  
 
   return (
     <div className="geracao-cartoes-page">
@@ -101,11 +116,12 @@ const GeracaoCartoesPage = () => {
                     </td>
                   </tr>
                 )}
-                {activeMembers.map((member) => (
+                
+                  {sortedActiveMembers.map((member) => (
                   <tr key={`member-${member.id}`}>
                     <td>{member.NomeCompleto}</td>
                     <td>
-                      {new Date(member.DataNascimento).toLocaleDateString()}
+                      {new Date(member.DataNascimento + 'T00:00:00').toLocaleDateString()}
                     </td>
                     <td>
                       <button
@@ -142,12 +158,12 @@ const GeracaoCartoesPage = () => {
                     <td colSpan="4">A carregar familiares...</td>
                   </tr>
                 )}
-                {allFamiliares.map((familiar) => (
+                {sortedAllFamiliares.map((familiar) => (
                   <tr key={`familiar-${familiar.id}`}>
                     <td>{familiar.nomeCompleto}</td>
                     <td>{familiar.membroNome}</td>
                     <td>
-                      {new Date(familiar.dataNascimento).toLocaleDateString()}
+                      {new Date(familiar.dataNascimento + 'T00:00:00').toLocaleDateString()}
                     </td>
                     <td>
                       <button

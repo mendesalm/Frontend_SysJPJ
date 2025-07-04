@@ -1,0 +1,178 @@
+/* Container geral da página para permitir o controle do scroll */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(
+    100vh - 4rem
+  ); /* Altura da viewport menos o padding do layout principal */
+}
+
+/* Cabeçalho fixo no topo da página */
+.page-header {
+  padding: 1rem 1.5rem;
+  background-color: var(--cor-fundo-app);
+  border-bottom: 1px solid var(--cor-borda-sidebar);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.page-header h1 {
+  margin: 0 0 1rem 0;
+}
+
+.header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header-controls .form-input {
+  max-width: 500px;
+}
+
+/* Conteúdo principal que contém a tabela e o card de detalhes */
+.biblioteca-main-content {
+  display: grid;
+  grid-template-columns: 3fr 1fr; /* Layout para ecrãs grandes */
+  gap: 1.5rem;
+  padding: 1.5rem;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.table-container {
+  overflow-y: auto; /* Apenas esta área terá scroll vertical */
+  height: 100%;
+}
+
+.detalhes-sidebar {
+  position: sticky;
+  top: 1rem; /* Alinhado ao topo do seu contentor */
+}
+
+/* Estilos do card de detalhes */
+.livro-detalhes-card {
+  background: var(--cor-sidebar-primaria);
+  border: 1px solid var(--cor-borda-sidebar);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: var(--cor-texto-primario);
+  min-height: 400px;
+  max-height: calc(
+    100vh - 180px
+  ); /* Garante que o card não ultrapasse a tela */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- INÍCIO DAS REGRAS DE RESPONSIVIDADE --- */
+
+/* Para tablets e ecrãs menores (até 1024px) */
+@media (max-width: 1024px) {
+  .biblioteca-main-content {
+    grid-template-columns: 1fr; /* Layout de coluna única */
+  }
+
+  .detalhes-sidebar {
+    position: static; /* Remove a posição fixa */
+    margin-top: 2rem; /* Adiciona espaço acima do card */
+  }
+}
+
+/* Para telemóveis (até 768px) */
+@media (max-width: 768px) {
+  .page-container {
+    height: auto; /* Permite que o conteúdo cresça */
+  }
+
+  .page-header {
+    position: static; /* Cabeçalho deixa de ser fixo */
+  }
+
+  .header-controls {
+    flex-direction: column; /* Empilha os controlos */
+    align-items: stretch; /* Estica os controlos para ocupar a largura */
+  }
+
+  .header-controls .form-input {
+    max-width: 100%;
+  }
+
+  .biblioteca-main-content {
+    padding: 1rem;
+  }
+}
+
+/* --- FIM DAS REGRAS DE RESPONSIVIDADE --- */
+
+/* Estilos genéricos do card (sem alterações) */
+.livro-detalhes-card.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-style: italic;
+  color: var(--cor-texto-secundario);
+}
+.livro-detalhes-card .card-content {
+  flex-grow: 1;
+}
+.livro-detalhes-card h3 {
+  margin-top: 0;
+  font-size: var(--font-size-xl);
+  color: var(--cor-texto-cabecalho);
+  margin-bottom: 1rem;
+}
+.livro-detalhes-card p {
+  margin: 0.5rem 0;
+  font-size: var(--font-size-sm);
+  color: var(--cor-texto-secundario);
+}
+.livro-capa {
+  width: 120px;
+  height: auto;
+  float: left;
+  margin: 0 1.5rem 1rem 0;
+  border-radius: 8px;
+}
+.livro-detalhes-card .card-actions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--cor-borda-sidebar);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.livro-detalhes-card .btn-action {
+  flex-grow: 1;
+}
+
+.custom-table tbody tr:hover {
+  background-color: var(--cor-fundo-hover-sidebar);
+  cursor: pointer;
+}
+
+.btn-devolver {
+  background-color: #f59e0b;
+  color: #1f2937;
+}
+.btn-reservar {
+  background-color: #10b981;
+  color: white;
+}
+.btn-solicitar {
+  background-color: #3b82f6; /* Azul */
+  color: white;
+}
+
+/* Novo estilo para a mensagem de status da solicitação */
+.solicitacao-status-text {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--cor-active-icon); /* Usa a cor de destaque do tema */
+  text-align: center;
+  width: 100%;
+}

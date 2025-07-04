@@ -1,21 +1,148 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useDataFetching } from "../../../hooks/useDataFetching";
 import {
   getLivros,
   createLivro,
   updateLivro,
+  deleteLivro,
   registrarEmprestimo,
   registrarDevolucao,
   reservarLivro,
-} from "../../../services/bibliotecaService";
+  solicitarEmprestimo, // Importa a nova função
+} from "../../../services/bibliotecaService.js";
 import Modal from "../../../components/modal/Modal";
 import LivroForm from "./LivroForm";
 import EmprestimoForm from "./EmprestimoForm";
 import "../../styles/TableStyles.css";
-
-// 1. IMPORTAMOS AS NOSSAS FUNÇÕES DE NOTIFICAÇÃO
+import "./BibliotecaPage.css";
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
+import apiClient from "../../../services/apiClient";
+
+// Card de Detalhes atualizado para o novo fluxo
+const LivroDetalhesCard = ({
+  livro,
+  canManageLibrary,
+  user, // Recebe o objeto do utilizador para verificar solicitações
+  onEmprestar,
+  onDevolver,
+  onEditar,
+  onDeletar,
+  onReservar,
+  onSolicitar, // Nova prop para a função de solicitar
+}) => {
+  if (!livro) {
+    return (
+      <div className="livro-detalhes-card placeholder">
+        <p>
+          Passe o mouse sobre um livro na tabela para ver os detalhes e as
+          ações.
+        </p>
+      </div>
+    );
+  }
+
+  // Verifica se o próprio utilizador já tem uma solicitação para este livro
+  const minhaSolicitacaoPendente = livro.historicoEmprestimos?.find(
+    (e) => e.membroId === user.id && e.status === "solicitado"
+  );
+
+  const getCapaUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith("http")) {
+      return path;
+    }
+    const baseURL = apiClient.defaults.baseURL.startsWith("http")
+      ? apiClient.defaults.baseURL
+      : window.location.origin;
+    return `${baseURL}/${path}`.replace("/api/", "/");
+  };
+
+  const capaUrl = getCapaUrl(livro.capaUrl);
+
+  return (
+    <div className="livro-detalhes-card">
+      <div className="card-content">
+        {capaUrl && (
+          <img
+            src={capaUrl}
+            alt={`Capa de ${livro.titulo}`}
+            className="livro-capa"
+          />
+        )}
+        <h3>{livro.titulo}</h3>
+        <p>
+          <strong>Autor(es):</strong> {livro.autores || "Não informado"}
+        </p>
+        <p>
+          <strong>Classificação:</strong>{" "}
+          {livro.classificacao || "Não informada"}
+        </p>
+        <p className="livro-descricao">
+          {livro.descricao || "Nenhuma descrição disponível."}
+        </p>
+      </div>
+      <div className="card-actions">
+        {/* Lógica de botões atualizada */}
+        {livro.status === "Disponível" &&
+          !canManageLibrary &&
+          !minhaSolicitacaoPendente && (
+            <button
+              onClick={() => onSolicitar(livro.id)}
+              className="btn-action btn-solicitar"
+            >
+              Solicitar Empréstimo
+            </button>
+          )}
+        {minhaSolicitacaoPendente && (
+          <p className="solicitacao-status-text">
+            Sua solicitação para este livro está pendente.
+          </p>
+        )}
+        {livro.status === "Disponível" && canManageLibrary && (
+          <button
+            onClick={() => onEmprestar(livro)}
+            className="btn-action btn-approve"
+          >
+            Emprestar
+          </button>
+        )}
+        {livro.status === "Emprestado" && canManageLibrary && (
+          <button
+            onClick={() => onDevolver(livro)}
+            className="btn-action btn-devolver"
+          >
+            Devolver
+          </button>
+        )}
+        {livro.status === "Emprestado" && !canManageLibrary && (
+          <button
+            onClick={() => onReservar(livro.id)}
+            className="btn-action btn-reservar"
+          >
+            Reservar
+          </button>
+        )}
+        {canManageLibrary && (
+          <>
+            <button
+              onClick={() => onEditar(livro)}
+              className="btn-action btn-edit"
+            >
+              Editar
+            </button>
+            <button
+              onClick={() => onDeletar(livro.id, livro.titulo)}
+              className="btn-action btn-delete"
+            >
+              Excluir
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const BibliotecaPage = () => {
   const {
@@ -24,21 +151,56 @@ const BibliotecaPage = () => {
     error: fetchError,
     refetch,
   } = useDataFetching(getLivros);
-
-  // 2. O ESTADO DE ERRO PARA AÇÕES NÃO É MAIS NECESSÁRIO
-  // const [actionError, setActionError] = useState('');
-
+  const [hoveredLivro, setHoveredLivro] = useState(null);
   const { user } = useAuth();
-
   const [isLivroModalOpen, setIsLivroModalOpen] = useState(false);
   const [isEmprestimoModalOpen, setIsEmprestimoModalOpen] = useState(false);
   const [currentLivro, setCurrentLivro] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const livrosComCapaUrl = useMemo(() => {
+    if (!livros) return [];
+    return livros.map((livro) => ({ ...livro, capaUrl: livro.path }));
+  }, [livros]);
+
+  const livrosFiltrados = useMemo(() => {
+    if (!searchTerm) return livrosComCapaUrl;
+    return livrosComCapaUrl.filter(
+      (livro) =>
+        livro.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        livro.autores.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (livro.classificacao &&
+          livro.classificacao.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [livrosComCapaUrl, searchTerm]);
 
   const canManageLibrary =
     user?.credencialAcesso === "Diretoria" ||
     user?.credencialAcesso === "Webmaster";
 
-  const handleSaveLivro = async (formData) => {
+  // Nova função para lidar com a solicitação
+  const handleSolicitarEmprestimo = async (livroId) => {
+    try {
+      await solicitarEmprestimo(livroId);
+      showSuccessToast("Solicitação enviada com sucesso! Aguarde a aprovação.");
+      refetch(); // Atualiza os dados para refletir o novo estado de solicitação
+    } catch (err) {
+      showErrorToast(
+        err.response?.data?.message ||
+          "Não foi possível solicitar o empréstimo."
+      );
+    }
+  };
+
+  const handleSaveLivro = async (dataToSave) => {
+    const formData = new FormData();
+    Object.keys(dataToSave).forEach((key) => {
+      if (key === "capa" && dataToSave.capa && dataToSave.capa[0]) {
+        formData.append("capa", dataToSave.capa[0]);
+      } else if (dataToSave[key] != null) {
+        formData.append(key, dataToSave[key]);
+      }
+    });
     try {
       const isUpdating = !!(currentLivro && currentLivro.id);
       if (isUpdating) {
@@ -48,13 +210,11 @@ const BibliotecaPage = () => {
       }
       refetch();
       setIsLivroModalOpen(false);
-      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
       showSuccessToast(
         `Livro ${isUpdating ? "atualizado" : "adicionado"} com sucesso!`
       );
     } catch (err) {
       console.error("Erro ao salvar o livro:", err);
-      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
       showErrorToast(err.response?.data?.message || "Erro ao salvar o livro.");
     }
   };
@@ -64,11 +224,9 @@ const BibliotecaPage = () => {
       await registrarEmprestimo(emprestimoData);
       refetch();
       setIsEmprestimoModalOpen(false);
-      // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
       showSuccessToast("Empréstimo registrado com sucesso!");
     } catch (err) {
       console.error("Erro ao registar empréstimo:", err);
-      // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
       showErrorToast(
         err.response?.data?.message || "Erro ao registar o empréstimo."
       );
@@ -80,7 +238,6 @@ const BibliotecaPage = () => {
       (e) => e.dataDevolucaoReal === null
     );
     if (!emprestimoAtivo) {
-      // O alert aqui é aceitável pois é um erro de lógica/validação, não de API.
       alert(
         "Erro: Não foi possível encontrar um empréstimo ativo para este livro."
       );
@@ -90,13 +247,28 @@ const BibliotecaPage = () => {
       try {
         await registrarDevolucao(emprestimoAtivo.id);
         refetch();
-        // 3. ADICIONAMOS A NOTIFICAÇÃO DE SUCESSO
         showSuccessToast("Devolução registrada com sucesso!");
+        setHoveredLivro(null);
       } catch (err) {
         console.error("Erro ao registar devolução:", err);
-        // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
         showErrorToast(
           err.response?.data?.message || "Erro ao registar a devolução."
+        );
+      }
+    }
+  };
+
+  const handleDeleteLivro = async (id, titulo) => {
+    if (window.confirm(`Tem certeza que deseja excluir o livro "${titulo}"?`)) {
+      try {
+        await deleteLivro(id);
+        refetch();
+        showSuccessToast("Livro excluído com sucesso!");
+        setHoveredLivro(null);
+      } catch (err) {
+        console.error("Erro ao excluir livro:", err);
+        showErrorToast(
+          err.response?.data?.message || "Erro ao excluir o livro."
         );
       }
     }
@@ -107,11 +279,9 @@ const BibliotecaPage = () => {
       try {
         await reservarLivro(livroId);
         refetch();
-        // 3. SUBSTITUÍMOS O alert() PELA NOTIFICAÇÃO DE SUCESSO
         showSuccessToast("Reserva realizada com sucesso!");
       } catch (err) {
         console.error("Erro ao realizar reserva:", err);
-        // 4. SUBSTITUÍMOS O ESTADO DE ERRO PELA NOTIFICAÇÃO DE ERRO
         showErrorToast(
           err.response?.data?.message || "Não foi possível realizar a reserva."
         );
@@ -133,95 +303,97 @@ const BibliotecaPage = () => {
   };
 
   if (isLoading)
-    return <div className="table-page-container">A carregar acervo...</div>;
+    return <div className="page-container">A carregar acervo...</div>;
 
   return (
-    <div className="table-page-container">
-      <div className="table-header">
+    <div className="page-container">
+      <div className="page-header">
         <h1>Acervo da Biblioteca</h1>
-        {canManageLibrary && (
-          <button onClick={openCreateModal} className="btn-action btn-approve">
-            + Adicionar Livro
-          </button>
-        )}
+        <div className="header-controls">
+          <input
+            type="text"
+            placeholder="Buscar por título, autor..."
+            className="form-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {canManageLibrary && (
+            <button
+              onClick={openCreateModal}
+              className="btn-action btn-approve"
+            >
+              + Adicionar Livro
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* 5. A EXIBIÇÃO DE ERRO DE AÇÃO FOI REMOVIDA DAQUI */}
       {fetchError && <p className="error-message">{fetchError}</p>}
 
-      <div className="table-responsive">
-        <table className="custom-table">
-          <thead>
-            <tr>
-              <th>Título</th>
-              <th>Autor(es)</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {!isLoading && livros.length === 0 ? (
-              <tr>
-                <td colSpan="4" style={{ textAlign: "center" }}>
-                  Nenhum livro cadastrado no acervo.
-                </td>
-              </tr>
-            ) : (
-              livros.map((livro) => (
-                <tr key={livro.id}>
-                  <td>{livro.titulo}</td>
-                  <td>{livro.autores}</td>
-                  <td>
-                    <span
-                      className={`status-badge status-${
-                        livro.status?.toLowerCase().replace(/ /g, "-") ||
-                        "disponível"
-                      }`}
-                    >
-                      {livro.status}
-                    </span>
-                  </td>
-                  <td className="actions-cell">
-                    {livro.status === "Disponível" && canManageLibrary && (
-                      <button
-                        onClick={() => openEmprestimoModal(livro)}
-                        className="btn-action btn-edit"
-                      >
-                        Emprestar
-                      </button>
-                    )}
-                    {livro.status === "Emprestado" && canManageLibrary && (
-                      <button
-                        onClick={() => handleRegistrarDevolucao(livro)}
-                        className="btn-action"
-                        style={{ backgroundColor: "#ca8a04", color: "#1f2937" }}
-                      >
-                        Devolver
-                      </button>
-                    )}
-                    {livro.status === "Emprestado" && !canManageLibrary && (
-                      <button
-                        onClick={() => handleReservarLivro(livro.id)}
-                        className="btn-action"
-                      >
-                        Reservar
-                      </button>
-                    )}
-                    {canManageLibrary && (
-                      <button
-                        onClick={() => openEditModal(livro)}
-                        className="btn-action"
-                      >
-                        Editar
-                      </button>
-                    )}
-                  </td>
+      <main className="biblioteca-main-content">
+        <div className="table-container">
+          <div className="table-responsive">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Autor(es)</th>
+                  <th>Classificação</th>
+                  <th>Status</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody>
+                {!isLoading && livrosFiltrados.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" style={{ textAlign: "center" }}>
+                      {searchTerm
+                        ? "Nenhum livro encontrado para a sua busca."
+                        : "Nenhum livro cadastrado no acervo."}
+                    </td>
+                  </tr>
+                ) : (
+                  livrosFiltrados.map((livro) => (
+                    <tr
+                      key={livro.id}
+                      onMouseEnter={() => setHoveredLivro(livro)}
+                      onFocus={() => setHoveredLivro(livro)}
+                      onClick={() => setHoveredLivro(livro)}
+                    >
+                      <td>{livro.titulo}</td>
+                      <td>{livro.autores}</td>
+                      <td>{livro.classificacao || "N/A"}</td>
+                      <td>
+                        <span
+                          className={`status-badge status-${
+                            livro.status?.toLowerCase().replace(/ /g, "-") ||
+                            "disponível"
+                          }`}
+                        >
+                          {livro.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <aside className="detalhes-sidebar">
+          <LivroDetalhesCard
+            livro={hoveredLivro}
+            canManageLibrary={canManageLibrary}
+            user={user}
+            onEmprestar={openEmprestimoModal}
+            onDevolver={handleRegistrarDevolucao}
+            onEditar={openEditModal}
+            onDeletar={handleDeleteLivro}
+            onReservar={handleReservarLivro}
+            onSolicitar={handleSolicitarEmprestimo}
+          />
+        </aside>
+      </main>
 
       <Modal
         isOpen={isLivroModalOpen}
@@ -234,7 +406,6 @@ const BibliotecaPage = () => {
           onCancel={() => setIsLivroModalOpen(false)}
         />
       </Modal>
-
       <Modal
         isOpen={isEmprestimoModalOpen}
         onClose={() => setIsEmprestimoModalOpen(false)}
