@@ -20,7 +20,13 @@ export const inicializarEscala = (primeiroMembroId = null) => {
   return apiClient.post("/escala/inicializar", { primeiroMembroId });
 };
 
-// --- NOVAS FUNÇÕES ADICIONADAS ---
+/**
+ * Busca os próximos 5 membros ativos na escala do jantar.
+ * @returns {Promise}
+ */
+export const getProximosDaFila = () => {
+  return apiClient.get("/escala-jantar/proximos");
+};
 
 /**
  * Adiciona um membro específico ao final da fila da escala.

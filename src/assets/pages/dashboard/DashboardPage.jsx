@@ -1,11 +1,11 @@
-// src/assets/pages/dashboard/DashboardPage.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { getDashboardData } from "../../../services/dashboardService";
 import AdminDashboard from "./AdminDashboard";
 import MemberDashboard from "./MemberDashboard";
 import DashboardAvisos from "./components/DashboardAvisos";
 import EventCalendar from "./components/EventCalendar";
-import DashboardClassificados from "./components/DashboardClassificados"; // Importa o novo componente
+import DashboardClassificados from "./components/DashboardClassificados";
+import DashboardJantar from "./components/DashboardJantar";
 import "./DashboardPage.css";
 
 const DashboardPage = () => {
@@ -66,11 +66,14 @@ const DashboardPage = () => {
           <div className="avisos-widget-container">
             <DashboardAvisos />
           </div>
-          {/* NOVO: Widget de Classificados adicionado */}
           <div className="classificados-widget-container">
+            {/* A prop foi alterada para passar o número total */}
             <DashboardClassificados
-              classificados={dashboardData?.novosClassificados}
+              totalClassificados={dashboardData?.totalClassificados}
             />
+          </div>
+          <div className="jantar-widget-container">
+            <DashboardJantar />
           </div>
         </div>
         <div className="calendar-widget-container">

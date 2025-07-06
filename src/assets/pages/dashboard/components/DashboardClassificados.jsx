@@ -1,33 +1,57 @@
-// src/assets/pages/dashboard/components/DashboardClassificados.jsx
 import React from "react";
-import { Link } from "react-router-dom";
-import "./DashboardWidgets.css"; // Reutiliza o mesmo CSS dos outros widgets
+import { useNavigate } from "react-router-dom"; // 1. Importa o hook useNavigate
+import CountUp from "react-countup";
+import "./DashboardWidgets.css";
 
-const DashboardClassificados = ({ classificados = [] }) => {
+const DashboardClassificados = ({ totalClassificados = 0 }) => {
+  const navigate = useNavigate(); // 2. Inicializa o hook
+
+  // 3. Função que será chamada ao clicar no widget
+  const handleWidgetClick = () => {
+    navigate("/classificados");
+  };
+
   return (
-    <div className="dashboard-widget">
-      <h3 className="widget-title">Novos Classificados</h3>
-      <div className="widget-content">
-        {classificados.length > 0 ? (
-          classificados.map((anuncio) => (
-            <div key={anuncio.id} className="widget-card classificado-card">
-              <h4>{anuncio.titulo}</h4>
-              <p>{anuncio.descricao.substring(0, 80)}...</p>
-              <small>
-                Publicado por:{" "}
-                {anuncio.anunciante?.NomeCompleto || "Desconhecido"}
-              </small>
-            </div>
-          ))
-        ) : (
-          <p>Nenhum anúncio novo.</p>
-        )}
+    // 4. O div principal agora tem o evento onClick e uma classe para estilização
+    <div
+      className="dashboard-widget clickable"
+      onClick={handleWidgetClick}
+      role="button" // Melhora a acessibilidade
+      tabIndex="0" // Permite que o elemento seja focado com o teclado
+      onKeyPress={(e) =>
+        (e.key === "Enter" || e.key === " ") && handleWidgetClick()
+      } // Permite ativação com o teclado
+    >
+      <h3 className="widget-title">Classificados</h3>
+      <div
+        className="widget-content"
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "center",
+        }}
+      >
+        <p
+          style={{
+            fontSize: "var(--font-size-lg)",
+            color: "var(--cor-texto-secundario)",
+          }}
+        >
+          Total de Anúncios Publicados
+        </p>
+        <p
+          className="stat-value"
+          style={{ fontSize: "3.5rem", color: "#22c55e" }}
+        >
+          <CountUp
+            start={0}
+            end={totalClassificados}
+            duration={2.5}
+            separator="."
+          />
+        </p>
       </div>
-      <div className="widget-footer">
-        <Link to="/classificados" className="widget-link">
-          Ver todos os classificados &rarr;
-        </Link>
-      </div>
+      {/* 5. O rodapé e o botão foram removidos */}
     </div>
   );
 };

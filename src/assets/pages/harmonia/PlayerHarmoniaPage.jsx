@@ -51,20 +51,19 @@ const PlayerHarmoniaPage = () => {
 
     getSequencia(selectedTipoSessaoId)
       .then((res) => {
-        // --- CORREÇÃO CRÍTICA AQUI ---
-        // 'res' já é o objeto de dados. Acessamos 'res.sequencia' diretamente.
-        if (res && res.sequencia) {
-          setSequencia(res.sequencia);
+        const dadosDaApi = res.data;
+
+        if (dadosDaApi && dadosDaApi.sequencia) {
+          setSequencia(dadosDaApi.sequencia);
           setIndiceAtual(0);
         } else {
-          // Se a API não retornar uma sequência, tratamos como erro.
           setSequencia([]);
           setError("Sequência não encontrada ou está vazia.");
           showErrorToast("A sequência para este ritual não foi encontrada.");
         }
       })
       .catch((err) => {
-        console.error(err);
+        console.error("Erro ao buscar sequência:", err);
         setError("Falha ao carregar a sequência.");
         showErrorToast("Falha ao carregar a sequência.");
       })
@@ -77,10 +76,12 @@ const PlayerHarmoniaPage = () => {
       const baseURL = apiClient.defaults.baseURL.startsWith("http")
         ? apiClient.defaults.baseURL
         : window.location.origin;
-      const finalPath = `${baseURL}/${currentSong.path}`.replace(
+      const finalPath = `${baseURL}${currentSong.path}`.replace(
         /([^:]\/)\/+/g,
         "$1"
       );
+      console.log("currentSong:", currentSong);
+      console.log("Final audio path:", finalPath);
 
       audio.src = finalPath;
       audio.play().catch((e) => console.error("Erro ao tocar áudio:", e));
