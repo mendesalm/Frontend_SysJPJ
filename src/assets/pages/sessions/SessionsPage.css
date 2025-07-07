@@ -26,7 +26,6 @@
   background: #2d3748;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 10px 10px 20px #252e3c, -10px -10px 20px #354054;
   transition: all 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
@@ -35,7 +34,7 @@
 
 .session-card-neumorphic:hover {
   transform: translateY(-5px);
-  box-shadow: 12px 12px 24px #252e3c, -12px -12px 24px #354054;
+  box-shadow: 2px 2px 5px #050f20, -2px -2px 5px #093d9f;
 }
 
 .session-card-header {

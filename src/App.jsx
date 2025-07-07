@@ -131,6 +131,9 @@ const BalaustreSettingsPage = lazy(() =>
 const GestaoSolicitacoesPage = lazy(() =>
   import("./assets/pages/biblioteca/GestaoSolicitacoesPage.jsx")
 );
+const ChanceryReportsPage = lazy(() =>
+  import("./assets/pages/chancelaria/ChanceryReportsPage.jsx")
+);
 
 const LoadingFallback = () => (
   <div
@@ -256,6 +259,10 @@ function App() {
                 <Route
                   path="/admin/biblioteca/solicitacoes"
                   element={<GestaoSolicitacoesPage />}
+                />
+                <Route
+                  path="/chanceler/relatorios"
+                  element={<ChanceryReportsPage />}
                 />
 
                 <Route

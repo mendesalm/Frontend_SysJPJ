@@ -21,7 +21,7 @@ const PublicacaoForm = ({ onSave, onCancel }) => {
     formData.append("tema", data.tema);
     formData.append("grau", data.grau);
     if (data.publicacaoFile && data.publicacaoFile[0]) {
-      formData.append("publicacaoFile", data.publicacaoFile[0]);
+      formData.append("arquivoPublicacao", data.publicacaoFile[0]);
     }
 
     onSave(formData);

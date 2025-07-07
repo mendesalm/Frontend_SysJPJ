@@ -10,6 +10,7 @@ import PublicacaoForm from "./PublicacaoForm";
 import "./PublicacoesPage.css";
 import "../../styles/TableStyles.css";
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
+import logo from "../../images/ArticleIcon.png";
 
 const PublicacoesPage = () => {
   const {
@@ -39,6 +40,10 @@ const PublicacoesPage = () => {
     }
   };
 
+  const handleCardClick = (path) => {
+    window.open(`http://localhost:3001/${path}`, "_blank", "noreferrer");
+  };
+
   return (
     <div className="table-page-container">
       <div className="table-header">
@@ -62,29 +67,31 @@ const PublicacoesPage = () => {
           <p>Nenhuma publicação ou trabalho encontrado.</p>
         ) : (
           publicacoes.map((pub) => (
-            <div key={pub.id} className="publicacao-card">
-              <div className="publicacao-icon">📄</div>
-              <h3>{pub.nome}</h3>
-              <p>
-                <strong>Tema:</strong> {pub.tema}
-              </p>
-              <p>
-                <strong>Autor:</strong>{" "}
-                {pub.autorOuUploader?.NomeCompleto || "N/A"}
-              </p>
-              {pub.grau && (
+            <div
+              key={pub.id}
+              className="publicacao-card"
+              onClick={() => handleCardClick(pub.path)}
+            >
+              <img
+                src={logo}
+                alt="Publicação"
+                className="publicacao-card-image"
+              />
+              <div className="publicacao-card-body">
+                <h3>{pub.nome}</h3>
                 <p>
-                  <strong>Grau:</strong> {pub.grau}
+                  <strong>Tema:</strong> {pub.tema}
                 </p>
-              )}
-              <a
-                href={`http://localhost:3001/${pub.path}`}
-                target="_blank"
-                rel="noreferrer"
-                className="btn-download"
-              >
-                Ver / Baixar
-              </a>
+                <p>
+                  <strong>Autor:</strong>{" "}
+                  {pub.autorOuUploader?.NomeCompleto || "N/A"}
+                </p>
+                {pub.grau && (
+                  <p>
+                    <strong>Grau:</strong> {pub.grau}
+                  </p>
+                )}
+              </div>
             </div>
           ))
         )}

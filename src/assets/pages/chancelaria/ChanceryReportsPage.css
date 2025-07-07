@@ -1,0 +1,71 @@
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.report-card {
+  background: var(--cor-sidebar-primaria);
+  border: 1px solid var(--cor-borda-sidebar);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease-in-out;
+}
+
+.report-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.report-card h3 {
+  margin-top: 0;
+  color: var(--cor-texto-cabecalho);
+}
+
+.report-card p {
+  flex-grow: 1;
+  color: var(--cor-texto-secundario);
+  margin-bottom: 1.5rem;
+}
+
+.report-card button {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  background-color: var(--cor-active-icon);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: auto; /* Empurra o botão para o fundo do card */
+}
+
+.report-card button:disabled {
+  background-color: #4b5563;
+  cursor: not-allowed;
+}
+
+.report-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.report-filters input {
+  width: 100%;
+  background-color: var(--cor-fundo-input);
+  border: 1px solid var(--cor-borda-input);
+  color: var(--cor-texto-primario);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+}

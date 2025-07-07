@@ -2,6 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
+// menuConfig permanece o mesmo
 const menuConfig = {
   "menu-usuario": {
     title: "Painel do Usuário",
@@ -29,9 +30,12 @@ const menuConfig = {
     items: [
       { label: "Dados de Membros", path: "/admin/members" },
       { label: "Gestão de Sessões", path: "/sessoes" },
-      { label: "Controle de Frequência", path: "/relatorios" },
+      {
+        label: "Relatórios da Chancelaria",
+        path: "/chanceler/relatorios",
+        permission: "acessarRelatoriosChancelaria",
+      },
       { label: "Controle de Visitações", path: "/admin/visitacoes" },
-      { label: "Gestão de Eventos", path: "/eventos" },
       { label: "Gestão da Escala de Jantares", path: "/admin/escala-jantares" },
       { label: "Geração de Cartões", path: "/chancelaria/gerar-cartoes" },
     ],
@@ -81,44 +85,57 @@ const menuConfig = {
         path: "/admin/balaustre-settings",
         permission: "gerenciarConfiguracoes",
       },
-      { label: "Configurações Gerais", path: "/admin/general-settings" }, // TODO: Update with the correct path for general settings
+      { label: "Configurações Gerais", path: "/admin/general-settings" },
     ],
     adminOnly: true,
   },
 };
 
 const SecondarySidebar = ({ activeMenu }) => {
-  const { user, hasPermission } = useAuth();
+  const { user, hasPermission, loading } = useAuth();
   const finalClassName = `secondary-sidebar ${activeMenu ? "is-open" : ""}`;
+  const currentMenu = menuConfig[activeMenu];
+
+  // LOG CRÍTICO 3: Mostra o estado exato no momento da renderização
+  console.log(`[SecondarySidebar] RENDERIZANDO COM DADOS:`, { loading, user });
+
+  if (!currentMenu) {
+    return <div className={finalClassName}></div>;
+  }
+
+  if (loading) {
+    return (
+      <div className={finalClassName}>
+        <div className="menu-content is-visible">
+          <h3>{currentMenu.title}</h3>
+          <p>A verificar permissões...</p>
+        </div>
+      </div>
+    );
+  }
 
   const isWebmaster = user?.credencialAcesso === "Webmaster";
-
-  const shouldRenderMenu = (menu) => {
-    if (!menu) return false;
-    if (menu.adminOnly && !isWebmaster) return false;
-    return true;
-  };
-
-  const currentMenu = menuConfig[activeMenu] || menuConfig["menu-usuario"];
+  if (currentMenu.adminOnly && !isWebmaster) {
+    return null;
+  }
 
   return (
     <div className={finalClassName}>
-      {shouldRenderMenu(currentMenu) && (
-        <div className="menu-content is-visible">
-          <h3>{currentMenu.title}</h3>
-          <ul className="secondary-menu">
-            {currentMenu.items.map((item) => (
-              <React.Fragment key={`${activeMenu}-${item.path}`}>
-                {(!item.permission || hasPermission(item.permission)) && (
-                  <li>
-                    <NavLink to={item.path}>{item.label}</NavLink>
-                  </li>
-                )}
-              </React.Fragment>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div className="menu-content is-visible">
+        <h3>{currentMenu.title}</h3>
+        <ul className="secondary-menu">
+          {currentMenu.items.map((item) => {
+            if (!item.permission || hasPermission(item.permission)) {
+              return (
+                <li key={item.path}>
+                  <NavLink to={item.path}>{item.label}</NavLink>
+                </li>
+              );
+            }
+            return null;
+          })}
+        </ul>
+      </div>
     </div>
   );
 };
