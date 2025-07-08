@@ -31,6 +31,11 @@ const menuConfig = {
       { label: "Dados de Membros", path: "/admin/members" },
       { label: "Gestão de Sessões", path: "/sessoes" },
       {
+        label: "Gestão de Comissões",
+        path: "/comissoes",
+        permission: "listarComissoes", // Usando a permissão de listar como guarda
+      },
+      {
         label: "Relatórios da Chancelaria",
         path: "/chanceler/relatorios",
         permission: "acessarRelatoriosChancelaria",

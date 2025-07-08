@@ -25,7 +25,7 @@ const AdminDashboard = ({ data }) => {
   ];
 
   return (
-    <div className="admin-dashboard">
+    <div className="admin-dashboard" style={{ flexShrink: 0 }}>
       {stats.map((stat, index) => (
         <div key={index} className="stat-card">
           <h3>{stat.label}</h3>

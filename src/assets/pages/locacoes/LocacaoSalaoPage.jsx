@@ -37,13 +37,19 @@ const LocacaoSalaoPage = () => {
       const ano = dataCalendario.getFullYear();
       const mes = dataCalendario.getMonth() + 1;
       const response = await locacaoService.getCalendarioOcupacao(ano, mes);
-      const formattedEvents = response.data.map((item) => ({
-        title: item.titulo,
-        start: new Date(item.data),
-        end: new Date(item.data),
-        allDay: true,
-        resource: { type: "ocupado" },
-      }));
+      const formattedEvents = response.data.map((item) => {
+        // CORREÇÃO: Trata a data como UTC para evitar problemas de fuso horário.
+        // Adiciona T00:00:00 para que a data seja interpretada no fuso horário local corretamente.
+        const dataObj = new Date(`${item.data}T00:00:00`);
+
+        return {
+          title: item.titulo,
+          start: dataObj,
+          end: dataObj,
+          allDay: true,
+          resource: { type: "ocupado" },
+        };
+      });
       setEventosCalendario(formattedEvents);
     } catch (error) {
       console.error(error);

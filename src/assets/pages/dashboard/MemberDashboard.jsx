@@ -5,7 +5,7 @@ const MemberDashboard = ({ data }) => {
   const { emprestimosPendentes = [] } = data || {};
 
   return (
-    <div className="member-dashboard">
+    <div className="member-dashboard" style={{ flexShrink: 0 }}>
       <h2>Bem-vindo ao seu Painel</h2>
       <div className="stat-card">
         <h3>Empréstimos Pendentes</h3>

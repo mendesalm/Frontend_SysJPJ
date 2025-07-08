@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { useDataFetching } from "../../../hooks/useDataFetching";
-import {
-  createComissao,
-  getComissoes,
-} from "../../../services/comissoesService";
+import * as comissoesService from "../../../services/comissoesService";
 import { useAuth } from "../../../hooks/useAuth";
 import Modal from "../../../components/modal/Modal";
 import ComissaoForm from "./ComissaoForm";
@@ -17,35 +14,61 @@ const ComissoesPage = () => {
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getComissoes);
+  } = useDataFetching(comissoesService.getComissoes);
+  const { hasPermission } = useAuth();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user } = useAuth();
+  const [currentComissao, setCurrentComissao] = useState(null);
 
-  const canManage =
-    user?.credencialAcesso === "Diretoria" ||
-    user?.credencialAcesso === "Webmaster";
+  const canCreate = hasPermission("criarComissao");
+  const canEdit = hasPermission("editarComissao");
+  const canDelete = hasPermission("deletarComissao");
 
   const handleSave = async (formData) => {
     try {
-      await createComissao(formData);
+      if (currentComissao) {
+        await comissoesService.updateComissao(currentComissao.id, formData);
+        showSuccessToast("Comissão atualizada com sucesso!");
+      } else {
+        await comissoesService.createComissao(formData);
+        showSuccessToast("Comissão criada com sucesso!");
+      }
       refetch();
       setIsModalOpen(false);
-      showSuccessToast("Comissão salva com sucesso!");
+      setCurrentComissao(null);
     } catch (err) {
-      const errorMsg =
-        err.response?.data?.message || "Erro ao salvar a comissão.";
-      showErrorToast(errorMsg);
+      showErrorToast(
+        err.response?.data?.message || "Erro ao salvar a comissão."
+      );
     }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Tem certeza que deseja apagar esta comissão?")) {
+      try {
+        await comissoesService.deleteComissao(id);
+        showSuccessToast("Comissão apagada com sucesso!");
+        refetch();
+      } catch (err) {
+        showErrorToast(
+          err.response?.data?.message || "Erro ao apagar a comissão."
+        );
+      }
+    }
+  };
+
+  const openModal = (comissao = null) => {
+    setCurrentComissao(comissao);
+    setIsModalOpen(true);
   };
 
   return (
     <div className="table-page-container">
       <div className="table-header">
         <h1>Comissões de Trabalho</h1>
-        {canManage && (
+        {canCreate && (
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => openModal()}
             className="btn-action btn-approve"
           >
             Nova Comissão
@@ -63,7 +86,27 @@ const ComissoesPage = () => {
         ) : (
           comissoes.map((comissao) => (
             <div key={comissao.id} className="comissao-card">
-              <h3>{comissao.nome}</h3>
+              <div className="comissao-card-header">
+                <h3>{comissao.nome}</h3>
+                <div className="comissao-card-actions">
+                  {canEdit && (
+                    <button
+                      className="btn-action-icon"
+                      onClick={() => openModal(comissao)}
+                    >
+                      ✏️
+                    </button>
+                  )}
+                  {canDelete && (
+                    <button
+                      className="btn-action-icon btn-delete-icon"
+                      onClick={() => handleDelete(comissao.id)}
+                    >
+                      🗑️
+                    </button>
+                  )}
+                </div>
+              </div>
               <span
                 className={`tipo-badge tipo-${comissao.tipo.toLowerCase()}`}
               >
@@ -71,10 +114,9 @@ const ComissoesPage = () => {
               </span>
               <p className="datas">
                 {new Date(comissao.dataInicio).toLocaleDateString()} -{" "}
-                {comissao.dataFim
-                  ? new Date(comissao.dataFim).toLocaleDateString()
-                  : "Presente"}
+                {new Date(comissao.dataFim).toLocaleDateString()}
               </p>
+              <p className="comissao-descricao">{comissao.descricao}</p>
               <div className="membros-list">
                 <strong>Membros:</strong>
                 <ul>
@@ -91,9 +133,10 @@ const ComissoesPage = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Nova Comissão"
+        title={currentComissao ? "Editar Comissão" : "Criar Nova Comissão"}
       >
         <ComissaoForm
+          comissaoToEdit={currentComissao}
           onSave={handleSave}
           onCancel={() => setIsModalOpen(false)}
         />

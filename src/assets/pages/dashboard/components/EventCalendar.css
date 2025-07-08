@@ -7,17 +7,34 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 1.5rem;
-  position: relative; /* Para o overlay de loading */
+  position: relative; /* For loading overlay */
+  width: 100%; /* Ensure it takes full width of its parent */
+  max-width: 100%; /* Ensure it doesn't exceed its parent's width */
+  height: 100%; /* Ensure it takes full height of its parent */
+  display: flex; /* Make it a flex container */
+  flex-direction: column; /* Stack children vertically */
+}
+
+.calendar-wrapper {
+  flex-grow: 1; /* Allow it to take available space */
+  min-height: 0; /* Allow shrinking */
+  display: flex; /* Make it a flex container */
+  flex-direction: column; /* Stack children vertically */
+  overflow: hidden; /* Hide overflowing content */
 }
 
 /* Sobrescreve os estilos padrão da biblioteca react-big-calendar */
 .rbc-calendar {
   color: #e5e7eb;
+  box-sizing: border-box; /* Ensure consistent box model */
+  width: 100%; /* Ensure calendar fills its container width */
+  height: 100%; /* Ensure calendar fills its container height */
 }
 
 .rbc-toolbar {
   margin-bottom: 1.5rem;
   color: #f9fafb;
+  flex-shrink: 0;
 }
 
 .rbc-toolbar button {
@@ -41,15 +58,40 @@
 .rbc-header {
   border-bottom: 1px solid #4b5563;
   padding: 10px 5px;
+  flex-shrink: 0;
 }
 
 .rbc-month-view,
 .rbc-time-view {
   border: 1px solid #4b5563;
+  table-layout: fixed !important; /* Force fixed column widths */
+}
+
+.rbc-row {
+  display: flex;
+  flex: 1; /* Ensure rows take up available space */
 }
 
 .rbc-day-bg {
   border-left: 1px solid #374151;
+  height: 100%;
+  position: relative;
+  overflow: hidden; /* Ensure content within day background is clipped */
+}
+
+.rbc-date-cell {
+  height: 100%;
+  position: relative;
+}
+
+.rbc-events-container {
+  height: 100%;
+  overflow-y: auto; /* Allow scrolling for events within a day */
+}
+
+.rbc-event {
+  max-height: 20px; /* Limit height of individual events */
+  margin-bottom: 2px; /* Small margin between events */
 }
 
 .rbc-today {
@@ -118,6 +160,16 @@
   height: 100%;
   width: 100%;
   overflow: hidden;
+}
+
+.rbc-event-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rbc-event {
+  width: 100%;
 }
 
 .rbc-event-dot {
@@ -249,4 +301,19 @@
 .filter-checkbox label {
   cursor: pointer;
   font-size: var(--font-size-sm);
+}
+
+.rbc-month-row {
+  display: flex;
+  flex-direction: row;
+  flex: 1 0 0%; /* Distribute space evenly */
+}
+
+.rbc-row-content {
+  overflow: hidden; /* Ensure content within rows is clipped */
+  flex: 1 0 0%; /* Distribute space evenly */
+}
+
+.rbc-row-segment {
+  overflow: hidden; /* Ensure content within segments is clipped */
 }

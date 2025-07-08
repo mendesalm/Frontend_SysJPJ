@@ -13,23 +13,14 @@ const ComissaoForm = ({ comissaoToEdit, onSave, onCancel }) => {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    //setValue,
   } = useForm({
     resolver: yupResolver(comissaoValidationSchema),
-    defaultValues: {
-      nome: "",
-      descricao: "",
-      tipo: "Temporária",
-      dataInicio: "",
-      dataFim: "",
-      membrosIds: [],
-    },
   });
 
   useEffect(() => {
     async function fetchMembers() {
       try {
-        const response = await getAllMembers();
+        const response = await getAllMembers({ limit: 999 }); // Busca todos os membros
         setMembrosDisponiveis(response.data);
       } catch (error) {
         console.error("Erro ao buscar membros", error);
@@ -48,20 +39,23 @@ const ComissaoForm = ({ comissaoToEdit, onSave, onCancel }) => {
         dataFim: comissaoToEdit.dataFim
           ? new Date(comissaoToEdit.dataFim).toISOString().split("T")[0]
           : "",
-        // O `react-hook-form` lida bem com a seleção múltipla se o `value` do select for um array
-        membrosIds: comissaoToEdit.membros.map((m) => m.id),
       });
+      // Set selected members for checkboxes
+      setValue("membrosIds", comissaoToEdit.membros.map((m) => m.id));
     } else {
-      reset();
+      reset({
+        nome: "",
+        descricao: "",
+        tipo: "Temporária",
+        dataInicio: "",
+        dataFim: "",
+        membrosIds: [],
+      });
     }
   }, [comissaoToEdit, reset]);
 
-  const onSubmit = (data) => {
-    onSave(data);
-  };
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="form-container">
+    <form onSubmit={handleSubmit(onSave)} className="form-container">
       <div className="form-group">
         <label htmlFor="nome">Nome da Comissão</label>
         <input
@@ -116,7 +110,7 @@ const ComissaoForm = ({ comissaoToEdit, onSave, onCancel }) => {
           )}
         </div>
         <div className="form-group">
-          <label htmlFor="dataFim">Data Final (opcional)</label>
+          <label htmlFor="dataFim">Data Final</label>
           <input
             id="dataFim"
             type="date"
@@ -130,19 +124,23 @@ const ComissaoForm = ({ comissaoToEdit, onSave, onCancel }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="membrosIds">Membros da Comissão</label>
-        <select
-          id="membrosIds"
-          multiple
-          {...register("membrosIds")}
-          className={`form-select ${errors.membrosIds ? "is-invalid" : ""}`}
-        >
+        <label>Membros da Comissão (mínimo 3)</label>
+        <div className="checkbox-group" style={{ maxHeight: "200px", overflowY: "auto", border: "1px solid #ccc", padding: "10px", borderRadius: "5px" }}>
           {membrosDisponiveis.map((membro) => (
-            <option key={membro.id} value={membro.id}>
-              {membro.NomeCompleto}
-            </option>
+            <div key={membro.id} className="form-check">
+              <input
+                type="checkbox"
+                id={`membro-${membro.id}`}
+                value={membro.id}
+                {...register("membrosIds")}
+                className="form-check-input"
+              />
+              <label htmlFor={`membro-${membro.id}`} className="form-check-label">
+                {membro.NomeCompleto}
+              </label>
+            </div>
           ))}
-        </select>
+        </div>
         {errors.membrosIds && (
           <p className="form-error-message">{errors.membrosIds.message}</p>
         )}

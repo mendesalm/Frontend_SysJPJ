@@ -32,23 +32,23 @@ body.theme-dark {
   --font-size-4xl: 2.25rem; /* 36px */
 }
 
-/* TEMA CLARO */
+/* TEMA CLARO (Contraste Ajustado e Cores Suaves) */
 body.theme-light {
-  --cor-fundo-app: #f3f4f6;
-  --cor-sidebar-primaria: #ffffff;
-  --cor-sidebar-secundaria-fundo: rgba(249, 250, 251, 0.8);
-  --cor-borda-sidebar: #e5e7eb;
-  --cor-fundo-hover-sidebar: rgba(14, 165, 233, 0.1);
-  --cor-texto-primario: #1f2937;
-  --cor-texto-secundario: #4b5563;
-  --cor-texto-cabecalho: #111827;
-  --cor-hover-icon: #0ea5e9;
-  --cor-active-icon: #0284c7;
+  --cor-fundo-app: #f0f2f5; /* Fundo de cinza suave para conforto visual */
+  --cor-sidebar-primaria: #ffffff; /* Sidebar branca para área de conteúdo clara */
+  --cor-sidebar-secundaria-fundo: rgba(245, 245, 245, 0.8);
+  --cor-borda-sidebar: #dee2e6; /* Borda sutil */
+  --cor-fundo-hover-sidebar: rgba(59, 130, 246, 0.1); /* Hover com azul suave */
+  --cor-texto-primario: #212529; /* Texto em cinza escuro para alto contraste sem ser preto puro */
+  --cor-texto-secundario: #6c757d; /* Cinza padrão para texto de apoio */
+  --cor-texto-cabecalho: #212529; /* Cabeçalhos consistentes com o texto primário */
+  --cor-hover-icon: #3b82f6; /* Azul profissional e menos saturado para interações */
+  --cor-active-icon: #2563eb; /* Azul mais escuro para estado ativo */
 
   /* Variáveis de formulário para o tema claro */
   --cor-fundo-input: #ffffff;
-  --cor-borda-input: #d1d5db;
-  --cor-foco-input-borda: #3b82f6;
+  --cor-borda-input: #ced4da; /* Borda de input clara e definida */
+  --cor-foco-input-borda: #3b82f6; /* Foco com o mesmo azul profissional */
   --cor-foco-input-sombra: rgba(59, 130, 246, 0.25);
 
   /* Variáveis de tipografia */
@@ -70,9 +70,17 @@ body.theme-light {
   box-sizing: border-box;
 }
 
-html {
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%; /* Ensure they take full width */
+  height: 100%; /* Ensure they take full height */
   scroll-behavior: smooth;
-  height: 100%; /* Garante que o html também ocupe a altura total */
+  overflow: hidden; /* Prevent scrollbars on html */
+  position: relative; /* Added for explicit positioning */
+  top: 0; /* Added for explicit positioning */
+  left: 0; /* Added for explicit positioning */
 }
 
 /* --- Regra Única e Consolidada para o Body --- */
@@ -94,12 +102,19 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
 
-  overflow-x: hidden; /* Previne scroll horizontal */
+  overflow: hidden; /* Prevent both horizontal and vertical scrollbars */
 }
 
 /* --- Estilos do Contêiner Principal da Aplicação --- */
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%; /* Ensure it takes full width */
+  height: 100%; /* Ensure it takes full height */
+}
+
 .App {
-  min-height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   background-color: transparent; /* Garante que o container .App seja transparente para a imagem de fundo aparecer */
