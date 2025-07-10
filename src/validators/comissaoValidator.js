@@ -30,9 +30,13 @@ export const comissaoValidationSchema = yup.object().shape({
       "A data final não pode ser anterior à data de início."
     ),
 
+  presidenteId: yup
+    .number()
+    .required("É obrigatório designar um presidente."),
+
   membrosIds: yup
     .array()
     .of(yup.number())
-    .min(3, "A comissão deve ter no mínimo 3 membros.")
+    .min(2, "A comissão deve ter no mínimo 2 membros, além do presidente.")
     .required("É obrigatório selecionar os membros."),
 });

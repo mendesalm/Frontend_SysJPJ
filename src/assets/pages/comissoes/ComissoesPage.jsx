@@ -65,7 +65,7 @@ const ComissoesPage = () => {
   return (
     <div className="table-page-container">
       <div className="table-header">
-        <h1>Comissões de Trabalho</h1>
+        <h1>Comissões Permantes e Temporárias</h1>
         {canCreate && (
           <button
             onClick={() => openModal()}
@@ -84,49 +84,72 @@ const ComissoesPage = () => {
         ) : comissoes.length === 0 ? (
           <p>Nenhuma comissão de trabalho encontrada.</p>
         ) : (
-          comissoes.map((comissao) => (
-            <div key={comissao.id} className="comissao-card">
-              <div className="comissao-card-header">
-                <h3>{comissao.nome}</h3>
-                <div className="comissao-card-actions">
-                  {canEdit && (
-                    <button
-                      className="btn-action-icon"
-                      onClick={() => openModal(comissao)}
-                    >
-                      ✏️
-                    </button>
-                  )}
-                  {canDelete && (
-                    <button
-                      className="btn-action-icon btn-delete-icon"
-                      onClick={() => handleDelete(comissao.id)}
-                    >
-                      🗑️
-                    </button>
-                  )}
+          comissoes.map((comissao) => {
+            const presidente = comissao.membros.find(
+              (m) => m.id === comissao.presidenteId
+            );
+            return (
+              <div key={comissao.id} className="comissao-card">
+                <div className="comissao-card-header">
+                  <h3>{comissao.nome}</h3>
+                  <div className="comissao-card-actions">
+                    {canEdit && (
+                      <button
+                        className="btn-action-icon"
+                        onClick={() => openModal(comissao)}
+                      >
+                        ✏️
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        className="btn-action-icon btn-delete-icon"
+                        onClick={() => handleDelete(comissao.id)}
+                      >
+                        🗑️
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <span
+                  className={`tipo-badge tipo-${comissao.tipo.toLowerCase()}`}
+                >
+                  {comissao.tipo}
+                </span>
+                <p className="datas">
+                  {new Date(
+                    new Date(comissao.dataInicio).getTime() +
+                      new Date(comissao.dataInicio).getTimezoneOffset() * 60000
+                  ).toLocaleDateString()}{" "}
+                  -{" "}
+                  {new Date(
+                    new Date(comissao.dataFim).getTime() +
+                      new Date(comissao.dataFim).getTimezoneOffset() * 60000
+                  ).toLocaleDateString()}
+                </p>
+                <p className="comissao-descricao">{comissao.descricao}</p>
+                <div className="membros-list">
+                  <strong>Presidente:</strong>{" "}
+                  {presidente
+                    ? presidente.NomeCompleto.replace(
+                        /\(Presidente\)/g,
+                        ""
+                      ).trim()
+                    : "Não definido"}
+                </div>
+                <div className="membros-list">
+                  <strong>Membros:</strong>
+                  <ul>
+                    {comissao.membros
+                      .filter((m) => m.id !== comissao.presidenteId)
+                      .map((membro) => (
+                        <li key={membro.id}>{membro.NomeCompleto}</li>
+                      ))}
+                  </ul>
                 </div>
               </div>
-              <span
-                className={`tipo-badge tipo-${comissao.tipo.toLowerCase()}`}
-              >
-                {comissao.tipo}
-              </span>
-              <p className="datas">
-                {new Date(comissao.dataInicio).toLocaleDateString()} -{" "}
-                {new Date(comissao.dataFim).toLocaleDateString()}
-              </p>
-              <p className="comissao-descricao">{comissao.descricao}</p>
-              <div className="membros-list">
-                <strong>Membros:</strong>
-                <ul>
-                  {comissao.membros.map((membro) => (
-                    <li key={membro.id}>{membro.NomeCompleto}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 

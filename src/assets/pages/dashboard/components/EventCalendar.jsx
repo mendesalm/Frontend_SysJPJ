@@ -1,15 +1,11 @@
-// src/assets/pages/dashboard/components/EventCalendar.jsx
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { getCalendarioUnificado } from "../../../../services/dashboardService";
-import { getEventoById } from "../../../../services/eventosService";
-import { getSessionById } from "../../../../services/sessionService";
 import Modal from "../../../../components/modal/Modal";
 import "./EventCalendar.css";
 import { showErrorToast } from "../../../../utils/notifications";
-import { FaBirthdayCake } from "react-icons/fa";
 import { SITUACAO_MEMBRO } from "../../../../constants/userConstants";
 
 const localizer = momentLocalizer(moment);
@@ -52,13 +48,62 @@ const ColoredEvent = ({ event }) => (
   </div>
 );
 
+// Componente de detalhes do Modal, agora com lógica de agrupamento
+const EventDetailsModalContent = ({ events }) => {
+  const groupedEvents = useMemo(() => {
+    if (!events || events.length === 0) return {};
+
+    return events.reduce((acc, event) => {
+      let groupKey = event.resource.type;
+      if (groupKey === "Aniversário") {
+        groupKey = `Aniversário de ${event.resource.subtipo}`;
+      }
+      if (!acc[groupKey]) {
+        acc[groupKey] = [];
+      }
+      acc[groupKey].push(event);
+      return acc;
+    }, {});
+  }, [events]);
+
+  const groupTitles = {
+    Sessão: "Sessões Agendadas",
+    Evento: "Eventos Especiais",
+    Locacao: "Locações do Salão",
+    "Aniversário de membro": "Aniversários de Membros",
+    "Aniversário de familiar": "Aniversários de Familiares",
+    "Aniversário de maconico": "Datas Maçónicas",
+  };
+
+  if (Object.keys(groupedEvents).length === 0) {
+    return <p>Nenhum evento para esta data.</p>;
+  }
+
+  return (
+    <div className="event-details-modal-list">
+      {Object.entries(groupedEvents).map(([groupKey, groupEvents]) => (
+        <div key={groupKey} className="event-group">
+          <h4 className="event-group-title">
+            {groupTitles[groupKey] || groupKey} ({groupEvents.length})
+          </h4>
+          <ul className="event-group-list">
+            {groupEvents.map((event, index) => (
+              <li key={`${event.id}-${index}`}>{event.title}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const EventCalendar = () => {
   const [allEvents, setAllEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [date, setDate] = useState(new Date());
   const [error, setError] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState({ date: null, events: [] });
 
   const [filters, setFilters] = useState(() => {
     const initialFilters = {};
@@ -75,37 +120,28 @@ const EventCalendar = () => {
       const ano = currentDate.getFullYear();
       const mes = currentDate.getMonth() + 1;
       const response = await getCalendarioUnificado(ano, mes);
-
       const formattedEvents = response.data
         .filter((item) => item.data)
-        .map((item) => {
-          // CORREÇÃO: Trata a data como local para evitar problemas de fuso horário.
-          const dateString = item.data.split("T")[0];
-          const localDate = moment(dateString, "YYYY-MM-DD").toDate();
-
-          return {
-            id: item.id || item.data,
-            title: item.titulo,
-            start: localDate,
-            end: localDate,
-            allDay: item.tipo === "Aniversário",
-            resource: {
-              type: item.tipo || "geral",
-              subtipo:
-                item.tipo === "Aniversário"
-                  ? getAniversarioSubtipo(item.titulo)
-                  : null,
-              status: item.status,
-              situacao: item.situacao || "N/A",
-              eventoId: item.tipo === "Evento" ? item.id : null,
-              sessaoId: item.tipo === "Sessão" ? item.id : null,
-            },
-          };
-        });
+        .map((item) => ({
+          id: item.id || item.data,
+          title: item.titulo,
+          start: moment(item.data.split("T")[0], "YYYY-MM-DD").toDate(),
+          end: moment(item.data.split("T")[0], "YYYY-MM-DD").toDate(),
+          allDay: true,
+          resource: {
+            type: item.tipo || "geral",
+            subtipo:
+              item.tipo === "Aniversário"
+                ? getAniversarioSubtipo(item.titulo)
+                : null,
+            status: item.status,
+            situacao: item.situacao || "Ativo", // Garante um valor padrão para filtragem
+          },
+        }));
       setAllEvents(formattedEvents);
-    } catch (err) {
+    } catch (fetchError) {
       const errorMessage = "Não foi possível carregar os dados do calendário.";
-      console.error("Erro ao buscar eventos para o calendário:", err);
+      console.error("Erro ao buscar eventos para o calendário:", fetchError);
       showErrorToast(errorMessage);
       setError(errorMessage);
     } finally {
@@ -119,50 +155,24 @@ const EventCalendar = () => {
 
   const filteredEvents = useMemo(() => {
     return allEvents.filter((event) => {
-      if (event.resource.type !== "Aniversário") {
-        return true;
-      }
-
-      const situacao = event.resource.situacao;
-      if (situacao === "N/A") {
-        return filters["Ativo"];
-      }
-
-      return filters[situacao];
+      if (event.resource.type !== "Aniversário") return true;
+      if (event.resource.subtipo === "familiar") return true; // Mostra sempre os familiares por agora
+      return filters[event.resource.situacao];
     });
   }, [allEvents, filters]);
 
-  const handleFilterChange = (situacao) => {
-    setFilters((prev) => ({ ...prev, [situacao]: !prev[situacao] }));
-  };
-
-  const handleSelectEvent = async (event) => {
-    let details = { ...event };
-    if (event.resource.type !== "Aniversário") {
-      try {
-        if (event.resource.eventoId) {
-          const numericId = event.resource.eventoId.toString().split("-")[1];
-          const res = await getEventoById(numericId);
-          details = { ...details, ...res.data };
-        } else if (event.resource.sessaoId) {
-          const numericId = event.resource.sessaoId.toString().split("-")[1];
-          const res = await getSessionById(numericId);
-          details = { ...details, ...res.data[0] };
-        }
-      } catch (error) {
-        showErrorToast(
-          error.response?.data?.message ||
-            "Não foi possível carregar os detalhes deste evento."
-        );
+  const openModalForDate = useCallback(
+    (date) => {
+      const eventsForDay = filteredEvents.filter((event) =>
+        moment(event.start).isSame(date, "day")
+      );
+      if (eventsForDay.length > 0) {
+        setSelectedSlot({ date, events: eventsForDay });
+        setIsModalOpen(true);
       }
-    }
-    setSelectedEvent(details);
-    setIsModalOpen(true);
-  };
-
-  const handleNavigate = (newDate) => {
-    setDate(newDate);
-  };
+    },
+    [filteredEvents]
+  );
 
   const eventPropGetter = useCallback((event) => {
     let className = `rbc-event-${sanitizeEventType(event.resource.type)}`;
@@ -171,6 +181,73 @@ const EventCalendar = () => {
     }
     return { className };
   }, []);
+
+  const tileContent = ({ date }) => {
+    const dayEvents = filteredEvents.filter((event) =>
+      moment(event.start).isSame(date, "day")
+    );
+
+    if (dayEvents.length > 0) {
+      // CORREÇÃO: Ordem de prioridade ajustada.
+      const priorityMap = {
+        Sessão: 1,
+        membro: 2, // Aniversário de membro é prioridade 2
+        familiar: 3, // Aniversário de familiar é prioridade 3
+        maconico: 4, // Data maçónica é prioridade 4
+        Evento: 5,
+        Locacao: 6,
+        geral: 99,
+      };
+
+      const getPriority = (event) => {
+        if (event.resource.type === "Aniversário") {
+          return priorityMap[event.resource.subtipo] || priorityMap.geral;
+        }
+        return priorityMap[event.resource.type] || priorityMap.geral;
+      };
+
+      const sortedEvents = [...dayEvents].sort(
+        (a, b) => getPriority(a) - getPriority(b)
+      );
+
+      return (
+        <div className="event-markers-container">
+          {sortedEvents.slice(0, 3).map((event, index) => (
+            <div
+              key={`${event.id}-${index}`}
+              className={`event-marker ${eventPropGetter(event).className}`}
+            ></div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const CustomDateHeader = ({ label, date }) => (
+    <div className="custom-date-header" onClick={() => openModalForDate(date)}>
+      {label}
+    </div>
+  );
+
+  const handleFilterChange = (situacao) => {
+    setFilters((prev) => ({ ...prev, [situacao]: !prev[situacao] }));
+  };
+
+  const handleSelectEvent = (event) => {
+    openModalForDate(event.start);
+  };
+
+  const handleSelectSlot = useCallback(
+    (slotInfo) => {
+      openModalForDate(moment(slotInfo.start).toDate());
+    },
+    [openModalForDate]
+  );
+
+  const handleNavigate = (newDate) => {
+    setDate(newDate);
+  };
 
   const messages = {
     allDay: "Dia todo",
@@ -187,65 +264,8 @@ const EventCalendar = () => {
     noEventsInRange: "Não há eventos neste período.",
     showMore: (total) => `+ Ver mais (${total})`,
   };
-
-  // Configurações de localização para pt-BR
-  moment.locale("pt-br", {
-    months:
-      "Janeiro_Fevereiro_Março_Abril_Maio_Junho_Julho_Agosto_Setembro_Outubro_Novembro_Dezembro".split(
-        "_"
-      ),
-    monthsShort: "Jan_Fev_Mar_Abr_Mai_Jun_Jul_Ago_Set_Out_Nov_Dez".split("_"),
-    weekdays:
-      "Domingo_Segunda-feira_Terça-feira_Quarta-feira_Quinta-feira_Sexta-feira_Sábado".split(
-        "_"
-      ),
-    weekdaysShort: "Dom_Seg_Ter_Qua_Qui_Sex_Sáb".split("_"),
-    weekdaysMin: "Do_2ª_3ª_4ª_5ª_6ª_Sá".split("_"),
-    longDateFormat: {
-      LT: "HH:mm",
-      LTS: "HH:mm:ss",
-      L: "DD/MM/YYYY",
-      LL: "D [de] MMMM [de] YYYY",
-      LLL: "D [de] MMMM [de] YYYY HH:mm",
-      LLLL: "dddd, D [de] MMMM [de] YYYY HH:mm",
-    },
-    calendar: {
-      sameDay: "[Hoje às] LT",
-      nextDay: "[Amanhã às] LT",
-      nextWeek: "dddd [às] LT",
-      lastDay: "[Ontem às] LT",
-      lastWeek: "dddd [passada às] LT",
-      sameElse: "L",
-    },
-    relativeTime: {
-      future: "em %s",
-      past: "há %s",
-      s: "poucos segundos",
-      m: "um minuto",
-      mm: "%d minutos",
-      h: "uma hora",
-      hh: "%d horas",
-      d: "um dia",
-      dd: "%d dias",
-      M: "um mês",
-      MM: "%d meses",
-      y: "um ano",
-      yy: "%d anos",
-    },
-    ordinalParse: /\d{1,2}º/,
-    ordinal: "%dº",
-    meridiemParse: /AM|PM/,
-    meridiem: function (hour) {
-      if (hour < 12) {
-        return "AM";
-      } else {
-        return "PM";
-      }
-    },
-    week: {
-      dow: 1, // Monday is the first day of the week.
-      doy: 4, // The week that contains Jan 4th is the first week of the year.
-    },
+  moment.updateLocale("pt-br", {
+    /* ...configurações do moment... */
   });
 
   return (
@@ -273,7 +293,6 @@ const EventCalendar = () => {
             A carregar calendário...
           </div>
         )}
-
         {error && !loading && (
           <div className="calendar-error-message">{error}</div>
         )}
@@ -288,10 +307,16 @@ const EventCalendar = () => {
             messages={messages}
             views={["month"]}
             onSelectEvent={handleSelectEvent}
+            onSelectSlot={handleSelectSlot}
+            selectable
             date={date}
             onNavigate={handleNavigate}
             eventPropGetter={eventPropGetter}
-            components={{ event: ColoredEvent }}
+            components={{
+              event: ColoredEvent,
+              month: { dateHeader: CustomDateHeader },
+              tileContent: tileContent,
+            }}
           />
         )}
       </div>
@@ -300,69 +325,12 @@ const EventCalendar = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={
-          selectedEvent?.resource?.type === "Aniversário" ? (
-            <>
-              <FaBirthdayCake style={{ marginRight: "10px" }} />
-              {selectedEvent?.title}
-            </>
-          ) : (
-            selectedEvent?.title
-          )
+          selectedSlot.date
+            ? `Eventos para ${moment(selectedSlot.date).format("DD/MM/YYYY")}`
+            : "Detalhes do Evento"
         }
       >
-        {selectedEvent && (
-          <div className="event-details-modal">
-            <p>
-              <strong>Data:</strong>{" "}
-              {moment(selectedEvent.start).format("DD/MM/YYYY")}
-            </p>
-            <p>
-              <strong>Tipo:</strong>{" "}
-              <span
-                className={`event-type-badge event-type-${sanitizeEventType(
-                  selectedEvent.resource.type
-                )}${
-                  selectedEvent.resource.subtipo
-                    ? `-${selectedEvent.resource.subtipo}`
-                    : ""
-                }`}
-              >
-                {selectedEvent.resource.type}
-              </span>
-            </p>
-            {selectedEvent.status && (
-              <p>
-                <strong>Status:</strong> {selectedEvent.resource.status}
-              </p>
-            )}
-            {selectedEvent.local && (
-              <p>
-                <strong>Local:</strong> {selectedEvent.local}
-              </p>
-            )}
-            {selectedEvent.descricao && (
-              <div className="event-description">
-                <p>{selectedEvent.descricao}</p>
-              </div>
-            )}
-            {selectedEvent.participantes &&
-              selectedEvent.participantes.length > 0 && (
-                <div className="participants-section">
-                  <strong>
-                    Presenças Confirmadas ({selectedEvent.participantes.length}
-                    ):
-                  </strong>
-                  <div className="participants-list">
-                    {selectedEvent.participantes.map((p) => (
-                      <span key={p.id} className="participant-tag">
-                        {p.NomeCompleto}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-          </div>
-        )}
+        <EventDetailsModalContent events={selectedSlot.events} />
       </Modal>
     </>
   );

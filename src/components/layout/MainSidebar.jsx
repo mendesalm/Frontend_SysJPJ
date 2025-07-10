@@ -1,8 +1,6 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { Link } from "react-router-dom";
 import { useTheme } from "../../hooks/useTheme";
-import ThemeSwitcher from "../ThemeSwitcher";
 import logoJPJ from "../../assets/images/logo.png";
 import MacomL from "../../assets/images/icones/light/Macom-L.png";
 import SecretarioL from "../../assets/images/icones/light/Secretario-L.png";
@@ -35,22 +33,6 @@ const IconWebmaster = () => (
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
   </svg>
 );
-const IconLogout = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-    <polyline points="16 17 21 12 16 7"></polyline>
-    <line x1="21" y1="12" x2="9" y2="12"></line>
-  </svg>
-);
 
 const lightIcons = {
   macom: MacomL,
@@ -74,8 +56,6 @@ const darkIcons = {
 };
 
 const MainSidebar = ({ activeMenu, onMenuClick }) => {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
   const { theme } = useTheme();
 
   const icons = theme === "light" ? lightIcons : darkIcons;
@@ -91,11 +71,6 @@ const MainSidebar = ({ activeMenu, onMenuClick }) => {
     { id: "menu-biblioteca", tooltip: "Biblioteca", iconName: "biblioteca" },
     { id: "menu-harmonia", tooltip: "Harmonia", iconName: "harmonia" },
   ];
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
 
   return (
     <nav className="main-sidebar">
@@ -139,14 +114,10 @@ const MainSidebar = ({ activeMenu, onMenuClick }) => {
           <IconWebmaster />
           <span className="tooltip">Webmaster</span>
         </button>
-        <ThemeSwitcher />
-        <button className="logout-button" onClick={handleLogout}>
-          <IconLogout />
-          <span className="tooltip">Sair</span>
-        </button>
       </div>
     </nav>
   );
 };
 
 export default MainSidebar;
+

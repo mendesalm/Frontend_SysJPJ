@@ -7,34 +7,20 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 1.5rem;
-  position: relative; /* For loading overlay */
-  width: 100%; /* Ensure it takes full width of its parent */
-  max-width: 100%; /* Ensure it doesn't exceed its parent's width */
-  height: 100%; /* Ensure it takes full height of its parent */
-  display: flex; /* Make it a flex container */
-  flex-direction: column; /* Stack children vertically */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-.calendar-wrapper {
-  flex-grow: 1; /* Allow it to take available space */
-  min-height: 0; /* Allow shrinking */
-  display: flex; /* Make it a flex container */
-  flex-direction: column; /* Stack children vertically */
-  overflow: hidden; /* Hide overflowing content */
-}
-
-/* Sobrescreve os estilos padrão da biblioteca react-big-calendar */
 .rbc-calendar {
   color: #e5e7eb;
-  box-sizing: border-box; /* Ensure consistent box model */
-  width: 100%; /* Ensure calendar fills its container width */
-  height: 100%; /* Ensure calendar fills its container height */
+  flex-grow: 1; /* Faz o calendário ocupar o espaço disponível */
 }
 
 .rbc-toolbar {
   margin-bottom: 1.5rem;
   color: #f9fafb;
-  flex-shrink: 0;
 }
 
 .rbc-toolbar button {
@@ -58,41 +44,32 @@
 .rbc-header {
   border-bottom: 1px solid #4b5563;
   padding: 10px 5px;
-  flex-shrink: 0;
+  text-align: center;
 }
 
-.rbc-month-view,
-.rbc-time-view {
-  border: 1px solid #4b5563;
-  table-layout: fixed !important; /* Force fixed column widths */
+/* --- CORREÇÃO DEFINITIVA DAS BORDAS --- */
+.rbc-month-view {
+  border: none; /* A borda principal é removida para ser aplicada individualmente */
 }
 
-.rbc-row {
+.rbc-month-row {
   display: flex;
-  flex: 1; /* Ensure rows take up available space */
+  border-bottom: 1px solid #374151; /* Borda horizontal entre as semanas */
 }
 
 .rbc-day-bg {
-  border-left: 1px solid #374151;
-  height: 100%;
-  position: relative;
-  overflow: hidden; /* Ensure content within day background is clipped */
+  flex: 1 0 0%;
+  border-left: 1px solid #374151; /* Borda vertical entre os dias */
 }
 
-.rbc-date-cell {
-  height: 100%;
-  position: relative;
+.rbc-month-row .rbc-day-bg:first-child {
+  border-left: none; /* Remove a borda da primeira coluna para não duplicar */
 }
 
-.rbc-events-container {
-  height: 100%;
-  overflow-y: auto; /* Allow scrolling for events within a day */
+.rbc-month-view {
+  border: 1px solid #4b5563; /* Borda externa principal */
 }
-
-.rbc-event {
-  max-height: 20px; /* Limit height of individual events */
-  margin-bottom: 2px; /* Small margin between events */
-}
+/* --- FIM DA CORREÇÃO --- */
 
 .rbc-today {
   background-color: rgba(14, 165, 233, 0.1);
@@ -122,37 +99,45 @@
   color: #ef4444;
 }
 
-/* Estilização customizada para diferentes tipos de evento */
-.rbc-event-locacao {
+/* Estilos dos eventos e marcadores */
+.rbc-event-locacao,
+.event-marker.rbc-event-locacao,
+.event-type-locacao {
   background-color: #22c55e !important;
-  border-color: #16a34a !important;
-} /* Verde */
-.rbc-event-sessao {
+}
+.rbc-event-sessao,
+.event-marker.rbc-event-sessao,
+.event-type-sessao {
   background-color: #3b82f6 !important;
-  border-color: #2563eb !important;
-} /* Azul */
-.rbc-event-evento {
+}
+.rbc-event-evento,
+.event-marker.rbc-event-evento,
+.event-type-evento {
   background-color: #f97316 !important;
-  border-color: #ea580c !important;
-} /* Laranja */
-.rbc-event-geral {
+}
+.rbc-event-geral,
+.event-marker.rbc-event-geral,
+.event-type-geral {
   background-color: #64748b !important;
-  border-color: #475569 !important;
-} /* Cinza */
-
-/* NOVO: Cores específicas para os subtipos de aniversário */
-.rbc-event-aniversario-membro {
+}
+.rbc-event-aniversario-membro,
+.event-marker.rbc-event-aniversario-membro,
+.event-type-aniversario-membro {
   background-color: #eab308 !important;
-  border-color: #ca8a04 !important;
-} /* Amarelo/Dourado */
-.rbc-event-aniversario-familiar {
+}
+.rbc-event-aniversario-familiar,
+.event-marker.rbc-event-aniversario-familiar,
+.event-type-aniversario-familiar {
   background-color: #ec4899 !important;
-  border-color: #db2777 !important;
-} /* Rosa */
-.rbc-event-aniversario-maconico {
+}
+.rbc-event-aniversario-maconico,
+.event-marker.rbc-event-aniversario-maconico,
+.event-type-aniversario-maconico {
   background-color: #8b5cf6 !important;
-  border-color: #7c3aed !important;
-} /* Roxo */
+}
+.event-type-aniversario-membro {
+  color: #422006;
+}
 
 .rbc-event-content-wrapper {
   display: flex;
@@ -161,17 +146,6 @@
   width: 100%;
   overflow: hidden;
 }
-
-.rbc-event-content {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.rbc-event {
-  width: 100%;
-}
-
 .rbc-event-dot {
   width: 8px;
   height: 8px;
@@ -181,90 +155,28 @@
   background-color: rgba(255, 255, 255, 0.7);
 }
 
-/* --- Estilos para o Modal de Detalhes do Evento --- */
-
-.event-details-modal {
-  color: #d1d5db;
+/* Estilos do Modal de Detalhes */
+.event-details-modal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
-
-.event-details-modal p {
-  margin: 0.5rem 0 1rem 0;
-  line-height: 1.6;
+.event-detail-item {
+  padding: 1rem;
+  background-color: var(--cor-fundo-app);
+  border-left: 5px solid #64748b;
+  border-radius: 6px;
 }
-
-.event-details-modal .event-type-badge {
+.event-type-badge {
   text-transform: capitalize;
   font-weight: bold;
   padding: 2px 8px;
   border-radius: 4px;
   color: white;
+  display: inline-block;
 }
 
-/* Cores específicas para os badges no modal, alinhadas com o calendário */
-.event-type-locacao {
-  background-color: #22c55e;
-}
-.event-type-sessao {
-  background-color: #3b82f6;
-}
-.event-type-evento {
-  background-color: #f97316;
-}
-/* NOVO: Cores dos badges para os subtipos de aniversário */
-.event-type-aniversario-membro {
-  background-color: #eab308;
-  color: #422006;
-}
-.event-type-aniversario-familiar {
-  background-color: #ec4899;
-}
-.event-type-aniversario-maconico {
-  background-color: #8b5cf6;
-}
-.event-type-geral {
-  background-color: #64748b;
-}
-
-.event-description {
-  background-color: rgba(0, 0, 0, 0.2);
-  padding: 1rem;
-  border-radius: 6px;
-  margin-top: 1rem;
-  white-space: pre-wrap;
-}
-
-.event-description p {
-  margin: 0;
-}
-
-.participants-section {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #374151;
-}
-
-.participants-section strong {
-  color: #e5e7eb;
-  font-weight: 500;
-  margin-bottom: 0.75rem;
-  display: block;
-}
-
-.participants-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.participant-tag {
-  background-color: #374151;
-  color: #d1d5db;
-  padding: 4px 10px;
-  border-radius: 15px;
-  font-size: 0.85rem;
-}
-
-/* Estilos para o container de filtros */
+/* Estilos dos Filtros */
 .calendar-filters-container {
   padding-bottom: 1.5rem;
   margin-bottom: 1.5rem;
@@ -274,46 +186,59 @@
   gap: 1.5rem;
   flex-wrap: wrap;
 }
-
 .filter-title {
   font-weight: 500;
   color: var(--cor-texto-secundario);
 }
-
 .filter-options {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
 }
-
 .filter-checkbox {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-
 .filter-checkbox input[type="checkbox"] {
   width: 1em;
   height: 1em;
   accent-color: var(--cor-foco-input-borda);
 }
-
 .filter-checkbox label {
   cursor: pointer;
   font-size: var(--font-size-sm);
 }
 
-.rbc-month-row {
+/* Estilos dos Marcadores e Cabeçalho Personalizado */
+.rbc-day-bg-custom-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.event-markers-container {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  flex-direction: row;
-  flex: 1 0 0%; /* Distribute space evenly */
+  gap: 4px;
+  z-index: 1;
 }
-
-.rbc-row-content {
-  overflow: hidden; /* Ensure content within rows is clipped */
-  flex: 1 0 0%; /* Distribute space evenly */
+.event-marker {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
-
-.rbc-row-segment {
-  overflow: hidden; /* Ensure content within segments is clipped */
+.custom-date-header {
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out;
+  position: relative;
+  z-index: 2;
+}
+.custom-date-header:hover {
+  background-color: rgba(14, 165, 233, 0.2);
 }

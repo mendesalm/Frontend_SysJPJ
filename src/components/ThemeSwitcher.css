@@ -18,5 +18,5 @@
 
 .theme-switcher .icon {
   font-size: 20px; /* Tamanho do ícone de sol/lua */
-  color: var(--primary-color); /* Cor do ícone */
+  color: white; /* Cor do ícone */
 }

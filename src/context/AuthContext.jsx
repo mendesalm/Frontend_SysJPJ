@@ -59,9 +59,6 @@ export const AuthProvider = ({ children }) => {
     if (refreshToken) {
       localStorage.setItem("refreshToken", refreshToken);
     }
-    apiClient.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${accessToken}`;
     console.log(
       "[AuthContext] Login bem-sucedido, a buscar perfil completo..."
     );

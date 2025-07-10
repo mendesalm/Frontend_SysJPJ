@@ -1,0 +1,265 @@
+/* src/assets/pages/dashboard/components/EventCalendar.css (Versão Corrigida) */
+
+.event-calendar-container {
+  background: rgba(31, 41, 55, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.rbc-calendar {
+  color: #e5e7eb;
+  flex-grow: 1;
+}
+
+.rbc-toolbar {
+  margin-bottom: 1.5rem;
+  color: #f9fafb;
+  flex-shrink: 0;
+}
+
+.rbc-toolbar button {
+  color: #d1d5db;
+  background-color: #374151;
+  border: 1px solid #4b5563;
+}
+
+.rbc-toolbar button:hover,
+.rbc-toolbar button:focus {
+  color: #fff;
+  background-color: #4b5563;
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #0ea5e9;
+  color: white;
+  border-color: #0ea5e9;
+}
+
+.rbc-header {
+  border-bottom: 1px solid #4b5563;
+  padding: 10px 5px;
+  text-align: center;
+}
+
+/* --- CORREÇÃO DEFINITIVA E SIMPLIFICADA DAS BORDAS --- */
+
+.rbc-month-view {
+  border: 1px solid #374151; /* Borda externa principal */
+}
+
+.rbc-month-row {
+  display: flex;
+  min-height: 100px;
+  border-top: 1px solid #374151; /* Borda horizontal entre as semanas */
+}
+
+.rbc-header + .rbc-month-row {
+  border-top: none; /* Remove a borda da primeira linha de dias */
+}
+
+.rbc-date-cell {
+  flex: 1 1 0%;
+  border-left: 1px solid #374151; /* Borda vertical entre os dias */
+}
+
+.rbc-month-row .rbc-date-cell:first-child {
+  border-left: none; /* Remove a borda da primeira célula de cada semana */
+}
+/* --- FIM DA CORREÇÃO --- */
+
+.rbc-today {
+  background-color: rgba(14, 165, 233, 0.1) !important;
+}
+
+.rbc-off-range-bg {
+  background: #2b3a53;
+}
+
+.rbc-day-bg-custom-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.event-markers-container {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  z-index: 1;
+}
+
+.event-marker {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.custom-date-header {
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out;
+  position: relative;
+  z-index: 2;
+}
+
+.custom-date-header:hover {
+  background-color: rgba(14, 165, 233, 0.2);
+}
+
+/* ... (restante dos estilos para filtros, eventos, modal, etc.) ... */
+.calendar-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(31, 41, 55, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 12px;
+}
+.calendar-error-message {
+  padding: 2rem;
+  text-align: center;
+  color: #ef4444;
+}
+.rbc-event-content-wrapper {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+.rbc-event-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+.event-details-modal-list,
+.event-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.event-group-title {
+  font-size: var(--font-size-lg);
+  color: var(--cor-texto-cabecalho);
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--cor-borda-input);
+}
+.event-group-list {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.event-group-list li {
+  background-color: var(--cor-fundo-app);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  color: var(--cor-texto-primario);
+}
+.event-detail-item {
+  padding: 1rem;
+  background-color: var(--cor-fundo-app);
+  border-left: 5px solid #64748b;
+  border-radius: 6px;
+}
+.event-type-badge {
+  text-transform: capitalize;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: white;
+  display: inline-block;
+}
+.calendar-filters-container {
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #4b5563;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.filter-title {
+  font-weight: 500;
+  color: var(--cor-texto-secundario);
+}
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.filter-checkbox input[type="checkbox"] {
+  width: 1em;
+  height: 1em;
+  accent-color: var(--cor-foco-input-borda);
+}
+.filter-checkbox label {
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+}
+.rbc-event-locacao,
+.event-marker.rbc-event-locacao,
+.event-type-locacao {
+  background-color: #22c55e !important;
+}
+.rbc-event-sessao,
+.event-marker.rbc-event-sessao,
+.event-type-sessao {
+  background-color: #3b82f6 !important;
+}
+.rbc-event-evento,
+.event-marker.rbc-event-evento,
+.event-type-evento {
+  background-color: #f97316 !important;
+}
+.rbc-event-geral,
+.event-marker.rbc-event-geral,
+.event-type-geral {
+  background-color: #64748b !important;
+}
+.rbc-event-aniversario-membro,
+.event-marker.rbc-event-aniversario-membro,
+.event-type-aniversario-membro {
+  background-color: #eab308 !important;
+}
+.rbc-event-aniversario-familiar,
+.event-marker.rbc-event-aniversario-familiar,
+.event-type-aniversario-familiar {
+  background-color: #ec4899 !important;
+}
+.rbc-event-aniversario-maconico,
+.event-marker.rbc-event-aniversario-maconico,
+.event-type-aniversario-maconico {
+  background-color: #8b5cf6 !important;
+}
+.event-type-aniversario-membro {
+  color: #422006;
+}

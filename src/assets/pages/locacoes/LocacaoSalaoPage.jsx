@@ -20,6 +20,7 @@ const LocacaoSalaoPage = () => {
   const { user } = useAuth();
   const [date, setDate] = useState(new Date());
   const [eventosCalendario, setEventosCalendario] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // CORREÇÃO: A variável 'error' (renomeada para 'locacoesError') agora é capturada.
   const {
@@ -159,11 +160,19 @@ const LocacaoSalaoPage = () => {
 
         <div className="locacao-form-section">
           <h2>Solicitar Reserva do Salão de Festas</h2>
-          <LocacaoForm
-            onSave={handleSave}
-            onCancel={() => { /* No-op as form is always visible */ }}
-          />
+          <button onClick={() => setIsModalOpen(true)} className="btn-primary">Nova Solicitação</button>
         </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Solicitar Reserva do Salão de Festas"
+      >
+        <LocacaoForm
+          onSave={handleSave}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      </Modal>
       </div>
 
       {canManage && (

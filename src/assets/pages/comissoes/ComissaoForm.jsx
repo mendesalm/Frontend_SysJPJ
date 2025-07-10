@@ -13,6 +13,7 @@ const ComissaoForm = ({ comissaoToEdit, onSave, onCancel }) => {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    setValue,
   } = useForm({
     resolver: yupResolver(comissaoValidationSchema),
   });
@@ -34,14 +35,14 @@ const ComissaoForm = ({ comissaoToEdit, onSave, onCancel }) => {
       reset({
         ...comissaoToEdit,
         dataInicio: comissaoToEdit.dataInicio
-          ? new Date(comissaoToEdit.dataInicio).toISOString().split("T")[0]
+          ? new Date(new Date(comissaoToEdit.dataInicio).getTime() + new Date(comissaoToEdit.dataInicio).getTimezoneOffset() * 60000).toISOString().split("T")[0]
           : "",
         dataFim: comissaoToEdit.dataFim
-          ? new Date(comissaoToEdit.dataFim).toISOString().split("T")[0]
+          ? new Date(new Date(comissaoToEdit.dataFim).getTime() + new Date(comissaoToEdit.dataFim).getTimezoneOffset() * 60000).toISOString().split("T")[0]
           : "",
       });
-      // Set selected members for checkboxes
-      setValue("membrosIds", comissaoToEdit.membros.map((m) => m.id));
+      setValue("presidenteId", comissaoToEdit.presidenteId);
+      setValue("membrosIds", comissaoToEdit.membros.filter(m => m.id !== comissaoToEdit.presidenteId).map((m) => m.id));
     } else {
       reset({
         nome: "",
@@ -52,7 +53,7 @@ const ComissaoForm = ({ comissaoToEdit, onSave, onCancel }) => {
         membrosIds: [],
       });
     }
-  }, [comissaoToEdit, reset]);
+  }, [comissaoToEdit, reset, setValue]);
 
   return (
     <form onSubmit={handleSubmit(onSave)} className="form-container">
@@ -124,7 +125,26 @@ const ComissaoForm = ({ comissaoToEdit, onSave, onCancel }) => {
       </div>
 
       <div className="form-group">
-        <label>Membros da Comissão (mínimo 3)</label>
+        <label htmlFor="presidenteId">Presidente da Comissão</label>
+        <select
+          id="presidenteId"
+          {...register("presidenteId")}
+          className={`form-select ${errors.presidenteId ? "is-invalid" : ""}`}>
+
+          <option value="">Selecione um presidente</option>
+          {membrosDisponiveis.map((membro) => (
+            <option key={membro.id} value={membro.id}>
+              {membro.NomeCompleto}
+            </option>
+          ))}
+        </select>
+        {errors.presidenteId && (
+          <p className="form-error-message">{errors.presidenteId.message}</p>
+        )}
+      </div>
+
+      <div className="form-group">
+        <label>Membros da Comissão (mínimo 2)</label>
         <div className="checkbox-group" style={{ maxHeight: "200px", overflowY: "auto", border: "1px solid #ccc", padding: "10px", borderRadius: "5px" }}>
           {membrosDisponiveis.map((membro) => (
             <div key={membro.id} className="form-check">

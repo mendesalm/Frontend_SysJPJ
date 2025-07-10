@@ -1,8 +1,44 @@
 /* src/components/layout/NewDashboard.css */
+.restricted-area-header {
+  height: 5vh;
+  background-image: url(../../assets/images/banner-bg.jpg);
+  background-size: cover;
+  background-position: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 101; /* Higher than main-sidebar */
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* This will push title and actions to the edges */
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.header-title-text {
+  color: white;
+  font-size: 1.5rem; /* Increased font size */
+  font-weight: bold;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Adjust logout button style for the header */
+.restricted-area-header .logout-button {
+  width: auto; /* Override width from sidebar style */
+  padding: 5px; /* Adjust padding */
+}
+
 /* --- Layout Principal --- */
 .new-dashboard-layout {
   display: flex;
-  height: 100vh;
+  height: 97vh;
+  margin-top: 3vh;
   width: 100%;
   background-color: var(--cor-fundo-app);
   color: var(--cor-texto-primario);
@@ -50,7 +86,7 @@
 .logout-button {
   background: none;
   border: none;
-  color: var(--cor-texto-secundario);
+  color: white;
   width: 100%;
   padding: 15px 0;
   cursor: pointer;
