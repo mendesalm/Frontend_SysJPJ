@@ -195,3 +195,37 @@
   background-color: var(--cor-fundo-app);
   color: var(--cor-texto-primario);
 }
+/* ... (estilos existentes) ... */
+
+/* NOVO: Estilos para o botão de salvar flutuante */
+.floating-save-button-container {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: slide-up 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.floating-save-button {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 50px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  border: none;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translate(-50%, 150%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}

@@ -18,6 +18,8 @@ import visaoIcon from "../../images/esq.png";
 import valoresIcon from "../../images/esq.png";
 import ritoIcon from "../../images/RitoBrasileiro.png";
 
+import Footer from "../../../components/footer/Footer.jsx";
+
 const HomePage = () => {
   const location = useLocation();
 
@@ -102,7 +104,7 @@ const HomePage = () => {
   }, [location]);
 
   return (
-    <>
+    <div className="scroll-container">
       <section id="inicio" aria-label="Início - Slider de Imagens">
         <FullscreenImageSlider images={minhasImagens} />
       </section>
@@ -122,7 +124,8 @@ const HomePage = () => {
           <p>Email: contato@exemplo.com | Telefone: (XX) XXXX-XXXX</p>
         </div>
       </section>
-    </>
+      <Footer />
+    </div>
   );
 };
 

@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useDataFetching } from "../../../../../hooks/useDataFetching";
-// 1. Importando as funções do novo serviço
 import {
-  searchVisitantes,
   getVisitantesDaSessao,
   addVisitanteNaSessao,
   deleteVisitanteDaSessao,
 } from "../../../../../services/visitantesService";
+import { searchLojas } from "../../../../../services/lojaService"; // ATUALIZADO: Usa o novo serviço de lojas
 import {
   showSuccessToast,
   showErrorToast,
@@ -16,7 +15,6 @@ import { GRADUACAO_OPTIONS } from "../../../../../constants/userConstants";
 import useDebounce from "../../../../../hooks/useDebounce";
 
 const VisitantesTab = ({ sessionId }) => {
-  // 2. Usando a função de serviço correta com useCallback
   const fetchVisitorsCallback = useCallback(
     () => getVisitantesDaSessao(sessionId),
     [sessionId]
@@ -35,51 +33,52 @@ const VisitantesTab = ({ sessionId }) => {
     formState: { isSubmitting },
   } = useForm();
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  // Estados para o autocompletar
+  const [nomeLojaInput, setNomeLojaInput] = useState("");
+  const [sugestoesLojas, setSugestoesLojas] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const debouncedSearchTerm = useDebounce(nomeLojaInput, 300);
 
   useEffect(() => {
-    if (debouncedSearchTerm && debouncedSearchTerm.length >= 3) {
+    if (debouncedSearchTerm && debouncedSearchTerm.length >= 2) {
       setIsSearching(true);
-      searchVisitantes(debouncedSearchTerm)
-        .then((response) => setSearchResults(response.data))
-        .catch((err) => console.error("Erro na busca de visitantes:", err))
+      searchLojas(debouncedSearchTerm)
+        .then((response) => setSugestoesLojas(response.data))
+        .catch(() => setSugestoesLojas([]))
         .finally(() => setIsSearching(false));
     } else {
-      setSearchResults([]);
+      setSugestoesLojas([]);
     }
   }, [debouncedSearchTerm]);
 
-  const handleSelectVisitor = (visitor) => {
-    setValue("nomeCompleto", visitor.nomeCompleto);
-    setValue("cim", visitor.cim);
-    setValue("graduacao", visitor.graduacao);
-    setValue("potencia", visitor.potencia);
-    setValue("loja", visitor.loja);
-    setValue("oriente", visitor.oriente);
-    setSearchTerm("");
-    setSearchResults([]);
+  const handleSelectLoja = (loja) => {
+    setValue("dadosLoja", loja, { shouldValidate: true });
+    setNomeLojaInput(loja.nome);
+    setSugestoesLojas([]);
+  };
+
+  const handleManualLojaChange = (e) => {
+    const { name, value } = e.target;
+    // Atualiza o valor do input de busca
+    if (name === "nome") {
+      setNomeLojaInput(value);
+    }
+    // Atualiza o objeto dadosLoja no formulário
+    setValue(`dadosLoja.${name}`, value, { shouldValidate: true });
   };
 
   const onSubmit = async (data) => {
     try {
-      // 3. Usando a função de serviço para adicionar
       await addVisitanteNaSessao(sessionId, data);
       showSuccessToast("Visitante adicionado com sucesso!");
-      reset({
-        graduacao: "Mestre",
-        nomeCompleto: "",
-        cim: "",
-        loja: "",
-        oriente: "",
-        potencia: "",
-      });
+      reset({ graduacao: "Mestre", nomeCompleto: "" });
+      setNomeLojaInput(""); // Limpa o campo de busca da loja
       refetch();
     } catch (error) {
       console.error("Erro ao adicionar visitante:", error);
-      showErrorToast("Erro ao adicionar visitante.");
+      showErrorToast(
+        error.response?.data?.message || "Erro ao adicionar visitante."
+      );
     }
   };
 
@@ -87,7 +86,6 @@ const VisitantesTab = ({ sessionId }) => {
     if (!window.confirm("Tem certeza que deseja remover este visitante?"))
       return;
     try {
-      // 4. Usando a função de serviço para deletar
       await deleteVisitanteDaSessao(sessionId, visitorId);
       showSuccessToast("Visitante removido!");
       refetch();
@@ -98,56 +96,18 @@ const VisitantesTab = ({ sessionId }) => {
   };
 
   if (isLoadingList && !visitantesRegistrados.length)
-    return <p>Carregando visitantes...</p>;
+    return <p>A carregar visitantes...</p>;
 
   return (
     <div className="card">
       <h3>Registro de Visitantes</h3>
       <form onSubmit={handleSubmit(onSubmit)} className="visitor-form-layout">
-        <div className="form-group search-group">
-          <label>Buscar Visitante Recorrente</label>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Digite o nome ou CIM (mín. 3 caracteres)"
-            className="form-input"
-          />
-          {isSearching && (
-            <div className="search-results-list">
-              <p>Buscando...</p>
-            </div>
-          )}
-          {searchResults.length > 0 && (
-            <ul className="search-results-list">
-              {searchResults.map((visitor) => (
-                <li
-                  key={visitor.id}
-                  onClick={() => handleSelectVisitor(visitor)}
-                >
-                  <strong>{visitor.nomeCompleto}</strong> (CIM: {visitor.cim}){" "}
-                  <br />
-                  <small>
-                    Loja: {visitor.loja} - {visitor.oriente}
-                  </small>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <hr style={{ gridColumn: "1 / -1", margin: "1rem 0" }} />
-
         <div className="form-group">
-          <label>Nome Completo</label>
+          <label>Nome Completo do Visitante</label>
           <input
             {...register("nomeCompleto", { required: true })}
             className="form-input"
           />
-        </div>
-        <div className="form-group">
-          <label>CIM</label>
-          <input {...register("cim")} className="form-input" />
         </div>
         <div className="form-group">
           <label>Graduação</label>
@@ -159,18 +119,82 @@ const VisitantesTab = ({ sessionId }) => {
             ))}
           </select>
         </div>
-        <div className="form-group">
-          <label>Potência</label>
-          <input {...register("potencia")} className="form-input" />
-        </div>
-        <div className="form-group">
-          <label>Loja de Origem</label>
-          <input {...register("loja")} className="form-input" />
-        </div>
-        <div className="form-group">
-          <label>Oriente</label>
-          <input {...register("oriente")} className="form-input" />
-        </div>
+
+        <fieldset className="form-fieldset" style={{ gridColumn: "1 / -1" }}>
+          <legend>Loja do Visitante</legend>
+          <div className="autocomplete-container">
+            <div className="form-group">
+              <label htmlFor="lojaVisitadaSearch">
+                Pesquisar Loja Existente
+              </label>
+              <input
+                id="lojaVisitadaSearch"
+                type="text"
+                value={nomeLojaInput}
+                onChange={(e) => setNomeLojaInput(e.target.value)}
+                className="form-input"
+                autoComplete="off"
+                placeholder="Comece a digitar o nome da loja..."
+              />
+            </div>
+            {isSearching && (
+              <div className="suggestions-list">
+                <div className="suggestion-item">A procurar...</div>
+              </div>
+            )}
+            {sugestoesLojas.length > 0 && (
+              <ul className="suggestions-list">
+                {sugestoesLojas.map((loja) => (
+                  <li
+                    key={loja.id}
+                    className="suggestion-item"
+                    onMouseDown={() => handleSelectLoja(loja)}
+                  >
+                    <strong>{loja.nome}</strong>
+                    <br />
+                    <small>
+                      {loja.cidade} - {loja.estado} ({loja.potencia})
+                    </small>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div className="form-grid" style={{ marginTop: "1rem" }}>
+            <div className="form-group">
+              <label>Nome da Loja</label>
+              <input
+                {...register("dadosLoja.nome")}
+                onChange={handleManualLojaChange}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Cidade</label>
+              <input
+                {...register("dadosLoja.cidade")}
+                onChange={handleManualLojaChange}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Estado</label>
+              <input
+                {...register("dadosLoja.estado")}
+                onChange={handleManualLojaChange}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Potência</label>
+              <input
+                {...register("dadosLoja.potencia")}
+                onChange={handleManualLojaChange}
+                className="form-input"
+              />
+            </div>
+          </div>
+        </fieldset>
 
         <div className="form-group" style={{ gridColumn: "1 / -1" }}>
           <button
@@ -187,7 +211,7 @@ const VisitantesTab = ({ sessionId }) => {
 
       <h4>Visitantes Registrados na Sessão ({visitantesRegistrados.length})</h4>
       {isLoadingList ? (
-        <p>Carregando...</p>
+        <p>A carregar...</p>
       ) : (
         <ul className="lista-simples">
           {visitantesRegistrados.length > 0 ? (
@@ -195,13 +219,12 @@ const VisitantesTab = ({ sessionId }) => {
               <li key={v.id}>
                 <div className="visitor-info">
                   <span className="nome">
-                    <strong>{v.nomeCompleto}</strong> - {v.graduacao} (CIM:{" "}
-                    {v.cim || "N/A"})
+                    <strong>{v.nomeCompleto}</strong> - {v.graduacao}
                   </span>
+                  {/* ATUALIZADO: Acessa os dados da loja através do objeto aninhado */}
                   <span className="loja">
-                    Loja: {v.loja || "Não informada"} | Oriente:{" "}
-                    {v.oriente || "Não informado"} | Potência:{" "}
-                    {v.potencia || "Não informada"}
+                    Loja: {v.loja?.nome || "Não informada"} | Oriente:{" "}
+                    {`${v.loja?.cidade || ""}-${v.loja?.estado || ""}`}
                   </span>
                 </div>
                 <button

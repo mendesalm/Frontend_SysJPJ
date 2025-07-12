@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 // Layouts e Componentes Estruturais
 import Header from "./components/header/Header.jsx";
+import Footer from "./components/footer/Footer.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import NewDashboardLayout from "./components/layout/NewDashboardLayout.jsx";
 
@@ -134,6 +135,9 @@ const GestaoSolicitacoesPage = lazy(() =>
 const ChanceryReportsPage = lazy(() =>
   import("./assets/pages/chancelaria/ChanceryReportsPage.jsx")
 );
+const GestaoLojasPage = lazy(() =>
+  import("./assets/pages/admin/lojas/GestaoLojasPage.jsx")
+);
 
 const LoadingFallback = () => (
   <div
@@ -191,7 +195,13 @@ function App() {
             <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
             <Route
               path="/resetar-senha/:token"
-              element={<ResetPasswordPage />}
+              element={
+                <>
+                  <Header />
+                  <ResetPasswordPage />
+                  <Footer />
+                </>
+              }
             />
 
             {/* Rotas Protegidas com Layout */}
@@ -256,6 +266,7 @@ function App() {
                   path="/admin/visitacoes"
                   element={<GestaoVisitacoesPage />}
                 />
+                <Route path="/admin/lojas" element={<GestaoLojasPage />} />
                 <Route
                   path="/admin/biblioteca/solicitacoes"
                   element={<GestaoSolicitacoesPage />}

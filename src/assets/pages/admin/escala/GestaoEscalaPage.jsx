@@ -105,6 +105,7 @@ const GestaoEscalaPage = () => {
   const [membros, setMembros] = useState([]);
   const [primeiroMembroId, setPrimeiroMembroId] = useState("");
   const [membroParaAdicionarId, setMembroParaAdicionarId] = useState("");
+  const [ordemFoiAlterada, setOrdemFoiAlterada] = useState(false);
 
   const canManage = useMemo(
     () =>
@@ -124,6 +125,7 @@ const GestaoEscalaPage = () => {
   useEffect(() => {
     if (fetchedData) {
       setEscala(fetchedData);
+      setOrdemFoiAlterada(false);
     }
   }, [fetchedData]);
 
@@ -142,14 +144,17 @@ const GestaoEscalaPage = () => {
       newEscala.splice(hoverIndex, 0, draggedItem);
       return newEscala;
     });
+    setOrdemFoiAlterada(true);
   }, []);
 
   const handleSaveChanges = async () => {
     if (!escala) return;
-    const novaOrdemIds = escala.map((item) => item.id);
+    const ordemIds = escala.map((item) => item.id);
     try {
-      await updateOrdemEscala(novaOrdemIds);
+      // CORREÇÃO: Enviando o objeto com a chave correta "ordemIds"
+      await updateOrdemEscala({ ordemIds });
       showSuccessToast("Ordem da escala salva com sucesso!");
+      setOrdemFoiAlterada(false);
       refetch();
     } catch (err) {
       console.error("Erro ao salvar ordem da escala:", err);
@@ -240,11 +245,6 @@ const GestaoEscalaPage = () => {
           <main className="escala-main-content">
             <div className="table-header">
               <h2>Ordem Atual da Fila</h2>
-              {canManage && (
-                <button onClick={handleSaveChanges} className="btn btn-primary">
-                  Salvar Nova Ordem
-                </button>
-              )}
             </div>
 
             <div className="table-responsive">
@@ -359,6 +359,17 @@ const GestaoEscalaPage = () => {
             </aside>
           )}
         </div>
+
+        {ordemFoiAlterada && (
+          <div className="floating-save-button-container">
+            <button
+              onClick={handleSaveChanges}
+              className="btn btn-primary floating-save-button"
+            >
+              Salvar Nova Ordem
+            </button>
+          </div>
+        )}
       </div>
     </DndProvider>
   );

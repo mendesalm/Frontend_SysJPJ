@@ -20,7 +20,7 @@ const DashboardJantar = () => {
           <ul className="jantar-fila-lista">
             {proximos.map((item) => (
               <li key={item.id} className="jantar-fila-item">
-                <span className="ordem-item">{item.ordem + 1}º</span>
+                <span className="ordem-item">{item.ordem}º</span>
                 <span className="nome-item">{item.membro.NomeCompleto}</span>
               </li>
             ))}

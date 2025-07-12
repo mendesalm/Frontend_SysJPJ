@@ -5,8 +5,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { memberValidationSchema } from "../../../validators/memberValidator";
 import { useAuth } from "../../../hooks/useAuth";
 import { updateMember } from "../../../services/memberService";
+import { updatePassword } from "../../../services/passwordService";
 import { consultarCEP } from "../../../services/cepService.js";
 import FormPageLayout from "../../../components/layout/FormPageLayout";
+import PasswordChangeForm from "./PasswordChangeForm";
 import "../../styles/FormStyles.css";
 import "../../styles/TableStyles.css";
 // ATUALIZADO: Importa o componente reutilizável de dados pessoais
@@ -18,6 +20,9 @@ const ProfilePage = () => {
 
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccessMessage, setPasswordSuccessMessage] = useState("");
+  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
   const [cepStatus, setCepStatus] = useState("");
 
   const methods = useForm({
@@ -92,7 +97,7 @@ const ProfilePage = () => {
     }
   };
 
-  const onSubmit = async (data) => {
+  const onProfileSubmit = async (data) => {
     setError("");
     setSuccessMessage("");
     try {
@@ -118,6 +123,24 @@ const ProfilePage = () => {
       setError(
         err.response?.data?.message || "Não foi possível salvar as alterações."
       );
+    }
+  };
+
+  const onPasswordSubmit = async (data) => {
+    setPasswordError("");
+    setPasswordSuccessMessage("");
+    setIsSubmittingPassword(true);
+    try {
+      await updatePassword(data);
+      setPasswordSuccessMessage("Senha alterada com sucesso!");
+      setTimeout(() => setPasswordSuccessMessage(""), 3000);
+    } catch (err) {
+      console.error("Erro ao alterar a senha:", err);
+      setPasswordError(
+        err.response?.data?.message || "Não foi possível alterar a senha."
+      );
+    } finally {
+      setIsSubmittingPassword(false);
     }
   };
 
@@ -155,7 +178,7 @@ const ProfilePage = () => {
 
         <form
           id="profile-form"
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onProfileSubmit)}
           className="form-container"
         >
           {/* ATUALIZADO: O formulário agora usa o componente reutilizável para consistência */}
@@ -359,6 +382,17 @@ const ProfilePage = () => {
             </div>
           </fieldset>
         </form>
+
+        <div className="form-container" style={{ marginTop: "2rem" }}>
+          {passwordError && <p className="error-message">{passwordError}</p>}
+          {passwordSuccessMessage && (
+            <p className="success-message">{passwordSuccessMessage}</p>
+          )}
+          <PasswordChangeForm
+            onSubmit={onPasswordSubmit}
+            isSubmitting={isSubmittingPassword}
+          />
+        </div>
       </FormPageLayout>
     </FormProvider>
   );

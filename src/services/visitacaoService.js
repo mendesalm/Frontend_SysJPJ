@@ -3,7 +3,6 @@ import apiClient from "./apiClient";
 
 /**
  * Busca a lista de todas as visitações, com suporte a paginação e filtros.
- * ROTA CORRIGIDA DE /visitacoes PARA /visitas
  * @param {object} params - Parâmetros como { page, limit, search }
  * @returns {Promise}
  */
@@ -13,7 +12,6 @@ export const getVisitas = (params) => {
 
 /**
  * Busca a lista de visitações apenas do membro logado.
- * ROTA CORRIGIDA DE /visitacoes/me PARA /visitas/me
  * @param {object} params - Parâmetros como { page, limit }
  * @returns {Promise}
  */
@@ -56,4 +54,13 @@ export const updateVisita = (id, visitaData) => {
  */
 export const deleteVisita = (id) => {
   return apiClient.delete(`/visitas/${id}`);
+};
+
+/**
+ * NOVA FUNÇÃO: Busca lojas para o autocompletar.
+ * @param {string} query - O termo a ser buscado.
+ * @returns {Promise}
+ */
+export const searchLojas = (query) => {
+  return apiClient.get(`/visitas/lojas/search`, { params: { q: query } });
 };

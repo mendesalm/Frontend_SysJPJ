@@ -86,6 +86,11 @@ const menuConfig = {
       { label: "Gestão de Permissões", path: "/admin/permissions" },
       { label: "Gestão de Templates", path: "/admin/templates" },
       {
+        label: "Gestão de Lojas",
+        path: "/admin/lojas",
+        permission: "gerenciarCadastroLojas",
+      },
+      {
         label: "Configurar Balaústre",
         path: "/admin/balaustre-settings",
         permission: "gerenciarConfiguracoes",

@@ -77,7 +77,7 @@ body {
   width: 100%; /* Ensure they take full width */
   height: 100%; /* Ensure they take full height */
   scroll-behavior: smooth;
-  overflow: hidden; /* Prevent scrollbars on html */
+  overflow-x: hidden; /* Prevent horizontal scrollbars */
   position: relative; /* Added for explicit positioning */
   top: 0; /* Added for explicit positioning */
   left: 0; /* Added for explicit positioning */
@@ -130,10 +130,21 @@ body {
   margin: 0 auto;
 }
 
+.scroll-container {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+}
+
+.scroll-container section {
+  scroll-snap-align: start;
+  height: 100vh;
+}
+
 /* PARA COMPENSAR O HEADER FIXO NA NAVEGAÇÃO POR ÂNCORA */
 #inicio,
 #sobre-nos,
 #localizacao,
 #contato {
-  scroll-margin-top: 8vh; /* ANTES: 12vh. Ajustado para a altura do header de 14vh */
+  scroll-margin-top: 4vh; /* ANTES: 12vh. Ajustado para a altura do header de 14vh */
 }

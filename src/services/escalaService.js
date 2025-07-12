@@ -4,8 +4,10 @@ export const getEscala = () => {
   return apiClient.get("/escala");
 };
 
-export const updateOrdemEscala = (novaOrdemIds) => {
-  return apiClient.put("/escala/ordenar", { novaOrdemIds });
+// CORREÇÃO DEFINITIVA: A função agora envia um objeto com a chave "ordemIds",
+// conforme especificado no novo relatório do backend.
+export const updateOrdemEscala = (ids) => {
+  return apiClient.put("/escala/ordenar", { ordemIds: ids });
 };
 
 export const getProximoResponsavel = () => {
@@ -20,26 +22,14 @@ export const inicializarEscala = (primeiroMembroId = null) => {
   return apiClient.post("/escala/inicializar", { primeiroMembroId });
 };
 
-/**
- * Busca os próximos 5 membros ativos na escala do jantar.
- * @returns {Promise}
- */
-export const getProximosDaFila = () => {
-  return apiClient.get("/escala-jantar/proximos");
-};
-
-/**
- * Adiciona um membro específico ao final da fila da escala.
- * @param {number} lodgeMemberId - O ID do membro a ser adicionado.
- */
 export const adicionarMembroEscala = (lodgeMemberId) => {
   return apiClient.post("/escala/adicionar", { lodgeMemberId });
 };
 
-/**
- * Remove permanentemente um membro da escala.
- * @param {number} escalaId - O ID do registro na tabela ResponsabilidadesJantar.
- */
 export const removerMembroEscala = (escalaId) => {
   return apiClient.delete(`/escala/${escalaId}`);
+};
+
+export const getProximosDaFila = () => {
+  return apiClient.get("/escala-jantar/proximos");
 };

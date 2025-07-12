@@ -1,7 +1,6 @@
 // src/validators/visitacaoValidator.js
 import * as yup from "yup";
 
-// Lista de tipos de sessão para consistência
 export const TIPO_SESSAO_OPTIONS = [
   "Ordinária no Grau de Aprendiz",
   "Ordinária no Grau de Companheiro",
@@ -9,6 +8,7 @@ export const TIPO_SESSAO_OPTIONS = [
   "Magna de Iniciação",
   "Magna de Elevação",
   "Magna de Exaltação",
+  "Magna de Instalação e Posse",
   "Magna Pública",
   "Magna Grau 1",
   "Magna Grau 2",
@@ -16,28 +16,40 @@ export const TIPO_SESSAO_OPTIONS = [
 ];
 
 export const visitacaoValidationSchema = yup.object().shape({
-  membroId: yup
+  lodgeMemberId: yup
     .number()
     .required("É obrigatório selecionar um membro.")
     .typeError("Seleção de membro inválida."),
 
-  dataVisita: yup
+  dataSessao: yup
     .date()
     .required("A data da visita é obrigatória.")
     .max(new Date(), "A data da visita não pode ser no futuro.")
     .typeError("Forneça uma data válida."),
 
-  nomeLojaVisitada: yup
-    .string()
-    .required("O nome da loja visitada é obrigatório.")
-    .min(3, "O nome da loja deve ter pelo menos 3 caracteres."),
-
-  potenciaLojaVisitada: yup.string(),
-
-  orienteLojaVisitada: yup.string(),
-
   tipoSessao: yup
     .string()
     .oneOf(TIPO_SESSAO_OPTIONS, "Tipo de sessão inválido.")
     .required("O tipo de sessão é obrigatório."),
+
+  // Validação para o novo objeto de loja
+  dadosLoja: yup
+    .object()
+    .shape({
+      nome: yup.string().required("O nome da loja é obrigatório."),
+      cidade: yup.string().required("A cidade da loja é obrigatória."),
+      estado: yup.string().required("O estado da loja é obrigatório."),
+      potencia: yup.string().required("A potência da loja é obrigatória."),
+      numero: yup
+        .number()
+        .nullable()
+        .typeError("O número da loja deve ser um valor numérico."),
+    })
+    .required(),
+
+  dataEntrega: yup
+    .date()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === "" ? null : value))
+    .typeError("Forneça uma data válida."),
 });

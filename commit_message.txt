@@ -1,9 +1,8 @@
-feat: Resolve ESLint errors and warnings
+feat: Implement commission management and calendar improvements
 
-This commit addresses several ESLint issues:
-- Corrected `ThemeContext.jsx` to properly export `ThemeContext`.
-- Removed the unused `src/context/theme.js` file.
-- Added `eslint-plugin-react` and configured ESLint to properly handle React components, resolving `no-undef` errors related to JSX props.
-- Disabled `react/prop-types` rule to avoid excessive warnings.
-- Fixed `react/no-unescaped-entities` errors by escaping quotes in JSX.
-- Added `displayName` to anonymous React components to resolve `react/display-name` errors.
+This commit includes:
+- Refactoring of commission forms and display to include president and improved member handling.
+- Reversion of previous calendar event grouping changes.
+- Integration of reservation form into a modal in LocacaoSalaoPage.
+- Adjustments to dashboard layout, moving theme switcher and logout to header.
+- Minor styling and configuration updates.

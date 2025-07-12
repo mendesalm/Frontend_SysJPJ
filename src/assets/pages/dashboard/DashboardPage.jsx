@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { getDashboardData } from "../../../services/dashboardService";
+import { getAllAvisos } from "../../../services/avisoService";
 import AdminDashboard from "./AdminDashboard";
 import MemberDashboard from "./MemberDashboard";
 import DashboardAvisos from "./components/DashboardAvisos";
@@ -10,17 +11,28 @@ import "./DashboardPage.css";
 
 const DashboardPage = () => {
   const [dashboardData, setDashboardData] = useState(null);
+  const [totalAvisos, setTotalAvisos] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await getDashboardData();
-      if (response && response.data) {
-        setDashboardData(response.data);
+      const [dashboardResponse, avisosResponse] = await Promise.all([
+        getDashboardData(),
+        getAllAvisos(),
+      ]);
+
+      if (dashboardResponse && dashboardResponse.data) {
+        setDashboardData(dashboardResponse.data);
       } else {
         throw new Error("Resposta da API de dashboard inválida.");
+      }
+
+      if (avisosResponse && avisosResponse.data) {
+        setTotalAvisos(avisosResponse.data.length);
+      } else {
+        throw new Error("Resposta da API de avisos inválida.");
       }
     } catch (err) {
       console.error("Erro ao buscar dados do dashboard:", err);
@@ -64,7 +76,7 @@ const DashboardPage = () => {
       <div className="dashboard-bottom-section">
         <div className="avisos-classificados-column">
           <div className="avisos-widget-container">
-            <DashboardAvisos />
+            <DashboardAvisos totalAvisos={totalAvisos} />
           </div>
           <div className="classificados-widget-container">
             {/* A prop foi alterada para passar o número total */}
