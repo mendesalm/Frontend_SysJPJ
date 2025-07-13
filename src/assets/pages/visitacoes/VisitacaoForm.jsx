@@ -17,21 +17,22 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
   const [sugestoes, setSugestoes] = useState([]);
   const [isSearchingLojas, setIsSearchingLojas] = useState(false);
   const [isLojaInputFocused, setIsLojaInputFocused] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    watch,
     setValue,
     control,
+    watch,
   } = useForm({
     resolver: yupResolver(visitacaoValidationSchema),
   });
 
-  const lojaVisitadaValue = watch("dadosLoja.nome");
-  const debouncedSearchTerm = useDebounce(lojaVisitadaValue, 300);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const dadosLoja = watch("dadosLoja");
 
   useEffect(() => {
     async function fetchMembers() {
@@ -80,6 +81,7 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
           : "",
         dadosLoja: visitaToEdit.loja,
       });
+      setSearchTerm(visitaToEdit.loja?.nome || "");
     } else {
       reset();
     }
@@ -87,13 +89,46 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
 
   const handleSugestaoClick = (sugestao) => {
     setValue("dadosLoja", sugestao, { shouldValidate: true });
+    setSearchTerm(sugestao.nome);
     setSugestoes([]);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setValue("dadosLoja.nome", e.target.value, { shouldValidate: true });
   };
 
   const membroOptions = membros.map((m) => ({
     value: m.id,
     label: m.NomeCompleto,
   }));
+
+  const customSelectStyles = {
+    control: (base) => ({
+      ...base,
+      backgroundColor: "var(--cor-fundo-input)",
+      borderColor: "var(--cor-borda-input)",
+      "&:hover": { borderColor: "var(--cor-foco-input-borda)" },
+    }),
+    singleValue: (base) => ({ ...base, color: "var(--cor-texto-primario)" }),
+    input: (base) => ({ ...base, color: "var(--cor-texto-primario)" }),
+    placeholder: (base) => ({ ...base, color: "var(--cor-texto-secundario)" }),
+    menu: (base) => ({
+      ...base,
+      backgroundColor: "var(--cor-sidebar-primaria)",
+      zIndex: 5,
+    }),
+    option: (base, { isFocused, isSelected }) => ({
+      ...base,
+      backgroundColor: isSelected
+        ? "var(--cor-active-icon)"
+        : isFocused
+        ? "var(--cor-fundo-hover-sidebar)"
+        : "var(--cor-fundo-app)",
+      color: "var(--cor-texto-primario)",
+      "&:active": { backgroundColor: "var(--cor-active-icon)" },
+    }),
+  };
 
   return (
     <form onSubmit={handleSubmit(onSave)} className="form-container">
@@ -109,47 +144,8 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
               isClearable
               isSearchable
               placeholder="Selecione um membro..."
-              className={`form-select ${
-                errors.lodgeMemberId ? "is-invalid" : ""
-              }`}
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  backgroundColor: "var(--cor-fundo-input)",
-                  color: "var(--cor-texto-primario)",
-                  borderColor: "var(--cor-borda-input)",
-                  "&:hover": { borderColor: "var(--cor-foco-input-borda)" },
-                }),
-                singleValue: (base) => ({
-                  ...base,
-                  color: "var(--cor-texto-primario)",
-                }),
-                input: (base) => ({
-                  ...base,
-                  color: "var(--cor-texto-primario)",
-                }),
-                placeholder: (base) => ({
-                  ...base,
-                  color: "var(--cor-texto-secundario)",
-                }),
-                menu: (base) => ({
-                  ...base,
-                  backgroundColor: "var(--cor-fundo-input)",
-                  borderColor: "var(--cor-borda-input)",
-                }),
-                option: (base, { isFocused, isSelected }) => ({
-                  ...base,
-                  backgroundColor: isSelected
-                    ? "var(--cor-foco-input-borda)"
-                    : isFocused
-                    ? "var(--cor-fundo-hover-sidebar)"
-                    : "var(--cor-fundo-input)",
-                  color: isSelected ? "white" : "var(--cor-texto-primario)",
-                  "&:active": {
-                    backgroundColor: "var(--cor-foco-input-borda)",
-                  },
-                }),
-              }}
+              classNamePrefix="react-select"
+              styles={customSelectStyles}
               onChange={(selectedOption) =>
                 field.onChange(selectedOption ? selectedOption.value : "")
               }
@@ -169,14 +165,17 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
         <legend>Dados da Loja Visitada</legend>
         <div className="autocomplete-container">
           <div className="form-group">
-            <label htmlFor="lojaVisitadaSearch">Pesquisar/Nome da Loja</label>
+            <label htmlFor="lojaVisitadaSearch">
+              Pesquisar Loja (Nome ou Número)
+            </label>
             <input
               id="lojaVisitadaSearch"
               type="text"
-              {...register("dadosLoja.nome")}
+              value={searchTerm}
+              onChange={handleSearchChange}
               className={`form-input ${
                 errors.dadosLoja?.nome ? "is-invalid" : ""
-              }`}
+              } ${isLojaInputFocused ? "focused" : ""}`}
               autoComplete="off"
               onFocus={() => setIsLojaInputFocused(true)}
               onBlur={() => setTimeout(() => setIsLojaInputFocused(false), 200)}
@@ -211,51 +210,47 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
           )}
         </div>
 
-        <div className="form-grid" style={{ marginTop: "1rem" }}>
-          <div className="form-group">
+        {/* LAYOUT EM LINHA COM PROPORÇÕES */}
+        <div className="form-row-flex" style={{ marginTop: "1rem" }}>
+          <div className="form-group" style={{ flexBasis: "40%" }}>
+            <label>Nome</label>
+            <input
+              readOnly
+              value={dadosLoja?.nome || ""}
+              className="form-input"
+            />
+          </div>
+          <div className="form-group" style={{ flexBasis: "8%" }}>
+            <label>Nº</label>
+            <input
+              readOnly
+              value={dadosLoja?.numero || ""}
+              className="form-input"
+            />
+          </div>
+          <div className="form-group" style={{ flexBasis: "25%" }}>
             <label>Cidade</label>
             <input
-              type="text"
-              {...register("dadosLoja.cidade")}
-              className={`form-input ${
-                errors.dadosLoja?.cidade ? "is-invalid" : ""
-              }`}
+              readOnly
+              value={dadosLoja?.cidade || ""}
+              className="form-input"
             />
-            {errors.dadosLoja?.cidade && (
-              <p className="form-error-message">
-                {errors.dadosLoja.cidade.message}
-              </p>
-            )}
           </div>
-          <div className="form-group">
-            <label>Estado (UF)</label>
+          <div className="form-group" style={{ flexBasis: "8%" }}>
+            <label>UF</label>
             <input
-              type="text"
-              {...register("dadosLoja.estado")}
-              className={`form-input ${
-                errors.dadosLoja?.estado ? "is-invalid" : ""
-              }`}
+              readOnly
+              value={dadosLoja?.estado || ""}
+              className="form-input"
             />
-            {errors.dadosLoja?.estado && (
-              <p className="form-error-message">
-                {errors.dadosLoja.estado.message}
-              </p>
-            )}
           </div>
-          <div className="form-group">
+          <div className="form-group" style={{ flexBasis: "12%" }}>
             <label>Potência</label>
             <input
-              type="text"
-              {...register("dadosLoja.potencia")}
-              className={`form-input ${
-                errors.dadosLoja?.potencia ? "is-invalid" : ""
-              }`}
+              readOnly
+              value={dadosLoja?.potencia || ""}
+              className="form-input"
             />
-            {errors.dadosLoja?.potencia && (
-              <p className="form-error-message">
-                {errors.dadosLoja.potencia.message}
-              </p>
-            )}
           </div>
         </div>
       </fieldset>

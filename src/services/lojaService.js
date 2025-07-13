@@ -6,8 +6,8 @@ import apiClient from "./apiClient";
  * @param {string} query - O termo a ser buscado.
  * @returns {Promise}
  */
-export const searchLojas = (query) => {
-  return apiClient.get(`/lojas/search`, { params: { q: query } });
+export const searchLojas = (query, searchType = "nome") => {
+  return apiClient.get(`/lojas/search`, { params: { q: query, type: searchType } });
 };
 
 /**

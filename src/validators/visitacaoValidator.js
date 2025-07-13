@@ -8,7 +8,6 @@ export const TIPO_SESSAO_OPTIONS = [
   "Magna de Iniciação",
   "Magna de Elevação",
   "Magna de Exaltação",
-  "Magna de Instalação e Posse",
   "Magna Pública",
   "Magna Grau 1",
   "Magna Grau 2",
@@ -32,18 +31,19 @@ export const visitacaoValidationSchema = yup.object().shape({
     .oneOf(TIPO_SESSAO_OPTIONS, "Tipo de sessão inválido.")
     .required("O tipo de sessão é obrigatório."),
 
-  // Validação para o novo objeto de loja
   dadosLoja: yup
     .object()
     .shape({
       nome: yup.string().required("O nome da loja é obrigatório."),
+      // ATUALIZADO: O número agora é obrigatório.
+      numero: yup
+        .number()
+        .required("O número da loja é obrigatório.")
+        .typeError("O número da loja deve ser um valor numérico.")
+        .nullable(),
       cidade: yup.string().required("A cidade da loja é obrigatória."),
       estado: yup.string().required("O estado da loja é obrigatório."),
       potencia: yup.string().required("A potência da loja é obrigatória."),
-      numero: yup
-        .number()
-        .nullable()
-        .typeError("O número da loja deve ser um valor numérico."),
     })
     .required(),
 

@@ -360,3 +360,20 @@
     margin-top: 1rem;
   }
 }
+.form-input.focused {
+  border-color: #22c55e; /* Borda verde */
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25); /* Sombra verde suave */
+}
+
+/* NOVO: Estilo para o layout em linha flexível */
+.form-row-flex {
+  display: flex;
+  flex-wrap: wrap; /* Permite que quebre a linha em ecrãs muito pequenos */
+  gap: 1rem;
+  align-items: flex-end; /* Alinha os campos na base */
+}
+
+.form-row-flex .form-group {
+  flex-grow: 1; /* Permite que os campos cresçam para preencher o espaço */
+  margin-bottom: 0;
+}
