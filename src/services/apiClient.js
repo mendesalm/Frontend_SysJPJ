@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Cria a instância base do cliente Axios
 const apiClient = axios.create({
-  baseURL: "/api", // O proxy no vite.config.js vai tratar disto
+  baseURL: "/api",
 });
 
 // Interceptor de Requisição: Adiciona o token a cada chamada
@@ -23,22 +23,25 @@ apiClient.interceptors.request.use(
 const refreshAuthToken = async () => {
   const refreshToken = localStorage.getItem("refreshToken");
   if (!refreshToken) {
-    console.log("Nenhum refresh token disponível, deslogando.");
-    throw new Error("No refresh token");
+    throw new Error("Refresh token não disponível.");
   }
 
   try {
+    // Usa uma instância limpa do axios para a renovação para evitar um loop de interceptores
     const response = await axios.post("/api/auth/refresh-token", {
       token: refreshToken,
     });
     const { token: newAuthToken } = response.data;
 
     localStorage.setItem("authToken", newAuthToken);
-
     return newAuthToken;
   } catch (error) {
     console.error("Falha ao renovar o token:", error);
-    throw error;
+    // Limpa os tokens inválidos e redireciona
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("refreshToken");
+    window.location.href = "/login"; // CORREÇÃO: Redireciona para a página de login correta
+    throw new Error("Sessão expirada. Por favor, faça login novamente.");
   }
 };
 
@@ -48,36 +51,28 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // CORREÇÃO: Adicionada uma verificação para garantir que 'error.response' existe.
-    // Isso previne o crash em erros de rede onde não há resposta do servidor.
-    if (
-      error.response &&
-      error.response.status === 401 &&
-      !originalRequest._retry
-    ) {
+    // Verifica se o erro é 401 e se ainda não tentámos renovar o token para esta requisição
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      console.log("Token expirado. Tentando renovar...");
 
       try {
         const newAuthToken = await refreshAuthToken();
-        console.log("Token renovado com sucesso.");
 
+        // Atualiza o header no apiClient e na requisição original
         apiClient.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${newAuthToken}`;
         originalRequest.headers["Authorization"] = `Bearer ${newAuthToken}`;
 
+        // Tenta novamente a requisição original com o novo token
         return apiClient(originalRequest);
       } catch (refreshError) {
-        console.error("Logout forçado devido à falha na renovação do token.");
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("refreshToken");
-        window.location.href = "/login-teste";
+        // Se a renovação falhar, rejeita a promessa
         return Promise.reject(refreshError);
       }
     }
 
-    // Se o erro não for 401 ou não tiver um 'response', ele é simplesmente rejeitado.
+    // Para todos os outros erros, apenas os propaga
     return Promise.reject(error);
   }
 );

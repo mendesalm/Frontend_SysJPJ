@@ -219,3 +219,44 @@
 .custom-table tbody tr {
   transition: background-color 0.2s ease-in;
 }
+
+/* --- Estilos para Paginação --- */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 1rem;
+  color: var(--cor-texto-primario);
+}
+
+.btn-pagination {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #303b4e, #293241);
+  color: var(--cor-texto-primario);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 5px 5px 10px #252e3c, -5px -5px 10px #354054;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-pagination:hover {
+  box-shadow: 2px 2px 5px #252e3c, -2px -2px 5px #354054;
+  transform: translateY(1px);
+}
+
+.btn-pagination:disabled {
+  background: #2d3748;
+  box-shadow: inset 3px 3px 7px #252e3c, inset -3px -3px 7px #354054;
+  color: var(--cor-texto-secundario);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pagination-controls span {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}

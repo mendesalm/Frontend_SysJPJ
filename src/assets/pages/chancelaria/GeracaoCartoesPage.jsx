@@ -1,75 +1,126 @@
 // src/assets/pages/chancelaria/GeracaoCartoesPage.jsx
-import React, { useState, useMemo } from "react";
-
-import { useDataFetching } from "~/hooks/useDataFetching";
+import React, { useState, useMemo, useEffect } from "react"; // useCallback removido
+import { useAuth } from "~/hooks/useAuth";
 import { getAllMembers } from "~/services/memberService";
 import { gerarCartao } from "~/services/chancelerService";
 import { showSuccessToast, showErrorToast } from "~/utils/notifications";
-import apiClient from "~/services/apiClient";
 import "./GeracaoCartoes.css";
 import "~/assets/styles/TableStyles.css";
 
+// Função auxiliar para formatar a data de forma segura
+const formatLocalDate = (dateString) => {
+  if (!dateString || isNaN(new Date(dateString))) return "Não informado";
+  // A conversão para new Date() e depois para toLocaleDateString() lida com o fuso horário corretamente.
+  return new Date(dateString).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+};
+
 const GeracaoCartoesPage = () => {
-  
-  const { data: members, isLoading, error } = useDataFetching(getAllMembers);
-  const [isGenerating, setIsGenerating] = useState(null); // Controla o estado de loading de cada botão
+  const { user } = useAuth();
 
-  
+  // A busca de dados agora é feita com useEffect para maior clareza e robustez
+  const [members, setMembers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // CORREÇÃO: Os hooks useMemo foram movidos para o topo do componente, antes de qualquer retorno condicional.
-  // Helper function to calculate the next upcoming birthday
-  const getNextBirthday = (dateString) => {
-    const today = new Date();
-    const [_, month, day] = dateString.split('-').map(Number);
-    let birthdayThisYear = new Date(today.getFullYear(), month - 1, day);
+  const [isGenerating, setIsGenerating] = useState(null);
+  const [generatedLinks, setGeneratedLinks] = useState({});
 
-    if (birthdayThisYear < today) {
-      birthdayThisYear = new Date(today.getFullYear() + 1, month - 1, day);
-    }
-    return birthdayThisYear;
+  useEffect(() => {
+    const fetchMembersWithFamily = async () => {
+      try {
+        setIsLoading(true);
+        const membersData = await getAllMembers({
+          include: "familiares",
+          limit: 500,
+        });
+        setMembers(membersData || []);
+      } catch (err) {
+        console.error("Erro ao buscar dados dos membros:", err);
+        setError("Não foi possível carregar os dados.");
+        showErrorToast("Erro ao carregar os dados dos membros.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMembersWithFamily();
+  }, []);
+
+  const canGenerate =
+    user?.credencialAcesso === "Webmaster" ||
+    user?.permissoes?.some(
+      (p) => p.nomeFuncionalidade === "gerenciarCartoesAniversario"
+    );
+
+  // SOLUÇÃO: Lógica de ordenação robusta que lida com datas inválidas
+  const sortAniversariantesPorProximidade = (a, b) => {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    const getProximoAniversario = (nasc) => {
+      // Se a data for nula ou inválida, retorna uma data no futuro distante para colocar no final da lista
+      if (!nasc || isNaN(new Date(nasc))) {
+        return new Date(8640000000000000); // Data máxima
+      }
+      const dataNascimento = new Date(nasc);
+      let proximoAniv = new Date(
+        hoje.getFullYear(),
+        dataNascimento.getMonth(),
+        dataNascimento.getDate()
+      );
+
+      if (proximoAniv < hoje) {
+        proximoAniv.setFullYear(hoje.getFullYear() + 1);
+      }
+      return proximoAniv;
+    };
+
+    const proximoAnivA = getProximoAniversario(
+      a.DataNascimento || a.dataNascimento
+    );
+    const proximoAnivB = getProximoAniversario(
+      b.DataNascimento || b.dataNascimento
+    );
+
+    return proximoAnivA - proximoAnivB;
   };
 
-  const sortedActiveMembers = useMemo(() => {
+  const allFamiliares = useMemo(() => {
     if (!members) return [];
     return members
-      .filter((m) => m.Situacao === "Ativo")
-      .sort((a, b) => {
-        const nextBirthdayA = getNextBirthday(a.DataNascimento);
-        const nextBirthdayB = getNextBirthday(b.DataNascimento);
-        return nextBirthdayA - nextBirthdayB;
-      });
-  }, [members]);
-
-  const sortedAllFamiliares = useMemo(() => {
-    if (!members) return [];
-    const familiares = members.flatMap(
-      (m) =>
+      .flatMap((m) =>
         (m.familiares || [])
           .filter((f) => !f.falecido)
           .map((f) => ({ ...f, membroNome: m.NomeCompleto }))
-    );
-    return familiares.sort((a, b) => {
-      const nextBirthdayA = getNextBirthday(a.dataNascimento);
-      const nextBirthdayB = getNextBirthday(b.dataNascimento);
-      return nextBirthdayA - nextBirthdayB;
-    });
+      )
+      .sort(sortAniversariantesPorProximidade);
+  }, [members]);
+
+  const activeMembers = useMemo(() => {
+    if (!members) return [];
+    return members
+      .filter((m) => m.Situacao === "Ativo")
+      .sort(sortAniversariantesPorProximidade);
   }, [members]);
 
   const handleGenerateClick = async (id, type) => {
-    setIsGenerating(`${type}-${id}`);
+    const uniqueKey = `${type}-${id}`;
+    setIsGenerating(uniqueKey);
     try {
       const payload =
         type === "member" ? { memberId: id } : { familyMemberId: id };
+
       const response = await gerarCartao(payload);
 
       const filePath = response.data.caminho;
-      const baseURL = apiClient.defaults.baseURL.startsWith("http")
-        ? apiClient.defaults.baseURL
-        : window.location.origin;
-      const downloadUrl = `${baseURL}/${filePath}`.replace("/api/", "/");
+      if (!filePath) {
+        throw new Error("A API não retornou um caminho para o ficheiro.");
+      }
 
-      window.open(downloadUrl, "_blank");
-      showSuccessToast("Cartão gerado e transferido com sucesso!");
+      const downloadUrl = filePath;
+
+      setGeneratedLinks((prev) => ({ ...prev, [uniqueKey]: downloadUrl }));
+
+      showSuccessToast("Cartão gerado! Clique em 'Baixar' para abrir.");
     } catch (err) {
       showErrorToast(
         err.response?.data?.message || "Não foi possível gerar o cartão."
@@ -79,7 +130,23 @@ const GeracaoCartoesPage = () => {
     }
   };
 
-  
+  const handleDownloadAndReset = (uniqueKey, downloadUrl) => {
+    window.open(downloadUrl, "_blank");
+    setGeneratedLinks((prev) => {
+      const newLinks = { ...prev };
+      delete newLinks[uniqueKey];
+      return newLinks;
+    });
+  };
+
+  if (!canGenerate && !isLoading) {
+    return (
+      <div className="table-page-container">
+        <h1>Acesso Negado</h1>
+        <p>Você não tem permissão para aceder a esta funcionalidade.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="geracao-cartoes-page">
@@ -116,26 +183,48 @@ const GeracaoCartoesPage = () => {
                     </td>
                   </tr>
                 )}
-                
-                  {sortedActiveMembers.map((member) => (
-                  <tr key={`member-${member.id}`}>
-                    <td>{member.NomeCompleto}</td>
-                    <td>
-                      {new Date(member.DataNascimento + 'T00:00:00').toLocaleDateString()}
-                    </td>
-                    <td>
-                      <button
-                        className="btn-action btn-approve"
-                        onClick={() => handleGenerateClick(member.id, "member")}
-                        disabled={isGenerating === `member-${member.id}`}
-                      >
-                        {isGenerating === `member-${member.id}`
-                          ? "A gerar..."
-                          : "Gerar Cartão"}
-                      </button>
-                    </td>
+                {!isLoading && activeMembers.length === 0 && (
+                  <tr>
+                    <td colSpan="3">Nenhum membro ativo encontrado.</td>
                   </tr>
-                ))}
+                )}
+                {activeMembers.map((member) => {
+                  const uniqueKey = `member-${member.id}`;
+                  const downloadLink = generatedLinks[uniqueKey];
+                  return (
+                    <tr key={uniqueKey}>
+                      <td>{member.NomeCompleto}</td>
+                      <td>{formatLocalDate(member.DataNascimento)}</td>
+                      <td className="actions-cell">
+                        {downloadLink ? (
+                          <button
+                            className="btn-action btn-download"
+                            onClick={() =>
+                              handleDownloadAndReset(uniqueKey, downloadLink)
+                            }
+                          >
+                            Baixar Cartão
+                          </button>
+                        ) : (
+                          <button
+                            className="btn-action btn-approve"
+                            onClick={() =>
+                              handleGenerateClick(member.id, "member")
+                            }
+                            disabled={
+                              isGenerating === uniqueKey ||
+                              !member.DataNascimento
+                            }
+                          >
+                            {isGenerating === uniqueKey
+                              ? "A gerar..."
+                              : "Gerar Cartão"}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -158,28 +247,49 @@ const GeracaoCartoesPage = () => {
                     <td colSpan="4">A carregar familiares...</td>
                   </tr>
                 )}
-                {sortedAllFamiliares.map((familiar) => (
-                  <tr key={`familiar-${familiar.id}`}>
-                    <td>{familiar.nomeCompleto}</td>
-                    <td>{familiar.membroNome}</td>
-                    <td>
-                      {new Date(familiar.dataNascimento + 'T00:00:00').toLocaleDateString()}
-                    </td>
-                    <td>
-                      <button
-                        className="btn-action btn-approve"
-                        onClick={() =>
-                          handleGenerateClick(familiar.id, "familiar")
-                        }
-                        disabled={isGenerating === `familiar-${familiar.id}`}
-                      >
-                        {isGenerating === `familiar-${familiar.id}`
-                          ? "A gerar..."
-                          : "Gerar Cartão"}
-                      </button>
-                    </td>
+                {!isLoading && allFamiliares.length === 0 && (
+                  <tr>
+                    <td colSpan="4">Nenhum familiar encontrado.</td>
                   </tr>
-                ))}
+                )}
+                {allFamiliares.map((familiar) => {
+                  const uniqueKey = `familiar-${familiar.id}`;
+                  const downloadLink = generatedLinks[uniqueKey];
+                  return (
+                    <tr key={uniqueKey}>
+                      <td>{familiar.nomeCompleto}</td>
+                      <td>{familiar.membroNome}</td>
+                      <td>{formatLocalDate(familiar.dataNascimento)}</td>
+                      <td className="actions-cell">
+                        {downloadLink ? (
+                          <button
+                            className="btn-action btn-download"
+                            onClick={() =>
+                              handleDownloadAndReset(uniqueKey, downloadLink)
+                            }
+                          >
+                            Baixar Cartão
+                          </button>
+                        ) : (
+                          <button
+                            className="btn-action btn-approve"
+                            onClick={() =>
+                              handleGenerateClick(familiar.id, "familiar")
+                            }
+                            disabled={
+                              isGenerating === uniqueKey ||
+                              !familiar.dataNascimento
+                            }
+                          >
+                            {isGenerating === uniqueKey
+                              ? "A gerar..."
+                              : "Gerar Cartão"}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

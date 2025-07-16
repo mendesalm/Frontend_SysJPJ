@@ -1,43 +1,56 @@
 // src/services/memberService.js
 import apiClient from "./apiClient";
 
-export const getAllMembers = (params) => {
-  return apiClient.get("/lodgemembers", { params });
+/**
+ * Busca todos os membros com suporte a filtros e paginação.
+ * A função agora retorna diretamente o array 'data' de dentro da resposta.
+ * @param {object} params - Parâmetros como { include, limit, status }
+ * @returns {Promise<Array<object>>} Uma promessa que resolve para o array de membros.
+ */
+export const getAllMembers = async (params) => {
+  const response = await apiClient.get("/lodgemembers", { params });
+  // SOLUÇÃO: Garante que o frontend sempre receba o array de membros,
+  // independentemente da estrutura da resposta.
+  return response.data.data || response.data;
 };
 
+/**
+ * Busca os detalhes de um membro específico.
+ * @param {number} id - O ID do membro.
+ * @returns {Promise<axios.AxiosResponse<any>>}
+ */
 export const getMemberById = (id) => {
   return apiClient.get(`/lodgemembers/${id}`);
 };
 
-// ATUALIZADO: Espera FormData e envia com o cabeçalho correto.
-export const createMember = (formData) => {
-  return apiClient.post("/lodgemembers", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+/**
+ * Cria um novo membro.
+ * @param {FormData} memberData - Os dados do novo membro.
+ * @returns {Promise<axios.AxiosResponse<any>>}
+ */
+export const createMember = (memberData) => {
+  return apiClient.post("/lodgemembers", memberData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
 };
 
-export const updateMember = (id, formData) => {
-  return apiClient.put(`/lodgemembers/${id}`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+/**
+ * Atualiza um membro existente.
+ * @param {number} id - O ID do membro.
+ * @param {FormData} memberData - Os novos dados do membro.
+ * @returns {Promise<axios.AxiosResponse<any>>}
+ */
+export const updateMember = (id, memberData) => {
+  return apiClient.put(`/lodgemembers/${id}`, memberData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
 };
 
-export const getCargosMembro = (memberId) => {
-  return apiClient.get(`/lodgemembers/${memberId}/cargos`);
-};
-
-export const addCargoMembro = (memberId, data) => {
-  return apiClient.post(`/lodgemembers/${memberId}/cargos`, data);
-};
-
-export const updateCargoMembro = (memberId, cargoId, data) => {
-  return apiClient.put(`/lodgemembers/${memberId}/cargos/${cargoId}`, data);
-};
-
-export const deleteCargoMembro = (memberId, cargoId) => {
-  return apiClient.delete(`/lodgemembers/${memberId}/cargos/${cargoId}`);
+/**
+ * Apaga um membro.
+ * @param {number} id - O ID do membro.
+ * @returns {Promise<axios.AxiosResponse<any>>}
+ */
+export const deleteMember = (id) => {
+  return apiClient.delete(`/lodgemembers/${id}`);
 };

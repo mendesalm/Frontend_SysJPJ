@@ -18,6 +18,8 @@ const GestaoVisitacoesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentVisita, setCurrentVisita] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const {
     data: allVisitas,
@@ -29,13 +31,18 @@ const GestaoVisitacoesPage = () => {
   const filteredVisitas = useMemo(() => {
     if (!allVisitas) return [];
 
-    const sortedVisitas = [...allVisitas].sort(
-      (a, b) => new Date(b.dataSessao) - new Date(a.dataSessao)
-    );
+    const sortedVisitas = [...allVisitas].sort((a, b) => {
+      const dateComparison = new Date(b.dataSessao) - new Date(a.dataSessao);
+      if (dateComparison !== 0) return dateComparison;
+
+      const nameA = a.visitante?.NomeCompleto || "";
+      const nameB = b.visitante?.NomeCompleto || "";
+      return nameA.localeCompare(nameB);
+    });
 
     return sortedVisitas.filter((visita) => {
-      const nomeMembro = visita.membro?.NomeCompleto || "";
-      const nomeLoja = visita.lojaVisitada || "";
+      const nomeMembro = visita.visitante?.NomeCompleto || "";
+      const nomeLoja = visita.loja?.nome || "";
 
       return (
         nomeMembro.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -43,6 +50,21 @@ const GestaoVisitacoesPage = () => {
       );
     });
   }, [allVisitas, searchQuery]);
+
+  const paginatedVisitas = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredVisitas.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredVisitas, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(filteredVisitas.length / itemsPerPage);
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
 
   const canManage =
     user?.credencialAcesso === "Diretoria" ||
@@ -67,11 +89,32 @@ const GestaoVisitacoesPage = () => {
   const handleSave = async (formData) => {
     try {
       if (currentVisita) {
-        await updateVisita(currentVisita.id, formData);
+        // Extrai o ID do membro do array para a chamada de atualização
+        const payload = {
+          ...formData,
+          lodgeMemberId: formData.lodgeMemberId[0],
+        };
+        await updateVisita(currentVisita.id, payload);
         showSuccessToast("Registro de visita atualizado com sucesso!");
       } else {
-        await createVisita(formData);
-        showSuccessToast("Registro de visita criado com sucesso!");
+        // Criação em massa
+        const { lodgeMemberId, ...visitaData } = formData;
+        const promises = lodgeMemberId.map(memberId => 
+          createVisita({ ...visitaData, lodgeMemberId: memberId })
+        );
+
+        const results = await Promise.allSettled(promises);
+
+        const successCount = results.filter(r => r.status === 'fulfilled').length;
+        const errorCount = results.filter(r => r.status === 'rejected').length;
+
+        if (successCount > 0) {
+          showSuccessToast(`${successCount} registro(s) de visita criado(s) com sucesso!`);
+        }
+        if (errorCount > 0) {
+          showErrorToast(`${errorCount} registro(s) falharam ao ser criados.`);
+          console.error("Falhas na criação em massa:", results.filter(r => r.status === 'rejected'));
+        }
       }
       refetch();
       setIsModalOpen(false);
@@ -122,9 +165,7 @@ const GestaoVisitacoesPage = () => {
               <th>Loja Visitada</th>
               <th>Oriente</th>
               <th>Data da Visita</th>
-              {/* --- INÍCIO DA ALTERAÇÃO --- */}
               <th>Data do Registro</th>
-              {/* --- FIM DA ALTERAÇÃO --- */}
               {canManage && <th>Ações</th>}
             </tr>
           </thead>
@@ -135,17 +176,16 @@ const GestaoVisitacoesPage = () => {
                   A carregar...
                 </td>
               </tr>
-            ) : filteredVisitas.length === 0 ? (
+            ) : paginatedVisitas.length === 0 ? (
               <tr>
                 <td colSpan={canManage ? 6 : 5} style={{ textAlign: "center" }}>
                   Nenhum registro de visitação encontrado.
                 </td>
               </tr>
             ) : (
-              filteredVisitas.map((visita) => (
+              paginatedVisitas.map((visita) => (
                 <tr key={visita.id}>
                   <td>{visita.visitante?.NomeCompleto || "N/A"}</td>
-                  {/* --- INÍCIO DA ALTERAÇÃO --- */}
                   <td>
                     {`${visita.loja?.nome || "N/A"}${
                       visita.loja?.numero ? `, nº ${visita.loja.numero}` : ""
@@ -166,7 +206,6 @@ const GestaoVisitacoesPage = () => {
                       timeZone: "UTC",
                     })}
                   </td>
-                  {/* --- FIM DA ALTERAÇÃO --- */}
                   {canManage && (
                     <td className="actions-cell">
                       <button
@@ -189,6 +228,28 @@ const GestaoVisitacoesPage = () => {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination-controls">
+          <button
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className="btn-pagination"
+          >
+            Anterior
+          </button>
+          <span>
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className="btn-pagination"
+          >
+            Próximo
+          </button>
+        </div>
+      )}
 
       <Modal
         isOpen={isModalOpen}

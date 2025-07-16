@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { FaPencilAlt } from "react-icons/fa";
 import {
   visitacaoValidationSchema,
   TIPO_SESSAO_OPTIONS,
@@ -18,6 +19,7 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
   const [isSearchingLojas, setIsSearchingLojas] = useState(false);
   const [isLojaInputFocused, setIsLojaInputFocused] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isManualEdit, setIsManualEdit] = useState(false);
 
   const {
     register,
@@ -26,13 +28,11 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
     reset,
     setValue,
     control,
-    watch,
   } = useForm({
     resolver: yupResolver(visitacaoValidationSchema),
   });
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
-  const dadosLoja = watch("dadosLoja");
 
   useEffect(() => {
     async function fetchMembers() {
@@ -73,6 +73,9 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
     if (visitaToEdit) {
       reset({
         ...visitaToEdit,
+        lodgeMemberId: visitaToEdit.lodgeMemberId
+          ? [visitaToEdit.lodgeMemberId]
+          : [],
         dataSessao: new Date(visitaToEdit.dataSessao)
           .toISOString()
           .split("T")[0],
@@ -83,7 +86,13 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
       });
       setSearchTerm(visitaToEdit.loja?.nome || "");
     } else {
-      reset();
+      reset({
+        lodgeMemberId: [],
+        dataSessao: "",
+        tipoSessao: TIPO_SESSAO_OPTIONS[0],
+        dadosLoja: { nome: "", numero: "", cidade: "", estado: "", potencia: "" },
+        dataEntrega: "",
+      });
     }
   }, [visitaToEdit, reset]);
 
@@ -91,11 +100,23 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
     setValue("dadosLoja", sugestao, { shouldValidate: true });
     setSearchTerm(sugestao.nome);
     setSugestoes([]);
+    setIsManualEdit(false);
   };
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    setValue("dadosLoja.nome", e.target.value, { shouldValidate: true });
+    if (!isManualEdit) {
+      setValue("dadosLoja.nome", e.target.value, { shouldValidate: true });
+    }
+  };
+
+  const handleManualEditToggle = () => {
+    setIsManualEdit(!isManualEdit);
+  };
+
+  const handleManualDataChange = (e) => {
+    const { name, value } = e.target;
+    setValue(name, value, { shouldValidate: true });
   };
 
   const membroOptions = membros.map((m) => ({
@@ -133,25 +154,30 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
   return (
     <form onSubmit={handleSubmit(onSave)} className="form-container">
       <div className="form-group">
-        <label htmlFor="lodgeMemberId">Membro</label>
+        <label htmlFor="lodgeMemberId">Membro(s)</label>
         <Controller
           name="lodgeMemberId"
           control={control}
           render={({ field }) => (
             <Select
               {...field}
+              isMulti
+              isDisabled={!!visitaToEdit}
               options={membroOptions}
               isClearable
               isSearchable
-              placeholder="Selecione um membro..."
+              placeholder="Selecione um ou mais membros..."
               classNamePrefix="react-select"
               styles={customSelectStyles}
-              onChange={(selectedOption) =>
-                field.onChange(selectedOption ? selectedOption.value : "")
+              onChange={(selectedOptions) =>
+                field.onChange(
+                  selectedOptions ? selectedOptions.map((o) => o.value) : []
+                )
               }
               value={
-                membroOptions.find((option) => option.value === field.value) ||
-                null
+                membroOptions.filter(
+                  (option) => field.value?.includes(option.value)
+                ) || []
               }
             />
           )}
@@ -162,7 +188,18 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
       </div>
 
       <fieldset className="form-fieldset">
-        <legend>Dados da Loja Visitada</legend>
+        <legend>
+          Dados da Loja Visitada
+          <button
+            type="button"
+            onClick={handleManualEditToggle}
+            className="btn-icon"
+            style={{ marginLeft: '10px', background: 'none', border: 'none', cursor: 'pointer' }}
+            title="Editar manualmente"
+          >
+            <FaPencilAlt color="var(--cor-texto-primario)" />
+          </button>
+        </legend>
         <div className="autocomplete-container">
           <div className="form-group">
             <label htmlFor="lojaVisitadaSearch">
@@ -179,6 +216,7 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
               autoComplete="off"
               onFocus={() => setIsLojaInputFocused(true)}
               onBlur={() => setTimeout(() => setIsLojaInputFocused(false), 200)}
+              disabled={isManualEdit}
             />
             {errors.dadosLoja?.nome && (
               <p className="form-error-message">
@@ -210,46 +248,50 @@ const VisitacaoForm = ({ visitaToEdit, onSave, onCancel }) => {
           )}
         </div>
 
-        {/* LAYOUT EM LINHA COM PROPORÇÕES */}
         <div className="form-row-flex" style={{ marginTop: "1rem" }}>
           <div className="form-group" style={{ flexBasis: "40%" }}>
             <label>Nome</label>
             <input
-              readOnly
-              value={dadosLoja?.nome || ""}
+              {...register("dadosLoja.nome")}
+              readOnly={!isManualEdit}
               className="form-input"
+              onChange={handleManualDataChange}
             />
           </div>
           <div className="form-group" style={{ flexBasis: "8%" }}>
             <label>Nº</label>
             <input
-              readOnly
-              value={dadosLoja?.numero || ""}
+              {...register("dadosLoja.numero")}
+              readOnly={!isManualEdit}
               className="form-input"
+              onChange={handleManualDataChange}
             />
           </div>
           <div className="form-group" style={{ flexBasis: "25%" }}>
             <label>Cidade</label>
             <input
-              readOnly
-              value={dadosLoja?.cidade || ""}
+              {...register("dadosLoja.cidade")}
+              readOnly={!isManualEdit}
               className="form-input"
+              onChange={handleManualDataChange}
             />
           </div>
           <div className="form-group" style={{ flexBasis: "8%" }}>
             <label>UF</label>
             <input
-              readOnly
-              value={dadosLoja?.estado || ""}
+              {...register("dadosLoja.estado")}
+              readOnly={!isManualEdit}
               className="form-input"
+              onChange={handleManualDataChange}
             />
           </div>
           <div className="form-group" style={{ flexBasis: "12%" }}>
             <label>Potência</label>
             <input
-              readOnly
-              value={dadosLoja?.potencia || ""}
+              {...register("dadosLoja.potencia")}
+              readOnly={!isManualEdit}
               className="form-input"
+              onChange={handleManualDataChange}
             />
           </div>
         </div>

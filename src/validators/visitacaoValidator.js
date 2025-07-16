@@ -16,9 +16,10 @@ export const TIPO_SESSAO_OPTIONS = [
 
 export const visitacaoValidationSchema = yup.object().shape({
   lodgeMemberId: yup
-    .number()
-    .required("É obrigatório selecionar um membro.")
-    .typeError("Seleção de membro inválida."),
+    .array()
+    .of(yup.number())
+    .min(1, "É obrigatório selecionar pelo menos um membro.")
+    .required("É obrigatório selecionar um membro."),
 
   dataSessao: yup
     .date()
