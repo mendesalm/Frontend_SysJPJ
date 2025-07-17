@@ -11,15 +11,6 @@ export const getVisitas = (params) => {
 };
 
 /**
- * Busca a lista de visitações apenas do membro logado.
- * @param {object} params - Parâmetros como { page, limit }
- * @returns {Promise}
- */
-export const getMyVisitas = (params) => {
-  return apiClient.get("/visitas/me", { params });
-};
-
-/**
  * Busca uma visitação específica pelo seu ID.
  * @param {number} id - O ID da visitação.
  * @returns {Promise}

@@ -1,21 +1,29 @@
-import React from "react";
+import React, { useMemo } from "react"; // Adicionado useMemo
 import { useAuth } from "../../../hooks/useAuth"; // Importa o hook de autenticação
 import { useDataFetching } from "../../../hooks/useDataFetching";
-import { getMyVisitas } from "../../../services/visitacaoService";
+import { getVisitas } from "../../../services/visitacaoService";
 import "../../styles/TableStyles.css";
 
 const MinhasVisitasPage = () => {
-  const { user, isLoading: isAuthLoading } = useAuth(); // Obtém o usuário e o status de carregamento da autenticação
+  const { user, isLoading: isAuthLoading } = useAuth();
 
-  // CORREÇÃO: A busca de dados só é executada se o usuário estiver autenticado.
-  // O hook useDataFetching é chamado condicionalmente com base na presença do usuário.
+  // CORREÇÃO: Define os parâmetros para a busca, incluindo o ID do membro logado.
+  // Usamos useMemo para evitar que o objeto seja recriado em cada renderização.
+  const fetchParams = useMemo(() => {
+    if (!user) return null; // Não busca se o usuário não estiver carregado
+    return { lodgeMemberId: user.id };
+  }, [user]);
+
+  // CORREÇÃO: O hook agora chama a função 'getVisitas' com os parâmetros corretos.
   const {
     data: visitas,
     isLoading: isLoadingVisitas,
     error: fetchError,
-  } = useDataFetching(user ? getMyVisitas : () => Promise.resolve({ data: [] }));
+  } = useDataFetching(
+    fetchParams ? getVisitas : () => Promise.resolve({ data: [] }),
+    [fetchParams]
+  );
 
-  // O estado de carregamento geral considera a autenticação e a busca de dados.
   const isLoading = isAuthLoading || isLoadingVisitas;
 
   return (

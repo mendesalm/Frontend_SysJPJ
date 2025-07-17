@@ -7,11 +7,8 @@ import apiClient from "./apiClient";
  * @param {object} params - Parâmetros como { include, limit, status }
  * @returns {Promise<Array<object>>} Uma promessa que resolve para o array de membros.
  */
-export const getAllMembers = async (params) => {
-  const response = await apiClient.get("/lodgemembers", { params });
-  // SOLUÇÃO: Garante que o frontend sempre receba o array de membros,
-  // independentemente da estrutura da resposta.
-  return response.data.data || response.data;
+export const getAllMembers = (params) => {
+  return apiClient.get("/lodgemembers", { params });
 };
 
 /**

@@ -12,29 +12,55 @@ import {
   showErrorToast,
 } from "../../../../utils/notifications";
 
+// Componente auxiliar para os controlos de paginação
+const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+  if (!totalPages || totalPages <= 1) return null;
+
+  return (
+    <div className="pagination-controls">
+      <button
+        className="btn-pagination"
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        Anterior
+      </button>
+      <span>
+        Página {currentPage} de {totalPages}
+      </span>
+      <button
+        className="btn-pagination"
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        Próxima
+      </button>
+    </div>
+  );
+};
+
 const MemberList = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const params = useMemo(
+    () => ({
+      page: currentPage,
+      limit: 22,
+      search: searchQuery,
+    }),
+    [currentPage, searchQuery]
+  );
+
+  // CORREÇÃO: Desestruturação corrigida para receber 'members' e 'pagination' diretamente
   const {
-    data: allMembers,
+    data: members,
+    pagination,
     isLoading,
     error: fetchError,
     refetch,
-  } = useDataFetching(getAllMembers);
-
-  const filteredMembers = useMemo(() => {
-    if (!allMembers) return [];
-    return allMembers.filter(
-      (member) =>
-        (member.NomeCompleto &&
-          member.NomeCompleto.toLowerCase().includes(
-            searchQuery.toLowerCase()
-          )) ||
-        (member.Email &&
-          member.Email.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-  }, [allMembers, searchQuery]);
+  } = useDataFetching(getAllMembers, [params]);
 
   const handleUpdateStatus = async (memberId, newStatus) => {
     try {
@@ -49,6 +75,7 @@ const MemberList = () => {
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
+    setCurrentPage(1);
   };
 
   return (
@@ -96,15 +123,14 @@ const MemberList = () => {
                   A carregar...
                 </td>
               </tr>
-            ) : filteredMembers.length === 0 ? (
+            ) : members.length === 0 ? (
               <tr>
                 <td colSpan="8" style={{ textAlign: "center" }}>
                   Nenhum membro encontrado.
                 </td>
               </tr>
             ) : (
-              filteredMembers.map((member) => (
-                // NOVO: Adicionada classe condicional para membros falecidos
+              members.map((member) => (
                 <tr
                   key={member.id}
                   className={
@@ -114,22 +140,42 @@ const MemberList = () => {
                   <td>
                     {member.FotoPessoal_Caminho ? (
                       <img
-                        src={member.FotoPessoal_Caminho.startsWith('http') ? member.FotoPessoal_Caminho : `/uploads/${member.FotoPessoal_Caminho.replace(/^(?:\/uploads\/|uploads\/)/, '')}` }
+                        src={
+                          member.FotoPessoal_Caminho.startsWith("http")
+                            ? member.FotoPessoal_Caminho
+                            : `/uploads/${member.FotoPessoal_Caminho.replace(
+                                /^(?:\/uploads\/|uploads\/)/,
+                                ""
+                              )}`
+                        }
                         alt="Foto do Membro"
-                        style={{ width: "30px", height: "30px", borderRadius: "50%" }}
+                        style={{
+                          width: "30px",
+                          height: "30px",
+                          borderRadius: "50%",
+                        }}
                       />
                     ) : (
                       <img
                         src="/src/assets/images/avatar_placeholder.png"
                         alt="Placeholder"
-                        style={{ width: "30px", height: "30px", borderRadius: "50%" }}
+                        style={{
+                          width: "30px",
+                          height: "30px",
+                          borderRadius: "50%",
+                        }}
                       />
                     )}
                   </td>
                   <td>{member.CIM}</td>
                   <td>{member.NomeCompleto}</td>
                   <td>{member.Graduacao}</td>
-                  <td>{member.cargoAtual === null || member.cargoAtual === "Sem cargo definido" ? "Obreiro" : member.cargoAtual}</td>
+                  <td>
+                    {member.cargoAtual === null ||
+                    member.cargoAtual === "Sem cargo definido"
+                      ? "Obreiro"
+                      : member.cargoAtual}
+                  </td>
                   <td>
                     <span
                       className={`status-badge status-${
@@ -141,7 +187,6 @@ const MemberList = () => {
                   </td>
                   <td>{member.credencialAcesso}</td>
                   <td className="actions-cell">
-                    {/* NOVO: Condição para não mostrar botão para membros falecidos */}
                     {member.statusCadastro === "Pendente" &&
                       member.Situacao !== "Falecido" && (
                         <button
@@ -158,7 +203,6 @@ const MemberList = () => {
                       onClick={() =>
                         navigate(`/admin/members/edit/${member.id}`)
                       }
-                      // NOVO: Desabilita o botão para membros falecidos
                       disabled={member.Situacao === "Falecido"}
                     >
                       Editar
@@ -170,6 +214,12 @@ const MemberList = () => {
           </tbody>
         </table>
       </div>
+
+      <PaginationControls
+        currentPage={pagination?.currentPage}
+        totalPages={pagination?.totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };
