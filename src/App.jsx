@@ -138,6 +138,9 @@ const ChanceryReportsPage = lazy(() =>
 const GestaoLojasPage = lazy(() =>
   import("./assets/pages/admin/lojas/GestaoLojasPage.jsx")
 );
+const MensagensPage = lazy(() =>
+  import("./assets/pages/admin/mensagens/MensagensPage.jsx")
+);
 
 const LoadingFallback = () => (
   <div
@@ -290,7 +293,7 @@ function App() {
                   path="/chancelaria/gerar-cartoes"
                   element={<GeracaoCartoesPage />}
                 />
-
+                <Route path="/admin/mensagens" element={<MensagensPage />} />
                 <Route path="/sessoes/:id" element={<SessaoDetalhesPage />} />
                 <Route path="/legislacoes" element={<LegislacoesPage />} />
                 <Route path="/documentos" element={<DocumentosPage />} />

@@ -1,5 +1,5 @@
 // src/assets/pages/chancelaria/GeracaoCartoesPage.jsx
-import React, { useState, useMemo, useEffect } from "react"; // useCallback removido
+import React, { useState, useMemo, useEffect } from "react";
 import { useAuth } from "~/hooks/useAuth";
 import { getAllMembers } from "~/services/memberService";
 import { gerarCartao } from "~/services/chancelerService";
@@ -10,18 +10,14 @@ import "~/assets/styles/TableStyles.css";
 // Função auxiliar para formatar a data de forma segura
 const formatLocalDate = (dateString) => {
   if (!dateString || isNaN(new Date(dateString))) return "Não informado";
-  // A conversão para new Date() e depois para toLocaleDateString() lida com o fuso horário corretamente.
   return new Date(dateString).toLocaleDateString("pt-BR", { timeZone: "UTC" });
 };
 
 const GeracaoCartoesPage = () => {
   const { user } = useAuth();
-
-  // A busca de dados agora é feita com useEffect para maior clareza e robustez
   const [members, setMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [isGenerating, setIsGenerating] = useState(null);
   const [generatedLinks, setGeneratedLinks] = useState({});
 
@@ -29,11 +25,11 @@ const GeracaoCartoesPage = () => {
     const fetchMembersWithFamily = async () => {
       try {
         setIsLoading(true);
-        const membersData = await getAllMembers({
+        const response = await getAllMembers({
           include: "familiares",
           limit: 500,
         });
-        setMembers(membersData || []);
+        setMembers(response.data.data || []);
       } catch (err) {
         console.error("Erro ao buscar dados dos membros:", err);
         setError("Não foi possível carregar os dados.");
@@ -51,15 +47,13 @@ const GeracaoCartoesPage = () => {
       (p) => p.nomeFuncionalidade === "gerenciarCartoesAniversario"
     );
 
-  // SOLUÇÃO: Lógica de ordenação robusta que lida com datas inválidas
   const sortAniversariantesPorProximidade = (a, b) => {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
 
     const getProximoAniversario = (nasc) => {
-      // Se a data for nula ou inválida, retorna uma data no futuro distante para colocar no final da lista
       if (!nasc || isNaN(new Date(nasc))) {
-        return new Date(8640000000000000); // Data máxima
+        return new Date(8640000000000000);
       }
       const dataNascimento = new Date(nasc);
       let proximoAniv = new Date(
@@ -67,7 +61,6 @@ const GeracaoCartoesPage = () => {
         dataNascimento.getMonth(),
         dataNascimento.getDate()
       );
-
       if (proximoAniv < hoje) {
         proximoAniv.setFullYear(hoje.getFullYear() + 1);
       }
@@ -85,7 +78,7 @@ const GeracaoCartoesPage = () => {
   };
 
   const allFamiliares = useMemo(() => {
-    if (!members) return [];
+    if (!Array.isArray(members)) return [];
     return members
       .flatMap((m) =>
         (m.familiares || [])
@@ -96,7 +89,7 @@ const GeracaoCartoesPage = () => {
   }, [members]);
 
   const activeMembers = useMemo(() => {
-    if (!members) return [];
+    if (!Array.isArray(members)) return [];
     return members
       .filter((m) => m.Situacao === "Ativo")
       .sort(sortAniversariantesPorProximidade);
@@ -108,18 +101,17 @@ const GeracaoCartoesPage = () => {
     try {
       const payload =
         type === "member" ? { memberId: id } : { familyMemberId: id };
-
       const response = await gerarCartao(payload);
-
       const filePath = response.data.caminho;
+
       if (!filePath) {
         throw new Error("A API não retornou um caminho para o ficheiro.");
       }
 
-      const downloadUrl = filePath;
+      // CORREÇÃO DEFINITIVA: Utiliza o construtor URL para evitar barras duplas.
+      const downloadUrl = new URL(filePath, window.location.origin).href;
 
       setGeneratedLinks((prev) => ({ ...prev, [uniqueKey]: downloadUrl }));
-
       showSuccessToast("Cartão gerado! Clique em 'Baixar' para abrir.");
     } catch (err) {
       showErrorToast(
@@ -131,7 +123,7 @@ const GeracaoCartoesPage = () => {
   };
 
   const handleDownloadAndReset = (uniqueKey, downloadUrl) => {
-    window.open(downloadUrl, "_blank");
+    window.open(downloadUrl, "_blank", "noreferrer");
     setGeneratedLinks((prev) => {
       const newLinks = { ...prev };
       delete newLinks[uniqueKey];
@@ -158,6 +150,8 @@ const GeracaoCartoesPage = () => {
         aniversário em PDF sob demanda.
       </p>
 
+      {error && <p className="error-message">{error}</p>}
+
       <div className="cards-generation-grid">
         <div className="generation-section">
           <h2>Membros da Loja</h2>
@@ -171,60 +165,57 @@ const GeracaoCartoesPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {isLoading && (
+                {isLoading ? (
                   <tr>
-                    <td colSpan="3">A carregar membros...</td>
-                  </tr>
-                )}
-                {error && (
-                  <tr>
-                    <td colSpan="3" className="error-message">
-                      {error}
+                    <td colSpan="3" style={{ textAlign: "center" }}>
+                      A carregar membros...
                     </td>
                   </tr>
-                )}
-                {!isLoading && activeMembers.length === 0 && (
+                ) : activeMembers.length === 0 ? (
                   <tr>
-                    <td colSpan="3">Nenhum membro ativo encontrado.</td>
+                    <td colSpan="3" style={{ textAlign: "center" }}>
+                      Nenhum membro ativo encontrado.
+                    </td>
                   </tr>
+                ) : (
+                  activeMembers.map((member) => {
+                    const uniqueKey = `member-${member.id}`;
+                    const downloadLink = generatedLinks[uniqueKey];
+                    return (
+                      <tr key={uniqueKey}>
+                        <td>{member.NomeCompleto}</td>
+                        <td>{formatLocalDate(member.DataNascimento)}</td>
+                        <td className="actions-cell">
+                          {downloadLink ? (
+                            <button
+                              className="btn-action btn-success"
+                              onClick={() =>
+                                handleDownloadAndReset(uniqueKey, downloadLink)
+                              }
+                            >
+                              Baixar Cartão
+                            </button>
+                          ) : (
+                            <button
+                              className="btn-action btn-approve"
+                              onClick={() =>
+                                handleGenerateClick(member.id, "member")
+                              }
+                              disabled={
+                                isGenerating === uniqueKey ||
+                                !member.DataNascimento
+                              }
+                            >
+                              {isGenerating === uniqueKey
+                                ? "A gerar..."
+                                : "Gerar Cartão"}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
-                {activeMembers.map((member) => {
-                  const uniqueKey = `member-${member.id}`;
-                  const downloadLink = generatedLinks[uniqueKey];
-                  return (
-                    <tr key={uniqueKey}>
-                      <td>{member.NomeCompleto}</td>
-                      <td>{formatLocalDate(member.DataNascimento)}</td>
-                      <td className="actions-cell">
-                        {downloadLink ? (
-                          <button
-                            className="btn-action btn-download"
-                            onClick={() =>
-                              handleDownloadAndReset(uniqueKey, downloadLink)
-                            }
-                          >
-                            Baixar Cartão
-                          </button>
-                        ) : (
-                          <button
-                            className="btn-action btn-approve"
-                            onClick={() =>
-                              handleGenerateClick(member.id, "member")
-                            }
-                            disabled={
-                              isGenerating === uniqueKey ||
-                              !member.DataNascimento
-                            }
-                          >
-                            {isGenerating === uniqueKey
-                              ? "A gerar..."
-                              : "Gerar Cartão"}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
               </tbody>
             </table>
           </div>
@@ -242,54 +233,58 @@ const GeracaoCartoesPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {isLoading && (
+                {isLoading ? (
                   <tr>
-                    <td colSpan="4">A carregar familiares...</td>
+                    <td colSpan="4" style={{ textAlign: "center" }}>
+                      A carregar familiares...
+                    </td>
                   </tr>
-                )}
-                {!isLoading && allFamiliares.length === 0 && (
+                ) : allFamiliares.length === 0 ? (
                   <tr>
-                    <td colSpan="4">Nenhum familiar encontrado.</td>
+                    <td colSpan="4" style={{ textAlign: "center" }}>
+                      Nenhum familiar encontrado.
+                    </td>
                   </tr>
+                ) : (
+                  allFamiliares.map((familiar) => {
+                    const uniqueKey = `familiar-${familiar.id}`;
+                    const downloadLink = generatedLinks[uniqueKey];
+                    return (
+                      <tr key={uniqueKey}>
+                        <td>{familiar.nomeCompleto}</td>
+                        <td>{familiar.membroNome}</td>
+                        <td>{formatLocalDate(familiar.dataNascimento)}</td>
+                        <td className="actions-cell">
+                          {downloadLink ? (
+                            <button
+                              className="btn-action btn-success"
+                              onClick={() =>
+                                handleDownloadAndReset(uniqueKey, downloadLink)
+                              }
+                            >
+                              Baixar Cartão
+                            </button>
+                          ) : (
+                            <button
+                              className="btn-action btn-approve"
+                              onClick={() =>
+                                handleGenerateClick(familiar.id, "familiar")
+                              }
+                              disabled={
+                                isGenerating === uniqueKey ||
+                                !familiar.dataNascimento
+                              }
+                            >
+                              {isGenerating === uniqueKey
+                                ? "A gerar..."
+                                : "Gerar Cartão"}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
-                {allFamiliares.map((familiar) => {
-                  const uniqueKey = `familiar-${familiar.id}`;
-                  const downloadLink = generatedLinks[uniqueKey];
-                  return (
-                    <tr key={uniqueKey}>
-                      <td>{familiar.nomeCompleto}</td>
-                      <td>{familiar.membroNome}</td>
-                      <td>{formatLocalDate(familiar.dataNascimento)}</td>
-                      <td className="actions-cell">
-                        {downloadLink ? (
-                          <button
-                            className="btn-action btn-download"
-                            onClick={() =>
-                              handleDownloadAndReset(uniqueKey, downloadLink)
-                            }
-                          >
-                            Baixar Cartão
-                          </button>
-                        ) : (
-                          <button
-                            className="btn-action btn-approve"
-                            onClick={() =>
-                              handleGenerateClick(familiar.id, "familiar")
-                            }
-                            disabled={
-                              isGenerating === uniqueKey ||
-                              !familiar.dataNascimento
-                            }
-                          >
-                            {isGenerating === uniqueKey
-                              ? "A gerar..."
-                              : "Gerar Cartão"}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
               </tbody>
             </table>
           </div>

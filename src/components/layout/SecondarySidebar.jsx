@@ -43,6 +43,7 @@ const menuConfig = {
       { label: "Controle de Visitações", path: "/admin/visitacoes" },
       { label: "Gestão da Escala de Jantares", path: "/admin/escala-jantares" },
       { label: "Geração de Cartões", path: "/chancelaria/gerar-cartoes" },
+      { label: "Banco de Mensagens", path: "/admin/mensagens" },
     ],
   },
   "menu-tesouraria": {
