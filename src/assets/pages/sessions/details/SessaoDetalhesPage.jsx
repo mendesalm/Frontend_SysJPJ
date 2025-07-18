@@ -12,6 +12,13 @@ import BalaustreEditor from "./components/BalaustreEditor";
 import PainelChanceler from "./components/PainelChanceler";
 import "./SessaoDetalhes.css";
 import moment from "moment";
+import apiClient from "../../../../services/apiClient";
+
+const getFileUrl = (path) => {
+  if (!path) return "#";
+  // Ensure the path is absolute from the origin, without duplicating /uploads/
+  return `${window.location.origin}${path.startsWith('/') ? '' : '/'}${path}`;
+};
 
 const SessaoDetalhesPage = () => {
   const { id } = useParams();
@@ -156,6 +163,28 @@ const SessaoDetalhesPage = () => {
           <p className="session-date">
             {moment.utc(session.dataSessao).format("DD [de] MMMM [de] YYYY")}
           </p>
+          <div className="session-documents">
+            {session.edital?.caminhoPdfLocal && (
+              <a
+                href={getFileUrl(session.edital.caminhoPdfLocal)}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-secondary btn-sm"
+              >
+                Download Edital
+              </a>
+            )}
+            {session.balaustre?.caminhoPdfLocal && (
+              <a
+                href={getFileUrl(session.balaustre.caminhoPdfLocal)}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-secondary btn-sm"
+              >
+                Download Balaústre
+              </a>
+            )}
+          </div>
         </div>
 
         <div className="tabs-container">

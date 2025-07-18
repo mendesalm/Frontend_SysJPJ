@@ -68,14 +68,21 @@ const SessionsPage = () => {
     ["Secretário", "Secretário Adjunto"].includes(user?.cargoAtual);
 
   const handleSaveSession = async (formData) => {
+    console.log("Dados recebidos do formulário:", formData);
     setIsCreatingSession(true);
     try {
-      const dadosParaEnviar = { ...formData };
-      if (dadosParaEnviar.dataSessao) {
-        dadosParaEnviar.dataSessao = moment(dadosParaEnviar.dataSessao).format('YYYY-MM-DD');
-      }
+      const formDataToSend = new FormData();
+      
+      Object.keys(formData).forEach(key => {
+        if (key === 'dataSessao' && formData[key]) {
+          // Garante que a data está no formato correto antes de adicionar
+          formDataToSend.append(key, moment(formData[key]).format('YYYY-MM-DD'));
+        } else {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
 
-      await createSession(dadosParaEnviar);
+      await createSession(formDataToSend);
       showSuccessToast("Sessão registrada com sucesso!");
       setIsModalOpen(false);
       refetch();
@@ -109,10 +116,8 @@ const SessionsPage = () => {
 
   const getFileUrl = (path) => {
     if (!path) return "#";
-    const baseURL = apiClient.defaults.baseURL.startsWith("http")
-      ? apiClient.defaults.baseURL
-      : window.location.origin;
-    return `${baseURL}/${path}`.replace("/api/", "/");
+    // Ensure the path is absolute from the origin, without duplicating /uploads/
+    return `${window.location.origin}${path.startsWith('/') ? '' : '/'}${path}`;
   };
 
   const sliderSettings = {
@@ -227,11 +232,30 @@ const SessionsPage = () => {
                         <div className="info-item">
                           <FaLink />
                           <span>
-                            Balaústre:{" "}
-                            {session.Balaustre?.caminhoPdfLocal ? (
+                            Edital:{" "}
+                            {session.edital?.caminhoPdfLocal ? (
                               <a
                                 href={getFileUrl(
-                                  session.Balaustre.caminhoPdfLocal
+                                  session.edital.caminhoPdfLocal
+                                )}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                Ver PDF
+                              </a>
+                            ) : (
+                              "N/A"
+                            )}
+                          </span>
+                        </div>
+                        <div className="info-item">
+                          <FaLink />
+                          <span>
+                            Balaústre:{" "}
+                            {session.balaustre?.caminhoPdfLocal ? (
+                              <a
+                                href={getFileUrl(
+                                  session.balaustre.caminhoPdfLocal
                                 )}
                                 target="_blank"
                                 rel="noreferrer"
