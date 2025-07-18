@@ -117,7 +117,7 @@ const GestaoEscalaPage = () => {
   useEffect(() => {
     if (canManage) {
       getAllMembers({ status: "Ativo", limit: 999 })
-        .then((response) => setMembros(response.data || []))
+        .then((response) => setMembros(Array.isArray(response.data) ? response.data : []))
         .catch((err) => console.error("Erro ao buscar membros:", err));
     }
   }, [canManage]);
