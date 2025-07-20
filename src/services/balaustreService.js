@@ -14,3 +14,8 @@ export const setNextBalaustreNumber = async (nextNumber) => {
   const response = await apiClient.post('/balaustres/settings/next-number', { nextNumber });
   return response.data;
 };
+
+export const assinarBalaustre = async (id) => {
+  const response = await apiClient.post(`/balaustres/${id}/sign`);
+  return response.data;
+};

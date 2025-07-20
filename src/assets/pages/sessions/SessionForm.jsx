@@ -1,55 +1,82 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { getAllMembers } from "../../..//services/memberService";
-import { GRAUS, TIPOS_SESSAO } from "../../../constants/userConstants";
+import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  sessionValidationSchema,
+  TIPOS_SESSAO,
+  SUBTIPOS_SESSAO,
+} from "~/validators/sessionValidator";
+import { formatDateForInput } from "~/utils/dateUtils";
+import "~/assets/styles/FormStyles.css";
 
-const SessionForm = ({ onSave, onCancel, isSubmitting }) => {
-  // A variável 'errors' agora será utilizada
+const SessionForm = ({ sessionToEdit, onSave, onCancel }) => {
   const {
     register,
     handleSubmit,
-    watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
+    reset,
   } = useForm({
-    defaultValues: {
-      tipoResponsabilidadeJantar: "Sequencial",
-    },
+    resolver: yupResolver(sessionValidationSchema),
   });
 
-  const [members, setMembers] = useState([]);
-  const tipoResponsabilidade = watch("tipoResponsabilidadeJantar");
-
   useEffect(() => {
-    getAllMembers({ limit: 999 })
-      .then((res) => {
-        const memberData = Array.isArray(res.data) ? res.data : [];
-        setMembers(memberData);
-      })
-      .catch((err) => console.error("Erro ao buscar membros", err));
-  }, []);
+    if (sessionToEdit) {
+      reset({
+        ...sessionToEdit,
+        dataSessao: formatDateForInput(sessionToEdit.dataSessao),
+      });
+    } else {
+      const defaultDate = new Date();
+      defaultDate.setHours(19, 30, 0, 0);
+      reset({
+        dataSessao: formatDateForInput(defaultDate),
+        tipoSessao: TIPOS_SESSAO[0],
+        subtipoSessao: SUBTIPOS_SESSAO[0],
+        status: "Agendada",
+      });
+    }
+  }, [sessionToEdit, reset]);
+
+  const handleFormSubmit = (data) => {
+    const formData = new FormData();
+
+    // CORREÇÃO FINAL: Envia a string de data/hora local diretamente, sem NENHUMA conversão.
+    // O backend espera receber "YYYY-MM-DDTHH:mm" e irá tratar do fuso horário.
+    formData.append("dataSessao", data.dataSessao);
+
+    formData.append("tipoSessao", data.tipoSessao);
+    formData.append("subtipoSessao", data.subtipoSessao);
+    if (data.status) formData.append("status", data.status);
+
+    if (data.ataSessao && data.ataSessao[0]) {
+      formData.append("ataSessao", data.ataSessao[0]);
+    }
+
+    onSave(formData);
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSave)} className="form-container">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="form-container">
+      <div className="form-group">
+        <label htmlFor="dataSessao">Data e Hora da Sessão</label>
+        <input
+          id="dataSessao"
+          type="datetime-local"
+          {...register("dataSessao")}
+          className={`form-input ${errors.dataSessao ? "is-invalid" : ""}`}
+        />
+        {errors.dataSessao && (
+          <p className="form-error-message">{errors.dataSessao.message}</p>
+        )}
+      </div>
+
       <div className="form-grid">
         <div className="form-group">
-          <label>Data da Sessão</label>
-          {/* Adicionada a validação e a mensagem de erro */}
-          <input
-            type="date"
-            {...register("dataSessao", {
-              required: "A data da sessão é obrigatória.",
-            })}
-            className={`form-input ${errors.dataSessao ? "is-invalid" : ""}`}
-          />
-          {errors.dataSessao && (
-            <p className="form-error-message">{errors.dataSessao.message}</p>
-          )}
-        </div>
-        <div className="form-group">
-          <label>Tipo de Sessão</label>
+          <label htmlFor="tipoSessao">Tipo da Sessão</label>
           <select
-            {...register("tipoSessao", { required: true })}
-            className="form-select"
+            id="tipoSessao"
+            {...register("tipoSessao")}
+            className={`form-select ${errors.tipoSessao ? "is-invalid" : ""}`}
           >
             {TIPOS_SESSAO.map((tipo) => (
               <option key={tipo} value={tipo}>
@@ -57,65 +84,44 @@ const SessionForm = ({ onSave, onCancel, isSubmitting }) => {
               </option>
             ))}
           </select>
+          {errors.tipoSessao && (
+            <p className="form-error-message">{errors.tipoSessao.message}</p>
+          )}
         </div>
         <div className="form-group">
-          <label>Grau (Subtipo)</label>
+          <label htmlFor="subtipoSessao">Subtipo da Sessão</label>
           <select
-            {...register("subtipoSessao", { required: true })}
-            className="form-select"
+            id="subtipoSessao"
+            {...register("subtipoSessao")}
+            className={`form-select ${
+              errors.subtipoSessao ? "is-invalid" : ""
+            }`}
           >
-            {GRAUS.map((grau) => (
-              <option key={grau} value={grau}>
-                {grau}
+            {SUBTIPOS_SESSAO.map((subtipo) => (
+              <option key={subtipo} value={subtipo}>
+                {subtipo}
               </option>
             ))}
           </select>
+          {errors.subtipoSessao && (
+            <p className="form-error-message">{errors.subtipoSessao.message}</p>
+          )}
         </div>
       </div>
 
-      <fieldset className="form-fieldset" style={{ marginTop: "1.5rem" }}>
-        <legend>Responsabilidade pelo Jantar</legend>
-        <div className="form-group">
-          <label>Definir Responsável</label>
-          <select
-            {...register("tipoResponsabilidadeJantar")}
-            className="form-select"
-          >
-            <option value="Sequencial">Automático (Próximo da Escala)</option>
-            <option value="Manual">Designação Manual</option>
-            <option value="Institucional">
-              Institucional (Oferecido pela Loja)
-            </option>
-          </select>
-        </div>
-
-        {tipoResponsabilidade === "Manual" && (
-          <div className="form-group">
-            <label>Selecione o Responsável</label>
-            {/* Adicionada a validação e a mensagem de erro */}
-            <select
-              {...register("responsavelJantarLodgeMemberId", {
-                required: "É obrigatório selecionar um responsável.",
-              })}
-              className={`form-select ${
-                errors.responsavelJantarLodgeMemberId ? "is-invalid" : ""
-              }`}
-            >
-              <option value="">-- Escolha um Irmão --</option>
-              {members.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.NomeCompleto}
-                </option>
-              ))}
-            </select>
-            {errors.responsavelJantarLodgeMemberId && (
-              <p className="form-error-message">
-                {errors.responsavelJantarLodgeMemberId.message}
-              </p>
-            )}
-          </div>
+      <div className="form-group">
+        <label htmlFor="ataSessao">Ata da Sessão (PDF, opcional)</label>
+        <input
+          id="ataSessao"
+          type="file"
+          accept=".pdf"
+          {...register("ataSessao")}
+          className={`form-input ${errors.ataSessao ? "is-invalid" : ""}`}
+        />
+        {errors.ataSessao && (
+          <p className="form-error-message">{errors.ataSessao.message}</p>
         )}
-      </fieldset>
+      </div>
 
       <div className="form-actions">
         <button type="button" onClick={onCancel} className="btn btn-secondary">
@@ -126,7 +132,7 @@ const SessionForm = ({ onSave, onCancel, isSubmitting }) => {
           className="btn btn-primary"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Salvando..." : "Salvar Sessão"}
+          {isSubmitting ? "A guardar..." : "Guardar Sessão"}
         </button>
       </div>
     </form>

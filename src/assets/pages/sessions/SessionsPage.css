@@ -1,191 +1,219 @@
-/* src/assets/pages/sessions/SessionsPage.css */
-.sessions-page {
-  padding: 1rem;
+/* Container principal da página */
+.sessions-page-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.carousel-container {
-  padding: 2rem 0;
-}
-
-/* Slick Carousel Overrides */
-.slick-slide > div {
-  padding: 0 1rem;
-}
-
-.slick-dots li button:before {
-  font-size: 12px;
-  color: var(--cor-foco-input-borda);
-}
-
-.slick-dots li.slick-active button:before {
-  color: var(--cor-foco-input-borda);
-}
-
-/* Card Neumórfico */
-.session-card-neumorphic {
-  background: #2d3748;
-  border-radius: 20px;
-  overflow: hidden;
-  transition: all 0.3s ease-in-out;
+.table-header {
   display: flex;
-  flex-direction: column;
-  min-height: 420px; /* Altura aumentada para o novo conteúdo */
-}
-
-.session-card-neumorphic:hover {
-  transform: translateY(-5px);
-  box-shadow: 2px 2px 5px #050f20, -2px -2px 5px #093d9f;
-}
-
-.session-card-header {
-  background: linear-gradient(145deg, #303b4e, #293241);
-  padding: 1.5rem;
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 1.5rem;
-  border-bottom: 1px solid #252e3c;
+  margin-bottom: 1.5rem;
+}
+
+/* Card de Destaque */
+.highlight-card {
+  background-color: var(--primary-color);
+  color: var(--text-color-on-primary);
+  padding: 2rem;
+  border-radius: var(--border-radius-lg);
+  margin-bottom: 2.5rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.highlight-header {
+  border-bottom: 1px solid var(--primary-color-light);
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+}
+
+.highlight-header span {
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.highlight-header h2 {
+  font-size: 2.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.highlight-body .highlight-date {
+  font-size: 1.25rem;
+  margin: 1rem 0;
+}
+
+.highlight-footer {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.btn-details {
+  background-color: var(--background-color-light);
+  color: var(--primary-color);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius-md);
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.btn-details:hover {
+  background-color: var(--background-color-hover);
+}
+
+.btn-action-light,
+.btn-action-light-danger {
+  background: transparent;
+  color: var(--text-color-on-primary);
+  border: 1px solid var(--text-color-on-primary);
+  opacity: 0.8;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.btn-action-light:hover {
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 1;
+}
+
+.btn-action-light-danger:hover {
+  background: var(--danger-color);
+  border-color: var(--danger-color);
+  opacity: 1;
+}
+
+/* Container da Lista e Abas */
+.sessions-list-container {
+  background-color: var(--background-color-light);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  transition: background-color 0.3s ease;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 1.5rem;
+  transition: border-color 0.3s ease;
+}
+
+.tabs button {
+  padding: 1rem 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-color-secondary);
   position: relative;
 }
 
-.date-box {
-  background-color: #e2e8f0;
-  color: #1a202c;
-  border-radius: 12px;
-  text-align: center;
-  flex-shrink: 0;
-  width: 70px;
-  height: 70px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.tabs button.active {
+  color: var(--primary-color);
   font-weight: bold;
-  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.2),
-    inset -3px -3px 5px rgba(255, 255, 255, 0.8);
 }
 
-.date-box .month {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  line-height: 1;
-}
-
-.date-box .day {
-  font-size: 2rem;
-  line-height: 1.1;
-  color: #3b82f6;
-}
-
-.header-info h3 {
-  margin: 0;
-  font-size: 1.1rem; /* Ajustado para caber o texto */
-  color: var(--cor-texto-primario);
-  line-height: 1.3;
-}
-
-.header-info .session-status {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 15px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-top: 0.5rem;
-  text-transform: capitalize;
-}
-
-.session-status.status-agendada {
-  background-color: #ca8a04;
-  color: #422006;
-}
-.session-status.status-realizada {
-  background-color: #15803d;
-  color: #f0fdf4;
-}
-.session-status.status-cancelada {
-  background-color: #b91c1c;
-  color: #fef2f2;
-}
-.session-status.status-desconhecido {
-  background-color: #4b5563;
-  color: #e5e7eb;
-}
-
-.session-card-body {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem; /* Aumenta o espaçamento entre os itens */
-  flex-grow: 1;
-}
-
-.info-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.9rem;
-  color: var(--cor-texto-secundario);
-}
-
-.info-item svg {
-  width: 20px;
-  height: 20px;
-  color: #38bdf8;
-  flex-shrink: 0;
-}
-
-.info-item a {
-  color: var(--cor-foco-input-borda);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.info-item a:hover {
-  text-decoration: underline;
-}
-
-.session-card-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #252e3c;
-  margin-top: auto;
-}
-
-.btn-manage {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(145deg, #2563eb, #3b82f6);
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  text-decoration: none;
-  cursor: pointer;
-  box-shadow: 5px 5px 10px #252e3c, -5px -5px 10px #354054;
-  transition: all 0.2s ease-in-out;
-}
-
-.btn-manage:hover {
-  filter: brightness(1.1);
-}
-.btn-manage:active {
-  box-shadow: inset 5px 5px 10px #252e3c, inset -5px -5px 10px #354054;
-}
-
-.btn-manage-disabled {
-  background: #4b5563;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.session-delete-btn {
+.tabs button.active::after {
+  content: "";
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--primary-color);
+}
+
+/* Lista de Sessões Futuras */
+.session-list {
+  list-style: none;
   padding: 0;
+  margin: 0;
+}
+.session-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+.session-list-item:last-child {
+  border-bottom: none;
+}
+.list-item-info {
+  display: flex;
+  flex-direction: column;
+}
+.list-item-date {
+  font-weight: 500;
+  color: var(--text-color-primary);
+}
+.list-item-type {
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+.list-item-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-details-small,
+.btn-action-small,
+.btn-action-small.btn-view {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  text-decoration: none;
+  border-radius: var(--border-radius-sm);
+}
+
+.btn-action-small.btn-view {
+  background-color: var(--info-color);
+  color: var(--text-color-on-info);
+}
+
+.btn-action-small.btn-view:hover {
+  background-color: var(--info-color-dark);
+}
+
+/* Filtro e Tabela de Histórico */
+.filter-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+}
+
+.filter-bar .form-input {
+  max-width: 200px;
+}
+
+/* Floating Action Button (FAB) */
+.btn-fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: var(--text-color-on-primary);
+  font-size: 2rem;
+  line-height: 56px;
+  text-align: center;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 0.2s ease-in-out, background-color 0.3s ease;
+}
+
+.btn-fab:hover {
+  transform: scale(1.05);
+  background-color: var(--primary-color-dark);
 }

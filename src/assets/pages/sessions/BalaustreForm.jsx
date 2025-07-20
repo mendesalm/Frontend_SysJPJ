@@ -10,6 +10,7 @@ const BalaustreForm = ({
   onSave,
   onCancel,
   isSubmitting,
+  readOnly = false, // Add readOnly prop with default false
 }) => {
   const {
     register,
@@ -45,6 +46,7 @@ const BalaustreForm = ({
               className={`form-input ${
                 errors.NumeroBalaustre ? "is-invalid" : ""
               }`}
+              disabled={readOnly}
             />
             {errors.NumeroBalaustre && (
               <p className="form-error-message">
@@ -59,6 +61,7 @@ const BalaustreForm = ({
               className={`form-input ${
                 errors.ClasseSessao ? "is-invalid" : ""
               }`}
+              disabled={readOnly}
             />
             {errors.ClasseSessao && (
               <p className="form-error-message">
@@ -73,6 +76,7 @@ const BalaustreForm = ({
               className={`form-select ${
                 errors.EmendasBalaustreAnterior ? "is-invalid" : ""
               }`}
+              disabled={readOnly}
             >
               <option value="sem">Sem Emendas</option>
               <option value="com">Com Emendas</option>
@@ -91,6 +95,7 @@ const BalaustreForm = ({
             className="form-textarea"
             rows="3"
             placeholder="Descreva as emendas, se aplicável..."
+            disabled={readOnly}
           ></textarea>
         </div>
       </fieldset>
@@ -106,6 +111,7 @@ const BalaustreForm = ({
               className={`form-input ${
                 errors.NumeroIrmaosQuadro ? "is-invalid" : ""
               }`}
+              disabled={readOnly}
             />
             {errors.NumeroIrmaosQuadro && (
               <p className="form-error-message">
@@ -121,6 +127,7 @@ const BalaustreForm = ({
               className={`form-input ${
                 errors.NumeroVisitantes ? "is-invalid" : ""
               }`}
+              disabled={readOnly}
             />
             {errors.NumeroVisitantes && (
               <p className="form-error-message">
@@ -141,6 +148,7 @@ const BalaustreForm = ({
               className={`form-input ${
                 errors.DataSessaoAnterior ? "is-invalid" : ""
               }`}
+              disabled={readOnly}
             />
             {errors.DataSessaoAnterior && (
               <p className="form-error-message">
@@ -153,6 +161,7 @@ const BalaustreForm = ({
             <input
               {...register("DiaSessao")}
               className={`form-input ${errors.DiaSessao ? "is-invalid" : ""}`}
+              disabled={readOnly}
             />
             {errors.DiaSessao && (
               <p className="form-error-message">{errors.DiaSessao.message}</p>
@@ -165,6 +174,7 @@ const BalaustreForm = ({
               className={`form-input ${
                 errors.DataAssinatura ? "is-invalid" : ""
               }`}
+              disabled={readOnly}
             />
             {errors.DataAssinatura && (
               <p className="form-error-message">
@@ -179,6 +189,7 @@ const BalaustreForm = ({
               className={`form-input ${
                 errors.HoraInicioSessao ? "is-invalid" : ""
               }`}
+              disabled={readOnly}
             />
             {errors.HoraInicioSessao && (
               <p className="form-error-message">
@@ -193,6 +204,7 @@ const BalaustreForm = ({
               className={`form-input ${
                 errors.HoraEncerramento ? "is-invalid" : ""
               }`}
+              disabled={readOnly}
             />
             {errors.HoraEncerramento && (
               <p className="form-error-message">
@@ -211,6 +223,7 @@ const BalaustreForm = ({
             <input
               {...register("Veneravel")}
               className={`form-input ${errors.Veneravel ? "is-invalid" : ""}`}
+              disabled={readOnly}
             />
             {errors.Veneravel && (
               <p className="form-error-message">{errors.Veneravel.message}</p>
@@ -223,6 +236,7 @@ const BalaustreForm = ({
               className={`form-input ${
                 errors.PrimeiroVigilante ? "is-invalid" : ""
               }`}
+              disabled={readOnly}
             />
             {errors.PrimeiroVigilante && (
               <p className="form-error-message">
@@ -237,6 +251,7 @@ const BalaustreForm = ({
               className={`form-input ${
                 errors.SegundoVigilante ? "is-invalid" : ""
               }`}
+              disabled={readOnly}
             />
             {errors.SegundoVigilante && (
               <p className="form-error-message">
@@ -249,6 +264,7 @@ const BalaustreForm = ({
             <input
               {...register("Orador")}
               className={`form-input ${errors.Orador ? "is-invalid" : ""}`}
+              disabled={readOnly}
             />
             {errors.Orador && (
               <p className="form-error-message">{errors.Orador.message}</p>
@@ -259,6 +275,7 @@ const BalaustreForm = ({
             <input
               {...register("Secretario")}
               className={`form-input ${errors.Secretario ? "is-invalid" : ""}`}
+              disabled={readOnly}
             />
             {errors.Secretario && (
               <p className="form-error-message">{errors.Secretario.message}</p>
@@ -269,6 +286,7 @@ const BalaustreForm = ({
             <input
               {...register("Tesoureiro")}
               className={`form-input ${errors.Tesoureiro ? "is-invalid" : ""}`}
+              disabled={readOnly}
             />
             {errors.Tesoureiro && (
               <p className="form-error-message">{errors.Tesoureiro.message}</p>
@@ -279,6 +297,7 @@ const BalaustreForm = ({
             <input
               {...register("Chanceler")}
               className={`form-input ${errors.Chanceler ? "is-invalid" : ""}`}
+              disabled={readOnly}
             />
             {errors.Chanceler && (
               <p className="form-error-message">{errors.Chanceler.message}</p>
@@ -295,6 +314,7 @@ const BalaustreForm = ({
             {...register("ExpedienteRecebido")}
             className="form-textarea"
             rows="3"
+            disabled={readOnly}
           ></textarea>
         </div>
         <div className="form-group full-width">
@@ -303,6 +323,7 @@ const BalaustreForm = ({
             {...register("ExpedienteExpedido")}
             className="form-textarea"
             rows="3"
+            disabled={readOnly}
           ></textarea>
         </div>
         <div className="form-group full-width">
@@ -311,6 +332,7 @@ const BalaustreForm = ({
             {...register("SacoProposta")}
             className="form-textarea"
             rows="3"
+            disabled={readOnly}
           ></textarea>
         </div>
         <div className="form-group full-width">
@@ -319,6 +341,7 @@ const BalaustreForm = ({
             {...register("OrdemDia")}
             className="form-textarea"
             rows="4"
+            disabled={readOnly}
           ></textarea>
         </div>
         <div className="form-group full-width">
@@ -327,6 +350,7 @@ const BalaustreForm = ({
             {...register("Escrutinio")}
             className="form-textarea"
             rows="3"
+            disabled={readOnly}
           ></textarea>
         </div>
         <div className="form-group full-width">
@@ -335,6 +359,7 @@ const BalaustreForm = ({
             {...register("TempoInstrucao")}
             className="form-textarea"
             rows="2"
+            disabled={readOnly}
           ></textarea>
         </div>
         <div className="form-group full-width">
@@ -343,6 +368,7 @@ const BalaustreForm = ({
             {...register("Palavra")}
             className="form-textarea"
             rows="3"
+            disabled={readOnly}
           ></textarea>
         </div>
         <div className="form-group">
@@ -354,6 +380,7 @@ const BalaustreForm = ({
             className={`form-input ${
               errors.TroncoBeneficiencia ? "is-invalid" : ""
             }`}
+            disabled={readOnly}
           />
           {errors.TroncoBeneficiencia && (
             <p className="form-error-message">
@@ -375,7 +402,7 @@ const BalaustreForm = ({
         <button
           type="submit"
           className="btn btn-primary"
-          disabled={isSubmitting}
+          disabled={isSubmitting || readOnly}
         >
           {isSubmitting ? "A salvar..." : "Salvar e Regenerar Documentos"}
         </button>

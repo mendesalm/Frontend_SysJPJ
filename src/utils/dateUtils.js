@@ -1,30 +1,66 @@
-// src/utils/dateUtils.js
+/**
+ * Formata uma data para um formato compatível com inputs do tipo 'datetime-local'.
+ * Esta versão é robusta e consciente do fuso horário.
+ * Exemplo: '2025-07-20T19:30'
+ * @param {Date | string} date - A data (geralmente uma string ISO UTC do backend).
+ * @returns {string} A data formatada para o fuso horário de São Paulo.
+ */
+export const formatDateForInput = (date) => {
+  if (!date) return "";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "";
+
+  // Usa a API Intl.DateTimeFormat para obter as partes da data no fuso horário correto.
+  // O locale 'sv-SE' (Suécia) é um truque para obter o formato YYYY-MM-DD.
+  const options = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "America/Sao_Paulo",
+  };
+
+  const formatter = new Intl.DateTimeFormat("sv-SE", options);
+  const parts = formatter.formatToParts(d);
+
+  // Constrói um mapa para aceder facilmente às partes da data
+  const dateMap = new Map(parts.map((p) => [p.type, p.value]));
+
+  // Retorna a string no formato que o input 'datetime-local' espera
+  return `${dateMap.get("year")}-${dateMap.get("month")}-${dateMap.get(
+    "day"
+  )}T${dateMap.get("hour")}:${dateMap.get("minute")}`;
+};
 
 /**
- * Formata uma data (string ISO ou objeto Date) para o formato 'AAAA-MM-DD',
- * corrigindo o problema de fuso horário para uso em inputs <input type="date">.
- * @param {string | Date | null} dateInput - A data a ser formatada.
- * @returns {string} A data formatada como 'AAAA-MM-DD' ou uma string vazia.
+ * Formata uma data para uma exibição completa e legível em português.
+ * Exemplo: 'Terça-feira, 20 de julho de 2025, 19:30'
+ * @param {Date | string} date - A data a ser formatada.
+ * @returns {string} A data formatada por extenso no fuso horário de São Paulo.
  */
-export const formatDateForInput = (dateInput) => {
-  if (!dateInput) {
-    return "";
-  }
+export const formatFullDate = (date) => {
+  if (!date) return "Data não informada";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "Data inválida";
 
-  // Cria um objeto Date, que interpreta a string ISO em UTC
-  const date = new Date(dateInput);
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "America/Sao_Paulo", // Garante a conversão para o fuso horário correto
+  };
 
-  // Pega o fuso horário do navegador em minutos
-  const timezoneOffset = date.getTimezoneOffset();
+  let formattedDate = new Intl.DateTimeFormat("pt-BR", options).format(d);
 
-  // Cria um novo objeto Date ajustado pelo fuso horário.
-  // Isso efetivamente "move" a data para a meia-noite do fuso horário local.
-  const adjustedDate = new Date(date.getTime() + timezoneOffset * 60 * 1000);
+  // Capitaliza o dia da semana
+  formattedDate =
+    formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
 
-  // Converte para uma string no formato 'AAAA-MM-DD'
-  const year = adjustedDate.getFullYear();
-  const month = String(adjustedDate.getMonth() + 1).padStart(2, "0");
-  const day = String(adjustedDate.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
+  return formattedDate;
 };

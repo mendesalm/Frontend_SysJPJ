@@ -1,327 +1,438 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Slider from "react-slick";
-import { useAuth } from "../../../hooks/useAuth";
-import { useDataFetching } from "../../../hooks/useDataFetching";
+import React, { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
+import { useDataFetching } from "~/hooks/useDataFetching";
 import {
   getSessions,
   createSession,
+  updateSession,
   deleteSession,
-} from "../../../services/sessionService";
-import Modal from "../../../components/modal/Modal";
-import SessionForm from "./SessionForm.jsx";
-import LoadingOverlay from "../../../components/layout/LoadingOverlay";
-import SessionStatusFilter from "./SessionStatusFilter.jsx";
+} from "~/services/sessionService";
+import { formatDateForInput, formatFullDate } from "~/utils/dateUtils";
+import { showSuccessToast, showErrorToast } from "~/utils/notifications";
+import Modal from "~/components/modal/Modal";
+import SessionForm from "./SessionForm";
+
 import "./SessionsPage.css";
-import "./SessionStatusFilter.css";
-import "../../styles/TableStyles.css";
-import {
-  showSuccessToast,
-  showErrorToast,
-} from "../../../utils/notifications.js";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import {
-  FaTrash,
-  FaLink,
-  FaCoins,
-  FaUtensils,
-  FaUsers,
-  FaUserTie,
-} from "react-icons/fa";
-import moment from "moment";
-import apiClient from "../../../services/apiClient";
 
-const SessionsPage = () => {
-  const [statusFilter, setStatusFilter] = useState("Agendada");
-
-  useEffect(() => {
-    console.log("Current status filter:", statusFilter);
-  }, [statusFilter]);
-  const fetchParams = useMemo(
-    () => ({
-      page: 1,
-      limit: 50,
-      sortBy: "dataSessao",
-      order: "DESC",
-      status: statusFilter,
-    }),
-    [statusFilter]
+// --- Subcomponente: Card de Destaque ---
+const HighlightedSession = ({ session, onEdit, onDelete, handleViewDocument }) => {
+  if (!session) {
+    return (
+      <div className="highlight-card">
+        <h2>Nenhuma sessão futura agendada.</h2>
+        <p>Crie uma nova sessão para começar.</p>
+      </div>
+    );
+  }
+  return (
+    <div className="highlight-card">
+      <div className="highlight-header">
+        <span>Próxima Sessão</span>
+        <h2>{`${session.tipoSessao} - ${session.subtipoSessao}`}</h2>
+      </div>
+      <div className="highlight-body">
+        <p className="highlight-date">{formatFullDate(session.dataSessao)}</p>
+        <p className="highlight-status">Status: {session.status}</p>
+      </div>
+      <div className="highlight-footer">
+        <Link to={`/sessoes/${session.id}`} className="btn-details">
+          Ver Detalhes
+        </Link>
+        {session.ataUrl && (
+          <button
+            onClick={() => handleViewDocument(session.ataUrl)}
+            className="btn-action-light btn-view"
+          >
+            <FontAwesomeIcon icon={faEye} /> Ver Ata
+          </button>
+        )}
+        {session.balaustre?.caminhoPdfLocal && (
+          <button
+            onClick={() => handleViewDocument(session.balaustre.caminhoPdfLocal)}
+            className="btn-action-light btn-view"
+          >
+            <FontAwesomeIcon icon={faEye} /> Ver Balaústre
+          </button>
+        )}
+        {session.edital?.caminhoPdfLocal && (
+          <button
+            onClick={() => handleViewDocument(session.edital.caminhoPdfLocal)}
+            className="btn-action-light btn-view"
+          >
+            <FontAwesomeIcon icon={faEye} /> Ver Edital
+          </button>
+        )}
+        {session.convite?.caminhoPdfLocal && (
+          <button
+            onClick={() => handleViewDocument(session.convite.caminhoPdfLocal)}
+            className="btn-action-light btn-view"
+          >
+            <FontAwesomeIcon icon={faEye} /> Ver Convite
+          </button>
+        )}
+        <button onClick={() => onEdit(session)} className="btn-action-light">
+          Editar
+        </button>
+        <button
+          onClick={() => onDelete(session.id)}
+          className="btn-action-light-danger"
+        >
+          Deletar
+        </button>
+      </div>
+    </div>
   );
+};
 
-  const fetcher = useCallback(() => getSessions(fetchParams), [fetchParams]);
+// --- Subcomponente: Item da Lista de Próximas Sessões ---
+const SessionListItem = ({ session, onEdit, onDelete }) => (
+  <li className="session-list-item">
+    <div className="list-item-info">
+      <span className="list-item-date">
+        {formatFullDate(session.dataSessao)}
+      </span>
+      <span className="list-item-type">{`${session.tipoSessao} - ${session.subtipoSessao}`}</span>
+    </div>
+    <div className="list-item-actions">
+      <Link to={`/sessoes/${session.id}`} className="btn-details-small">
+        Detalhes
+      </Link>
+      <button
+        onClick={() => onEdit(session)}
+        className="btn-action-small btn-edit"
+      >
+        Editar
+      </button>
+      <button
+        onClick={() => onDelete(session.id)}
+        className="btn-action-small btn-delete"
+      >
+        Deletar
+      </button>
+    </div>
+  </li>
+);
+
+// --- Subcomponente: Tabela de Histórico ---
+const PastSessionsTable = ({
+  sessions,
+  onEdit,
+  onDelete,
+  handleViewDocument,
+}) => {
+  console.log("[PastSessionsTable] Sessions data:", sessions);
+  return (
+    <div className="table-responsive">
+      <table className="custom-table">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Tipo</th>
+            <th>Status</th>
+            <th>Balaústre</th>
+            <th>Edital</th>
+            <th>Convite</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sessions.map((session) => (
+            <tr key={session.id}>
+              <td>{formatFullDate(session.dataSessao)}</td>
+              <td>{`${session.tipoSessao} - ${session.subtipoSessao}`}</td>
+              <td>
+                <span
+                  className={`status-badge status-${session.status?.toLowerCase()}`}
+                >
+                  {session.status}
+                </span>
+              </td>
+              <td>
+                {session.balaustre?.caminhoPdfLocal ? (
+                  <button
+                    onClick={() =>
+                      handleViewDocument(session.balaustre.caminhoPdfLocal)
+                    }
+                    className="btn-action-small btn-view"
+                  >
+                    <FontAwesomeIcon icon={faEye} /> Ver Balaústre
+                  </button>
+                ) : (
+                  "N/A"
+                )}
+              </td>
+              <td>
+                {session.edital?.caminhoPdfLocal ? (
+                  <button
+                    onClick={() =>
+                      handleViewDocument(session.edital.caminhoPdfLocal)
+                    }
+                    className="btn-action-small btn-view"
+                  >
+                    <FontAwesomeIcon icon={faEye} /> Ver Edital
+                  </button>
+                ) : (
+                  "N/A"
+                )}
+              </td>
+              <td>
+                {session.convite?.caminhoPdfLocal ? (
+                  <button
+                    onClick={() =>
+                      handleViewDocument(session.convite.caminhoPdfLocal)
+                    }
+                    className="btn-action-small btn-view"
+                  >
+                    <FontAwesomeIcon icon={faEye} /> Ver Convite
+                  </button>
+                ) : (
+                  "N/A"
+                )}
+              </td>
+              <td className="actions-cell">
+                <Link
+                  to={`/sessoes/${session.id}`}
+                  className="btn-action btn-primary"
+                >
+                  Detalhes
+                </Link>
+                <button
+                  onClick={() => onEdit(session)}
+                  className="btn-action btn-edit"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => onDelete(session.id)}
+                  className="btn-action btn-delete"
+                >
+                  Deletar
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+// --- Componente Principal ---
+const SessionsPage = () => {
+  const [activeTab, setActiveTab] = useState("future");
+  const [filterDate, setFilterDate] = useState(formatDateForInput(new Date()));
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentSession, setCurrentSession] = useState(null);
+
+  const today = useMemo(() => new Date().toISOString(), []);
 
   const {
-    data: sessions,
-    isLoading: isLoadingSessions,
-    error: fetchError,
-    refetch,
-  } = useDataFetching(fetcher);
+    data: futureSessionsData,
+    isLoading: isLoadingFuture,
+    refetch: refetchFuture,
+  } = useDataFetching(getSessions, [
+    { startDate: today, limit: 6, sortBy: "dataSessao", order: "ASC" },
+  ]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCreatingSession, setIsCreatingSession] = useState(false);
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const {
+    data: pastSessions,
+    isLoading: isLoadingPast,
+    refetch: fetchPastSessions,
+  } = useDataFetching(getSessions, [{}], true);
 
-  const canDeleteSession =
-    user?.credencialAcesso === "Webmaster" ||
-    ["Secretário", "Secretário Adjunto"].includes(user?.cargoAtual);
+  const highlightedSession = futureSessionsData?.[0];
+  const futureSessionsList = (futureSessionsData || []).filter(
+    (s) => s.id !== highlightedSession?.id
+  );
 
-  const handleSaveSession = async (formData) => {
-    console.log("Dados recebidos do formulário:", formData);
-    setIsCreatingSession(true);
+  const handleSearchPastSessions = () => {
+    const endDate = new Date(filterDate);
+    endDate.setHours(23, 59, 59, 999);
+    fetchPastSessions([
+      {
+        endDate: endDate.toISOString(),
+        limit: 10,
+        sortBy: "dataSessao",
+        order: "DESC",
+      },
+    ]);
+  };
+
+  const openModal = (session = null) => {
+    setCurrentSession(session);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setCurrentSession(null);
+    setIsModalOpen(false);
+  };
+
+  const handleSave = async (formData) => {
     try {
-      const formDataToSend = new FormData();
-      
-      Object.keys(formData).forEach(key => {
-        if (key === 'dataSessao' && formData[key]) {
-          // Garante que a data está no formato correto antes de adicionar
-          formDataToSend.append(key, moment(formData[key]).format('YYYY-MM-DD'));
-        } else {
-          formDataToSend.append(key, formData[key]);
-        }
-      });
-
-      await createSession(formDataToSend);
-      showSuccessToast("Sessão registrada com sucesso!");
-      setIsModalOpen(false);
-      refetch();
+      if (currentSession) {
+        await updateSession(currentSession.id, formData);
+        showSuccessToast("Sessão atualizada com sucesso!");
+      } else {
+        await createSession(formData);
+        showSuccessToast("Sessão criada com sucesso!");
+      }
+      closeModal();
+      refetchFuture();
+      if (pastSessions && pastSessions.length > 0) {
+        handleSearchPastSessions();
+      }
     } catch (err) {
       showErrorToast(
-        err.response?.data?.message || "Erro ao registrar a sessão."
+        err.response?.data?.message || "Erro ao guardar a sessão."
       );
-    } finally {
-      setIsCreatingSession(false);
     }
   };
 
-  const handleDeleteSession = async (sessionId, e) => {
-    e.stopPropagation();
+  const handleDelete = async (sessionId) => {
     if (
       window.confirm(
-        "Tem a certeza que deseja apagar esta sessão? Esta ação não pode ser desfeita e irá remover também o balaústre associado."
+        "Tem a certeza que deseja apagar esta sessão? Esta ação é irreversível."
       )
     ) {
       try {
         await deleteSession(sessionId);
         showSuccessToast("Sessão apagada com sucesso!");
-        refetch();
+        refetchFuture();
+        if (pastSessions && pastSessions.length > 0) {
+          handleSearchPastSessions();
+        }
       } catch (err) {
         showErrorToast(
-          err.response?.data?.message || "Erro ao apagar a sessão."
+          err.response?.data?.message || "Não foi possível apagar a sessão."
         );
       }
     }
   };
 
-  const getFileUrl = (path) => {
-    if (!path) return "#";
-    // Ensure the path is absolute from the origin, without duplicating /uploads/
-    return `${window.location.origin}${path.startsWith('/') ? '' : '/'}${path}`;
-  };
+  const BASE_URL_DOCUMENTS = "http://localhost:3001"; // URL base para os documentos
 
-  const sliderSettings = {
-    dots: true,
-    infinite: false,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    responsive: [
-      {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 2,
-        },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-        },
-      },
-    ],
+  const handleViewDocument = (relativePath) => {
+    if (relativePath) {
+      const fullUrl = `${BASE_URL_DOCUMENTS}${relativePath}`;
+      window.open(fullUrl, "_blank");
+    } else {
+      showErrorToast("Documento não disponível.");
+    }
   };
 
   return (
-    <div className="sessions-page">
-      <LoadingOverlay
-        isLoading={isCreatingSession}
-        message="Criando sessão e gerando documentos, por favor aguarde..."
-      />
-
+    <div className="sessions-page-container">
       <div className="table-header">
         <h1>Gestão de Sessões</h1>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn-action btn-approve"
-          style={{ padding: "12px 24px", borderRadius: "8px" }}
-        >
-          Registar Nova Sessão
-        </button>
       </div>
 
-      
-      <SessionStatusFilter
-        selectedStatus={statusFilter}
-        onStatusChange={setStatusFilter}
-      />
+      {isLoadingFuture ? (
+        <p>A carregar sessões...</p>
+      ) : (
+        <HighlightedSession
+          session={highlightedSession}
+          onEdit={openModal}
+          onDelete={handleDelete}
+          handleViewDocument={handleViewDocument}
+        />
+      )}
 
-      {fetchError && <p className="error-message">{fetchError}</p>}
+      <div className="sessions-list-container">
+        <div className="tabs">
+          <button
+            onClick={() => setActiveTab("future")}
+            className={activeTab === "future" ? "active" : ""}
+          >
+            Próximas Sessões
+          </button>
+          <button
+            onClick={() => setActiveTab("past")}
+            className={activeTab === "past" ? "active" : ""}
+          >
+            Histórico de Sessões
+          </button>
+        </div>
 
-      <div className="carousel-container">
-        {isLoadingSessions ? (
-          <p>A carregar sessões...</p>
-        ) : !sessions || sessions.length === 0 ? (
-          <p>Nenhuma sessão registada.</p>
-        ) : (
-          <Slider {...sliderSettings}>
-            {sessions
-              .filter((session) => session && session.id)
-              .map((session) => {
-                // ATUALIZADO: Lógica simplificada usando os novos campos da API
-                const tituloSessao =
-                  session.classeSessao || `Sessão ${session.tipoSessao}`;
+        {activeTab === "future" && (
+          <div className="tab-content">
+            {isLoadingFuture ? (
+              <p>A carregar...</p>
+            ) : futureSessionsList.length > 0 ? (
+              <ul className="session-list">
+                {futureSessionsList.map((session) => (
+                  <SessionListItem
+                    key={session.id}
+                    session={session}
+                    onEdit={openModal}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </ul>
+            ) : (
+              <p>Nenhuma outra sessão futura agendada.</p>
+            )}
+          </div>
+        )}
 
-                let infoJantar = "A definir.";
-                if (session.responsavelJantar) {
-                  const esposaResponsavel =
-                    session.responsavelJantar.familiares?.find(
-                      (f) => f.parentesco === "Cônjuge"
-                    );
-                  infoJantar = `Oferecido por Ir. ${session.responsavelJantar.NomeCompleto}`;
-                  if (esposaResponsavel) {
-                    infoJantar += ` e Cunhada ${esposaResponsavel.nomeCompleto}`;
-                  }
-                }
-
-                return (
-                  <div key={session.id} className="session-slide">
-                    <div className="session-card-neumorphic">
-                      <div className="session-card-header">
-                        <div className="date-box">
-                          <span className="month">
-                            {moment(session.dataSessao)
-                              .format("MMM")
-                              .toUpperCase()}
-                          </span>
-                          <span className="day">
-                            {moment(session.dataSessao).format("DD")}
-                          </span>
-                        </div>
-                        <div className="header-info">
-                          <h3>{tituloSessao}</h3>
-                          <span
-                            className={`session-status status-${(
-                              session.status || "agendada"
-                            ).toLowerCase()}`}
-                          >
-                            {session.status || "Agendada"}
-                          </span>
-                        </div>
-                        {canDeleteSession && session.status === "Agendada" && (
-                          <button
-                            onClick={(e) => handleDeleteSession(session.id, e)}
-                            className="btn-action btn-delete session-delete-btn"
-                            title="Apagar Sessão"
-                          >
-                            <FaTrash />
-                          </button>
-                        )}
-                      </div>
-                      <div className="session-card-body">
-                        <div className="info-item">
-                          <FaLink />
-                          <span>
-                            Edital:{" "}
-                            {session.edital?.caminhoPdfLocal ? (
-                              <a
-                                href={getFileUrl(
-                                  session.edital.caminhoPdfLocal
-                                )}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                Ver PDF
-                              </a>
-                            ) : (
-                              "N/A"
-                            )}
-                          </span>
-                        </div>
-                        <div className="info-item">
-                          <FaLink />
-                          <span>
-                            Balaústre:{" "}
-                            {session.balaustre?.caminhoPdfLocal ? (
-                              <a
-                                href={getFileUrl(
-                                  session.balaustre.caminhoPdfLocal
-                                )}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                Ver PDF
-                              </a>
-                            ) : (
-                              "N/A"
-                            )}
-                          </span>
-                        </div>
-                        <div className="info-item">
-                          <FaCoins />
-                          <span>
-                            Tronco: R${" "}
-                            {parseFloat(
-                              session.troncoDeBeneficencia || 0
-                            ).toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="info-item">
-                          <FaUtensils />
-                          <span>Jantar: {infoJantar}</span>
-                        </div>
-                        <div className="info-item">
-                          <FaUsers />
-                          <span>
-                            {session.presentesCount || 0} irmãos do quadro e{" "}
-                            {session.visitantesCount || 0} visitantes
-                          </span>
-                        </div>
-                      </div>
-                      <div className="session-card-footer">
-                        <button
-                          onClick={() => navigate(`/sessoes/${session.id}`)}
-                          className={`btn-manage ${
-                            session.status === "Cancelada"
-                              ? "btn-manage-disabled"
-                              : ""
-                          }`}
-                          disabled={session.status === "Cancelada"}
-                        >
-                          {session.status === "Realizada"
-                            ? "Ver Detalhes"
-                            : "Gerir Sessão"}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-          </Slider>
+        {activeTab === "past" && (
+          <div className="tab-content">
+            <div className="filter-bar">
+              <input
+                type="date"
+                className="form-input"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+              />
+              <button
+                className="btn-action"
+                onClick={handleSearchPastSessions}
+                disabled={isLoadingPast}
+              >
+                {isLoadingPast ? "A buscar..." : "Buscar"}
+              </button>
+            </div>
+            {isLoadingPast ? (
+              <p>A buscar histórico...</p>
+            ) : pastSessions ? (
+              pastSessions.length > 0 ? (
+                <PastSessionsTable
+                  sessions={pastSessions}
+                  onEdit={openModal}
+                  onDelete={handleDelete}
+                  handleViewDocument={handleViewDocument}
+                />
+              ) : (
+                <p>Nenhuma sessão encontrada para a data selecionada.</p>
+              )
+            ) : (
+              <p>Use o filtro acima para buscar sessões passadas.</p>
+            )}
+          </div>
         )}
       </div>
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Registar Nova Sessão Maçónica"
+        onClose={closeModal}
+        title={currentSession ? "Editar Sessão" : "Criar Nova Sessão"}
       >
         <SessionForm
-          onSave={handleSaveSession}
-          onCancel={() => setIsModalOpen(false)}
-          isSubmitting={isCreatingSession}
+          sessionToEdit={currentSession}
+          onSave={handleSave}
+          onCancel={closeModal}
         />
       </Modal>
+
+      <button
+        onClick={() => openModal()}
+        className="btn-fab"
+        title="Criar Nova Sessão"
+      >
+        +
+      </button>
     </div>
   );
 };

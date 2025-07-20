@@ -1,13 +1,17 @@
 import apiClient from "./apiClient";
 
 // Busca todas as sessões, agora com suporte a paginação
-export const getSessions = (params) => {
-  return apiClient.get("/sessions", { params });
+export const getSessions = async (params) => {
+  const response = await apiClient.get("/sessions", { params });
+  console.log("[sessionService] Resposta de getSessions:", response.data);
+  return response;
 };
 
 // Busca uma sessão específica por ID
-export const getSessionById = (id) => {
-  return apiClient.get(`/sessions/${id}`);
+export const getSessionById = async (id) => {
+  const response = await apiClient.get(`/sessions/${id}`);
+  console.log("[sessionService] Raw response for getSessionById:", response.data);
+  return response;
 };
 
 // Cria uma nova sessão.

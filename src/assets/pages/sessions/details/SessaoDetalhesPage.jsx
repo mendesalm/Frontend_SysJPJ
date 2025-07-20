@@ -12,7 +12,7 @@ import BalaustreEditor from "./components/BalaustreEditor";
 import PainelChanceler from "./components/PainelChanceler";
 import "./SessaoDetalhes.css";
 import moment from "moment";
-import apiClient from "../../../../services/apiClient";
+
 
 const getFileUrl = (path) => {
   if (!path) return "#";
@@ -22,6 +22,7 @@ const getFileUrl = (path) => {
 
 const SessaoDetalhesPage = () => {
   const { id } = useParams();
+  console.log("[SessaoDetalhesPage] Session ID from useParams:", id);
   const [activeTab, setActiveTab] = useState("chanceler");
 
   const fetchSession = useCallback(() => getSessionById(id), [id]);
@@ -51,6 +52,7 @@ const SessaoDetalhesPage = () => {
       : null;
     console.log("Session Data received:", s);
     console.log("Attendees in Session Data:", s?.attendees);
+    console.log("Balaustre in Session Data:", s?.Balaustre);
     return s;
   }, [sessionData]);
 
@@ -165,24 +167,39 @@ const SessaoDetalhesPage = () => {
           </p>
           <div className="session-documents">
             {session.edital?.caminhoPdfLocal && (
-              <a
-                href={getFileUrl(session.edital.caminhoPdfLocal)}
-                target="_blank"
-                rel="noreferrer"
-                className="btn btn-secondary btn-sm"
-              >
-                Download Edital
-              </a>
+              <div className="edital-display-section">
+                <h4 className="mt-3">Edital</h4>
+                <iframe
+                  src={getFileUrl(session.edital.caminhoPdfLocal)}
+                  title="Edital PDF"
+                  width="100%"
+                  height="500px"
+                  style={{ border: "none" }}
+                ></iframe>
+              </div>
             )}
             {session.balaustre?.caminhoPdfLocal && (
-              <a
-                href={getFileUrl(session.balaustre.caminhoPdfLocal)}
-                target="_blank"
-                rel="noreferrer"
-                className="btn btn-secondary btn-sm"
-              >
-                Download Balaústre
-              </a>
+              <div className="balaustre-display-section">
+                <h4 className="mt-3">Balaústre</h4>
+                <p>Status: <strong>{session.balaustre.status}</strong></p>
+                {session.balaustre.assinaturas && session.balaustre.assinaturas.length > 0 && (
+                  <div>
+                    <h5>Assinaturas:</h5>
+                    <ul>
+                      {session.balaustre.assinaturas.map((sig, index) => (
+                        <li key={index}>{sig.signer} ({sig.role}) - {new Date(sig.timestamp).toLocaleString()}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <iframe
+                  src={getFileUrl(session.balaustre.caminhoPdfLocal)}
+                  title="Balaústre PDF"
+                  width="100%"
+                  height="500px"
+                  style={{ border: "none" }}
+                ></iframe>
+              </div>
             )}
           </div>
         </div>
@@ -254,7 +271,10 @@ const SessaoDetalhesPage = () => {
             />
           )}
           {activeTab === "balaustre" && (
-            <BalaustreEditor balaustreId={session.Balaustre?.id} />
+            <BalaustreEditor
+              balaustreId={session.balaustre?.id}
+              refetchSession={refetch}
+            />
           )}
         </div>
       </div>
