@@ -20,6 +20,7 @@ const menuConfig = {
     items: [
       { label: "Gestão de Membros", path: "/admin/members" },
       { label: "Gestão de Sessões e Balaústres", path: "/sessoes" },
+      { label: "Histórico de Sessões", path: "/historico-sessoes" },
       { label: "Gestão de Publicações", path: "/publicacoes" },
       { label: "Documentos", path: "/documentos" },
       { label: "Arquivos Diversos", path: "/arquivos-diversos" },

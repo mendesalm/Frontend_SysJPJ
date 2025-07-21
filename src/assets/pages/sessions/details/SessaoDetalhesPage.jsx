@@ -14,11 +14,7 @@ import "./SessaoDetalhes.css";
 import moment from "moment";
 
 
-const getFileUrl = (path) => {
-  if (!path) return "#";
-  // Ensure the path is absolute from the origin, without duplicating /uploads/
-  return `${window.location.origin}${path.startsWith('/') ? '' : '/'}${path}`;
-};
+
 
 const SessaoDetalhesPage = () => {
   const { id } = useParams();
@@ -166,41 +162,8 @@ const SessaoDetalhesPage = () => {
             {moment.utc(session.dataSessao).format("DD [de] MMMM [de] YYYY")}
           </p>
           <div className="session-documents">
-            {session.edital?.caminhoPdfLocal && (
-              <div className="edital-display-section">
-                <h4 className="mt-3">Edital</h4>
-                <iframe
-                  src={getFileUrl(session.edital.caminhoPdfLocal)}
-                  title="Edital PDF"
-                  width="100%"
-                  height="500px"
-                  style={{ border: "none" }}
-                ></iframe>
-              </div>
-            )}
-            {session.balaustre?.caminhoPdfLocal && (
-              <div className="balaustre-display-section">
-                <h4 className="mt-3">Balaústre</h4>
-                <p>Status: <strong>{session.balaustre.status}</strong></p>
-                {session.balaustre.assinaturas && session.balaustre.assinaturas.length > 0 && (
-                  <div>
-                    <h5>Assinaturas:</h5>
-                    <ul>
-                      {session.balaustre.assinaturas.map((sig, index) => (
-                        <li key={index}>{sig.signer} ({sig.role}) - {new Date(sig.timestamp).toLocaleString()}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                <iframe
-                  src={getFileUrl(session.balaustre.caminhoPdfLocal)}
-                  title="Balaústre PDF"
-                  width="100%"
-                  height="500px"
-                  style={{ border: "none" }}
-                ></iframe>
-              </div>
-            )}
+            
+            
           </div>
         </div>
 

@@ -9,6 +9,8 @@ import {
   updateSession,
   deleteSession,
 } from "~/services/sessionService";
+import { createAviso } from "~/services/avisoService";
+import moment from "moment-timezone"; // Importar moment-timezone
 import { formatDateForInput, formatFullDate } from "~/utils/dateUtils";
 import { showSuccessToast, showErrorToast } from "~/utils/notifications";
 import Modal from "~/components/modal/Modal";
@@ -48,7 +50,7 @@ const HighlightedSession = ({ session, onEdit, onDelete, handleViewDocument }) =
             <FontAwesomeIcon icon={faEye} /> Ver Ata
           </button>
         )}
-        {session.balaustre?.caminhoPdfLocal && (
+        {session.balaustre?.status === 'Aprovado' && session.balaustre?.caminhoPdfLocal && (
           <button
             onClick={() => handleViewDocument(session.balaustre.caminhoPdfLocal)}
             className="btn-action-light btn-view"
@@ -150,7 +152,7 @@ const PastSessionsTable = ({
                 </span>
               </td>
               <td>
-                {session.balaustre?.caminhoPdfLocal ? (
+                {session.balaustre?.status === 'Aprovado' && session.balaustre?.caminhoPdfLocal ? (
                   <button
                     onClick={() =>
                       handleViewDocument(session.balaustre.caminhoPdfLocal)
@@ -276,8 +278,33 @@ const SessionsPage = () => {
         await updateSession(currentSession.id, formData);
         showSuccessToast("Sessão atualizada com sucesso!");
       } else {
-        await createSession(formData);
+        const newSessionResponse = await createSession(formData);
+        console.log("Resposta da criação da sessão (newSessionResponse.data):", newSessionResponse.data);
         showSuccessToast("Sessão criada com sucesso!");
+
+        // Cria um aviso no dashboard, independentemente do checkbox de e-mail
+        if (newSessionResponse.data) { // Garante que a sessão foi criada com sucesso
+          const newSession = newSessionResponse.data;
+          const avisoData = {
+            titulo: `Nova Sessão Agendada: ${newSession.tipoSessao} de ${newSession.subtipoSessao}`,
+            conteudo: `Uma nova sessão foi agendada para ${formatFullDate(newSession.dataSessao)}. Confira os detalhes, edital e convite.`,
+            link: `/sessoes/${newSession.id}`,
+            dataExpiracao: moment(newSession.dataSessao).toISOString(), // Envia a data completa como ISO 8601
+            fixado: false, // Adicionado explicitamente
+            documentos: { // Reintroduzindo o objeto documentos
+              editalUrl: newSession.caminhoEditalPdf || null,
+              conviteUrl: newSession.caminhoConvitePdf || null,
+            },
+          };
+          console.log("Payload do aviso (avisoData):", avisoData);
+          try {
+            await createAviso(avisoData);
+            showSuccessToast("Aviso de nova sessão criado com sucesso!");
+          } catch (avisoErr) {
+            showErrorToast("Erro ao criar aviso de nova sessão.");
+            console.error("Erro ao criar aviso:", avisoErr);
+          }
+        }
       }
       closeModal();
       refetchFuture();
@@ -300,6 +327,20 @@ const SessionsPage = () => {
       try {
         await deleteSession(sessionId);
         showSuccessToast("Sessão apagada com sucesso!");
+
+        // Lógica para apagar o aviso correspondente
+        const avisoLink = `/sessoes/${sessionId}`;
+        const avisosResponse = await getAllAvisos({ link: avisoLink }); // Buscar avisos pelo link
+        if (avisosResponse.data && avisosResponse.data.length > 0) {
+          const avisoToDelete = avisosResponse.data[0]; // Pega o primeiro aviso encontrado
+          try {
+            await deleteAviso(avisoToDelete.id);
+            showSuccessToast("Aviso correspondente apagado com sucesso!");
+          } catch (avisoDeleteErr) {
+            showErrorToast("Erro ao apagar aviso correspondente.");
+            console.error("Erro ao apagar aviso:", avisoDeleteErr);
+          }
+        }
         refetchFuture();
         if (pastSessions && pastSessions.length > 0) {
           handleSearchPastSessions();

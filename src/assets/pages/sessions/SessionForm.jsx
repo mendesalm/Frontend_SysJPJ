@@ -24,6 +24,8 @@ const SessionForm = ({ sessionToEdit, onSave, onCancel }) => {
       reset({
         ...sessionToEdit,
         dataSessao: formatDateForInput(sessionToEdit.dataSessao),
+        tipoResponsabilidadeJantar: sessionToEdit.tipoResponsabilidadeJantar || 'Sequencial',
+        enviarEmails: false, // Adicionar o campo para edição, padrão false
       });
     } else {
       const defaultDate = new Date();
@@ -33,26 +35,23 @@ const SessionForm = ({ sessionToEdit, onSave, onCancel }) => {
         tipoSessao: TIPOS_SESSAO[0],
         subtipoSessao: SUBTIPOS_SESSAO[0],
         status: "Agendada",
+        tipoResponsabilidadeJantar: 'Sequencial',
+        enviarEmails: false, // Padrão para nova sessão
       });
     }
   }, [sessionToEdit, reset]);
 
   const handleFormSubmit = (data) => {
-    const formData = new FormData();
+    const payload = {
+        dataSessao: data.dataSessao,
+        tipoSessao: data.tipoSessao,
+        subtipoSessao: data.subtipoSessao,
+        status: data.status,
+        tipoResponsabilidadeJantar: data.tipoResponsabilidadeJantar,
+        enviarEmails: data.enviarEmails, // Incluir o valor do checkbox
+    };
 
-    // CORREÇÃO FINAL: Envia a string de data/hora local diretamente, sem NENHUMA conversão.
-    // O backend espera receber "YYYY-MM-DDTHH:mm" e irá tratar do fuso horário.
-    formData.append("dataSessao", data.dataSessao);
-
-    formData.append("tipoSessao", data.tipoSessao);
-    formData.append("subtipoSessao", data.subtipoSessao);
-    if (data.status) formData.append("status", data.status);
-
-    if (data.ataSessao && data.ataSessao[0]) {
-      formData.append("ataSessao", data.ataSessao[0]);
-    }
-
-    onSave(formData);
+    onSave(payload);
   };
 
   return (
@@ -110,17 +109,32 @@ const SessionForm = ({ sessionToEdit, onSave, onCancel }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="ataSessao">Ata da Sessão (PDF, opcional)</label>
+          <label htmlFor="tipoResponsabilidadeJantar">Responsabilidade pelo Jantar</label>
+          <select
+            id="tipoResponsabilidadeJantar"
+            {...register("tipoResponsabilidadeJantar")}
+            className={`form-select ${errors.tipoResponsabilidadeJantar ? "is-invalid" : ""}`}
+          >
+            <option value="Sequencial">Seguir a Escala</option>
+            <option value="Institucional">Jantar Institucional</option>
+            <option value="Especial">Jantar Especial</option>
+          </select>
+          {errors.tipoResponsabilidadeJantar && (
+            <p className="form-error-message">{errors.tipoResponsabilidadeJantar.message}</p>
+          )}
+        </div>
+
+      {/* Novo checkbox para envio de emails */}
+      <div className="form-group form-check-group">
         <input
-          id="ataSessao"
-          type="file"
-          accept=".pdf"
-          {...register("ataSessao")}
-          className={`form-input ${errors.ataSessao ? "is-invalid" : ""}`}
+          type="checkbox"
+          id="enviarEmails"
+          {...register("enviarEmails")}
+          className="form-check-input"
         />
-        {errors.ataSessao && (
-          <p className="form-error-message">{errors.ataSessao.message}</p>
-        )}
+        <label htmlFor="enviarEmails" className="form-check-label">
+          Enviar Edital e Convite por Email
+        </label>
       </div>
 
       <div className="form-actions">
@@ -140,3 +154,4 @@ const SessionForm = ({ sessionToEdit, onSave, onCancel }) => {
 };
 
 export default SessionForm;
+

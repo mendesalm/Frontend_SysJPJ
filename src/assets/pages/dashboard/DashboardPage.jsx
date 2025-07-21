@@ -3,7 +3,8 @@ import { getDashboardData } from "../../../services/dashboardService";
 import { getAllAvisos } from "../../../services/avisoService";
 import AdminDashboard from "./AdminDashboard";
 import MemberDashboard from "./MemberDashboard";
-import DashboardAvisos from "./components/DashboardAvisos";
+
+import DashboardNoticeList from "./components/DashboardNoticeList";
 import EventCalendar from "./components/EventCalendar";
 import DashboardClassificados from "./components/DashboardClassificados";
 import DashboardJantar from "./components/DashboardJantar";
@@ -11,7 +12,7 @@ import "./DashboardPage.css";
 
 const DashboardPage = () => {
   const [dashboardData, setDashboardData] = useState(null);
-  const [totalAvisos, setTotalAvisos] = useState(0);
+  const [avisos, setAvisos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -30,7 +31,7 @@ const DashboardPage = () => {
       }
 
       if (avisosResponse && avisosResponse.data) {
-        setTotalAvisos(avisosResponse.data.length);
+        setAvisos(avisosResponse.data);
       } else {
         throw new Error("Resposta da API de avisos inválida.");
       }
@@ -76,7 +77,7 @@ const DashboardPage = () => {
       <div className="dashboard-bottom-section">
         <div className="avisos-classificados-column">
           <div className="avisos-widget-container">
-            <DashboardAvisos totalAvisos={totalAvisos} />
+            <DashboardNoticeList avisos={avisos} />
           </div>
           <div className="classificados-widget-container">
             {/* A prop foi alterada para passar o número total */}

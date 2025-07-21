@@ -130,7 +130,7 @@ const AvisosPage = () => {
                 {aviso.dataExpiracao && (
                   <span>
                     Expira em:{" "}
-                    {new Date(aviso.dataExpiracao).toLocaleDateString()}
+                    {moment(aviso.dataExpiracao).tz("America/Sao_Paulo").format("DD [de] MMMM [de] YYYY, HH:mm")}
                   </span>
                 )}
               </div>
