@@ -51,3 +51,19 @@ export const updateMember = (id, memberData) => {
 export const deleteMember = (id) => {
   return apiClient.delete(`/lodgemembers/${id}`);
 };
+
+export const getMemberCargos = (memberId) => {
+  return apiClient.get(`/lodgemembers/${memberId}/cargos`);
+};
+
+export const addCargoMembro = (memberId, cargoData) => {
+  return apiClient.post(`/lodgemembers/${memberId}/cargos`, cargoData);
+};
+
+export const updateCargoMembro = (memberId, cargoId, cargoData) => {
+  return apiClient.put(`/lodgemembers/${memberId}/cargos/${cargoId}`, cargoData);
+};
+
+export const deleteCargoMembro = (memberId, cargoId) => {
+  return apiClient.delete(`/lodgemembers/${memberId}/cargos/${cargoId}`);
+};

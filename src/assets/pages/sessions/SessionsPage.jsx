@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
@@ -9,7 +9,7 @@ import {
   updateSession,
   deleteSession,
 } from "~/services/sessionService";
-import { createAviso } from "~/services/avisoService";
+import { createAviso, getAllAvisos, deleteAviso } from "~/services/avisoService";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale'; // Importar moment-timezone
 import { formatDateForInput, formatFullDate } from "~/utils/dateUtils";
@@ -37,7 +37,7 @@ const HighlightedSession = ({ session, onEdit, onDelete, handleViewDocument }) =
       </div>
       <div className="highlight-body">
         <p className="highlight-date">{format(new Date(session.dataSessao), "EEEE, dd 'de' MMMM 'de' yyyy, 'às' HH:mm'h'", { locale: ptBR })}</p>
-        <p className="highlight-status">Status: {session.status}</p>
+        <p className="highlight-status">Status: {new Date(session.dataSessao) < new Date() && session.status === 'Agendada' ? 'Realizada' : session.status}</p>
       </div>
       <div className="highlight-footer">
         <Link to={`/sessoes/${session.id}`} className="btn-details">
@@ -147,9 +147,9 @@ const PastSessionsTable = ({
               <td>{`${session.tipoSessao} - ${session.subtipoSessao}`}</td>
               <td>
                 <span
-                  className={`status-badge status-${session.status?.toLowerCase()}`}
+                  className={`status-badge status-${(new Date(session.dataSessao) < new Date() && session.status === 'Agendada' ? 'Realizada' : session.status)?.toLowerCase()}`}
                 >
-                  {session.status}
+                  {new Date(session.dataSessao) < new Date() && session.status === 'Agendada' ? 'Realizada' : session.status}
                 </span>
               </td>
               <td>
@@ -229,14 +229,12 @@ const SessionsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentSession, setCurrentSession] = useState(null);
 
-  const today = useMemo(() => new Date().toISOString(), []);
-
   const {
-    data: futureSessionsData,
+    data: futureSessionsDataRaw,
     isLoading: isLoadingFuture,
     refetch: refetchFuture,
   } = useDataFetching(getSessions, [
-    { startDate: today, limit: 6, sortBy: "dataSessao", order: "ASC" },
+    { startDate: new Date().toISOString(), limit: 6, sortBy: "dataSessao", order: "ASC" },
   ]);
 
   const {
@@ -245,8 +243,30 @@ const SessionsPage = () => {
     refetch: fetchPastSessions,
   } = useDataFetching(getSessions, [{}], true);
 
-  const highlightedSession = futureSessionsData?.[0];
-  const futureSessionsList = (futureSessionsData || []).filter(
+  const futureSessions = useMemo(() => {
+    const now = new Date();
+    return (futureSessionsDataRaw || []).filter(session => new Date(session.dataSessao) >= now);
+  }, [futureSessionsDataRaw]);
+
+  useEffect(() => {
+    if (futureSessionsDataRaw) {
+      const now = new Date();
+      futureSessionsDataRaw.forEach(async (session) => {
+        if (new Date(session.dataSessao) < now && session.status === 'Agendada') {
+          try {
+            await updateSession(session.id, { ...session, status: 'Realizada' });
+            console.log(`Sessão ${session.id} atualizada para 'Realizada'.`);
+            refetchFuture(); // Refetch to update the UI
+          } catch (error) {
+            console.error(`Erro ao atualizar status da sessão ${session.id}:`, error);
+          }
+        }
+      });
+    }
+  }, [futureSessionsDataRaw, refetchFuture]);
+
+  const highlightedSession = futureSessions?.[0];
+  const futureSessionsList = (futureSessions || []).filter(
     (s) => s.id !== highlightedSession?.id
   );
 

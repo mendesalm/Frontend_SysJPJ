@@ -2,12 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useDataFetching } from "../../../../../hooks/useDataFetching";
 import { CARGOS_LOJA } from "../../../../../constants/userConstants";
-import {
-  getCargosMembro,
-  addCargoMembro,
-  updateCargoMembro,
-  deleteCargoMembro,
-} from "../../../../../services/memberService";
+import { getMemberCargos, addCargoMembro, updateCargoMembro, deleteCargoMembro } from "~/services/memberService";
 import {
   showSuccessToast,
   showErrorToast,
@@ -18,7 +13,7 @@ import "./HistoricoCargos.css";
 const HistoricoCargos = ({ memberId }) => {
   const fetchCargos = useCallback(() => {
     if (memberId) {
-      return getCargosMembro(memberId);
+      return getMemberCargos(memberId);
     }
     return Promise.resolve({ data: [] });
   }, [memberId]);
