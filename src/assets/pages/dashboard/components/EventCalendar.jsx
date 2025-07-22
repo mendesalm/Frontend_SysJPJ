@@ -309,6 +309,11 @@ const EventCalendar = () => {
               tileContent: tileContent,
             }}
             culture="pt-BR"
+            messages={{
+              today: "Hoje",
+              previous: "Anterior",
+              next: "Próximo",
+            }}
           />
         )}
       </div>

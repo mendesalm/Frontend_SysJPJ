@@ -1,3 +1,0 @@
-Fix: Ensure setMembros receives array in GestaoEscalaPage
-
-Updated `GestaoEscalaPage.jsx` to ensure that `setMembros` always receives an array, preventing potential issues when `response.data` is not an array.

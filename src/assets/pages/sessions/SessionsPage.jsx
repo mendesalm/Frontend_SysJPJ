@@ -228,49 +228,57 @@ const SessionsPage = () => {
   const [filterDate, setFilterDate] = useState(formatDateForInput(new Date()));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentSession, setCurrentSession] = useState(null);
-
-  const todayStart = useMemo(() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d.toISOString();
-  }, []);
+  const [hasPerformedInitialStatusUpdate, setHasPerformedInitialStatusUpdate] = useState(false);
 
   const {
     data: futureSessionsDataRaw,
     isLoading: isLoadingFuture,
     refetch: refetchFuture,
   } = useDataFetching(getSessions, [
-    { startDate: todayStart, status: "Agendada", limit: 6, sortBy: "dataSessao", order: "ASC" },
+    { sortBy: "dataSessao", order: "ASC" },
   ]);
 
   const {
-    data: pastSessions,
+    data: pastSessionsRaw,
     isLoading: isLoadingPast,
     refetch: fetchPastSessions,
-  } = useDataFetching(getSessions, [
-    { endDate: todayStart, status: "Realizada", sortBy: "dataSessao", order: "DESC" },
-  ]);
+  } = useDataFetching(getSessions, [{}], true);
 
   const futureSessions = useMemo(() => {
     const now = new Date();
-    return (futureSessionsDataRaw || []).filter(session => new Date(session.dataSessao) >= now);
+    return (futureSessionsDataRaw || []).filter(session => 
+      new Date(session.dataSessao) >= now && session.status === 'Agendada'
+    ).sort((a, b) => new Date(a.dataSessao) - new Date(b.dataSessao));
   }, [futureSessionsDataRaw]);
 
+  const pastSessions = useMemo(() => {
+    const now = new Date();
+    return (pastSessionsRaw || []).filter(session => 
+      new Date(session.dataSessao) < now && session.status === 'Realizada'
+    ).sort((a, b) => new Date(b.dataSessao) - new Date(a.dataSessao));
+  }, [pastSessionsRaw]);
+
   useEffect(() => {
-    if (futureSessionsDataRaw) {
+    if (futureSessionsDataRaw && !hasPerformedInitialStatusUpdate) {
       const now = new Date();
+      let needsRefetch = false;
       futureSessionsDataRaw.forEach(async (session) => {
         if (new Date(session.dataSessao) < now && session.status === 'Agendada') {
           try {
             await updateSession(session.id, { ...session, status: 'Realizada' });
             console.log(`Sessão ${session.id} atualizada para 'Realizada'.`);
+            needsRefetch = true;
           } catch (error) {
             console.error(`Erro ao atualizar status da sessão ${session.id}:`, error);
           }
         }
       });
+      if (needsRefetch) {
+        refetchFuture();
+      }
+      setHasPerformedInitialStatusUpdate(true);
     }
-  }, [futureSessionsDataRaw, refetchFuture]);
+  }, [futureSessionsDataRaw, refetchFuture, hasPerformedInitialStatusUpdate]);
 
   const highlightedSession = futureSessions?.[0];
   const futureSessionsList = (futureSessions || []).filter(
