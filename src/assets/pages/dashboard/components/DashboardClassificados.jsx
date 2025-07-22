@@ -34,14 +34,14 @@ const DashboardClassificados = ({ totalClassificados = 0 }) => {
         <p
           style={{
             fontSize: "var(--font-size-lg)",
-            color: "var(--cor-texto-secundario)",
+            color: "var(--text-color-secondary)",
           }}
         >
           Total de Anúncios Publicados
         </p>
         <p
           className="stat-value"
-          style={{ fontSize: "3.5rem", color: "#22c55e" }}
+          style={{ fontSize: "3.5rem", color: "var(--success-color)" }}
         >
           <CountUp
             start={0}

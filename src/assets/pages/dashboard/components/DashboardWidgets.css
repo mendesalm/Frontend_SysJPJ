@@ -1,24 +1,24 @@
 /* src/assets/pages/dashboard/components/DashboardWidgets.css */
 
 .dashboard-widget {
-  background: rgba(31, 41, 55, 0.6);
+  background: var(--background-color-light);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--cor-borda-vidro);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   height: 100%;
+  box-shadow: var(--box-shadow);
 }
 
 .widget-title {
-  /* ANTES: font-size: 1.25rem; */
-  font-size: var(--font-size-xl); /* DEPOIS */
-  color: var(--cor-texto-cabecalho);
+  font-size: var(--font-size-xl);
+  color: var(--text-color-heading);
   margin-bottom: 1.5rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--cor-borda-vidro);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .widget-content {
@@ -33,35 +33,33 @@
   background-color: transparent;
   padding: 1rem;
   border-radius: 8px;
-  border-left: 4px solid var(--cor-hover-icon);
+  border-left: 4px solid var(--primary-color);
 }
 
 .widget-card.aviso-card {
-  background-color: rgba(17, 24, 39, 0.8);
-  border-left-color: #facc15;
+  background-color: var(--background-color-dark);
+  border-left-color: var(--warning-color);
 }
 .widget-card.classificado-card {
-  background-color: rgba(17, 24, 39, 0.8);
-  border-left-color: #22c55e; /* Verde para classificados */
+  background-color: var(--background-color-dark);
+  border-left-color: var(--success-color);
 }
 .widget-card h4 {
   margin: 0 0 0.5rem 0;
-  color: var(--cor-texto-primario);
-  font-size: var(--font-size-lg); /* ADICIONADO */
+  color: var(--text-color);
+  font-size: var(--font-size-lg);
 }
 
 .widget-card p {
   margin: 0.25rem 0;
-  /* ANTES: font-size: 0.9rem; */
-  font-size: var(--font-size-sm); /* DEPOIS */
-  color: var(--cor-texto-secundario);
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
   line-height: 1.5;
 }
 
 .widget-card small {
-  /* ANTES: font-size: 0.8rem; */
-  font-size: var(--font-size-xs); /* DEPOIS */
-  color: var(--cor-texto-secundario);
+  font-size: var(--font-size-xs);
+  color: var(--text-color-secondary);
 }
 
 .widget-footer {
@@ -70,17 +68,17 @@
 }
 
 .widget-link {
-  color: var(--cor-hover-icon);
+  color: var(--primary-color);
   text-decoration: none;
   font-weight: 500;
-  font-size: var(--font-size-sm); /* ADICIONADO */
+  font-size: var(--font-size-sm);
   transition: color 0.2s;
 }
 
 .widget-link:hover {
   filter: brightness(1.2);
 }
-/* Estilos para o novo widget de Jantar */
+
 .jantar-fila-lista {
   list-style: none;
   padding: 0;
@@ -95,24 +93,22 @@
   align-items: center;
   gap: 1rem;
   padding: 0.75rem;
-  background-color: rgba(17, 24, 39, 0.8);
-  border-left: 4px solid #f59e0b; /* Laranja/âmbar para destaque */
+  background-color: var(--background-color-dark);
+  border-left: 4px solid var(--warning-color);
   border-radius: 6px;
 }
 
 .ordem-item {
   font-weight: bold;
   font-size: 1.1rem;
-  color: #f59e0b;
+  color: var(--warning-color);
 }
 
 .nome-item {
   font-weight: 500;
-  color: var(--cor-texto-primario);
+  color: var(--text-color);
 }
-/* ... (estilos existentes) ... */
 
-/* Novo estilo para widgets clicáveis */
 .dashboard-widget.clickable {
   cursor: pointer;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;

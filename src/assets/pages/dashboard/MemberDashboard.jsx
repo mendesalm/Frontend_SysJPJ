@@ -1,7 +1,6 @@
 import React from "react";
 
 const MemberDashboard = ({ data }) => {
-  // Valores padrão para evitar erros
   const { emprestimosPendentes = [] } = data || {};
 
   return (
@@ -25,7 +24,6 @@ const MemberDashboard = ({ data }) => {
           </ul>
         )}
       </div>
-      {/* Adicione outros cartões de estatísticas para o membro aqui */}
     </div>
   );
 };

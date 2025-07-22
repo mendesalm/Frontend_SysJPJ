@@ -11,6 +11,8 @@ import Modal from "../../../components/modal/Modal";
 import AvisoForm from "./AvisoForm";
 import "./AvisosPage.css";
 import "../../styles/TableStyles.css";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { showSuccessToast, showErrorToast } from "../../../utils/notifications";
 
 const AvisosPage = () => {
@@ -129,9 +131,9 @@ const AvisosPage = () => {
                 </span>
                 {aviso.dataExpiracao && (
                   <span>
-                    Expira em:{" "}
-                    {moment(aviso.dataExpiracao).tz("America/Sao_Paulo").format("DD [de] MMMM [de] YYYY, HH:mm")}
-                  </span>
+                  Expira em:{" "}
+                  {format(new Date(aviso.dataExpiracao), "dd 'de' MMMM 'de' yyyy, HH:mm", { locale: ptBR })}
+                </span>
                 )}
               </div>
             </div>

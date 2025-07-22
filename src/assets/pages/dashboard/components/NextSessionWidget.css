@@ -1,0 +1,61 @@
+
+.next-session-widget {
+  background-color: var(--background-color-light);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: var(--box-shadow);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  border: 1px solid var(--border-color);
+}
+
+.next-session-widget h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+}
+
+.session-date {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.session-type {
+  font-size: 1rem;
+  color: var(--text-color-secondary);
+}
+
+.session-links {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-document, .btn-details {
+  padding: 10px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 600;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.btn-document {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-document:hover {
+  background-color: var(--primary-color-dark);
+}
+
+.btn-details {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.btn-details:hover {
+  background-color: var(--secondary-color-dark);
+}

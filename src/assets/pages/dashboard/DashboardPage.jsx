@@ -1,10 +1,12 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import { getDashboardData } from "../../../services/dashboardService";
 import { getAllAvisos } from "../../../services/avisoService";
+import { getSessions } from "../../../services/sessionService";
 import AdminDashboard from "./AdminDashboard";
 import MemberDashboard from "./MemberDashboard";
-
-import DashboardNoticeList from "./components/DashboardNoticeList";
+import NextSessionWidget from "./components/NextSessionWidget";
+import NoticesWidget from "./components/NoticesWidget";
 import EventCalendar from "./components/EventCalendar";
 import DashboardClassificados from "./components/DashboardClassificados";
 import DashboardJantar from "./components/DashboardJantar";
@@ -13,15 +15,18 @@ import "./DashboardPage.css";
 const DashboardPage = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [avisos, setAvisos] = useState([]);
+  const [nextSession, setNextSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [dashboardResponse, avisosResponse] = await Promise.all([
+      const today = new Date().toISOString();
+      const [dashboardResponse, avisosResponse, nextSessionResponse] = await Promise.all([
         getDashboardData(),
         getAllAvisos(),
+        getSessions({ startDate: today, limit: 1, sortBy: 'dataSessao', order: 'ASC' }),
       ]);
 
       if (dashboardResponse && dashboardResponse.data) {
@@ -34,6 +39,10 @@ const DashboardPage = () => {
         setAvisos(avisosResponse.data);
       } else {
         throw new Error("Resposta da API de avisos inválida.");
+      }
+
+      if (nextSessionResponse && nextSessionResponse.data && nextSessionResponse.data.length > 0) {
+        setNextSession(nextSessionResponse.data[0]);
       }
     } catch (err) {
       console.error("Erro ao buscar dados do dashboard:", err);
@@ -58,11 +67,16 @@ const DashboardPage = () => {
   const renderDashboardType = () => {
     if (!dashboardData) return null;
 
+    const commonProps = {
+      data: dashboardData,
+      avisosCount: avisos.length,
+    };
+
     switch (dashboardData.tipo) {
       case "admin":
-        return <AdminDashboard data={dashboardData} />;
+        return <AdminDashboard {...commonProps} />;
       case "membro":
-        return <MemberDashboard data={dashboardData} />;
+        return <MemberDashboard {...commonProps} />;
       default:
         return <p>Tipo de dashboard desconhecido.</p>;
     }
@@ -70,17 +84,13 @@ const DashboardPage = () => {
 
   return (
     <div className="dashboard-container">
-      {/* Secção superior com as estatísticas */}
       {renderDashboardType()}
-
-      {/* Grelha inferior atualizada */}
       <div className="dashboard-bottom-section">
         <div className="avisos-classificados-column">
-          <div className="avisos-widget-container">
-            <DashboardNoticeList avisos={avisos} />
+          <div className="next-session-widget-container">
+            <NextSessionWidget session={nextSession} />
           </div>
           <div className="classificados-widget-container">
-            {/* A prop foi alterada para passar o número total */}
             <DashboardClassificados
               totalClassificados={dashboardData?.totalClassificados}
             />
@@ -96,5 +106,6 @@ const DashboardPage = () => {
     </div>
   );
 };
+
 
 export default DashboardPage;

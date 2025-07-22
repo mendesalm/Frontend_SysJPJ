@@ -1,20 +1,32 @@
-/* --- Reset Global Definitivo --- */
-
-/* --- Variáveis de Tema --- */
-
 /* TEMA ESCURO (Padrão) */
 :root,
 body.theme-dark {
-  --cor-fundo-app: #111827;
-  --cor-sidebar-primaria: #1f2937;
-  --cor-sidebar-secundaria-fundo: rgba(31, 41, 55, 0.6);
-  --cor-borda-sidebar: #374151;
-  --cor-fundo-hover-sidebar: rgba(14, 165, 233, 0.1);
-  --cor-texto-primario: #f9fafb;
-  --cor-texto-secundario: #9ca3af;
-  --cor-texto-cabecalho: #e5e7eb;
-  --cor-hover-icon: #38bdf8;
-  --cor-active-icon: #0ea5e9;
+  --background-color: #111827;
+  --background-color-light: #1f2937;
+  --background-color-dark: #0f172a;
+  --background-color-hover: #374151;
+  --background-color-translucent: rgba(17, 24, 39, 0.8);
+  --border-color: #374151;
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+  --primary-color: #0ea5e9;
+  --primary-color-dark: #0284c7;
+  --primary-color-translucent: rgba(14, 165, 233, 0.1);
+  --secondary-color: #6c757d;
+  --secondary-color-dark: #5a6268;
+  --success-color: #22c55e;
+  --info-color: #3b82f6;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --accent-color: #eab308;
+  --pink-color: #ec4899;
+  --purple-color: #8b5cf6;
+
+  --text-color: #f9fafb;
+  --text-color-secondary: #9ca3af;
+  --text-color-heading: #e5e7eb;
+  --text-color-light: #d1d5db;
+  --text-color-dark: #422006;
 
   /* Variáveis de formulário para o tema escuro */
   --cor-fundo-input: #1f2937;
@@ -34,16 +46,32 @@ body.theme-dark {
 
 /* TEMA CLARO (Contraste Ajustado e Cores Suaves) */
 body.theme-light {
-  --cor-fundo-app: #f0f2f5; /* Fundo de cinza suave para conforto visual */
-  --cor-sidebar-primaria: #ffffff; /* Sidebar branca para área de conteúdo clara */
-  --cor-sidebar-secundaria-fundo: rgba(245, 245, 245, 0.8);
-  --cor-borda-sidebar: #dee2e6; /* Borda sutil */
-  --cor-fundo-hover-sidebar: rgba(59, 130, 246, 0.1); /* Hover com azul suave */
-  --cor-texto-primario: #212529; /* Texto em cinza escuro para alto contraste sem ser preto puro */
-  --cor-texto-secundario: #6c757d; /* Cinza padrão para texto de apoio */
-  --cor-texto-cabecalho: #212529; /* Cabeçalhos consistentes com o texto primário */
-  --cor-hover-icon: #3b82f6; /* Azul profissional e menos saturado para interações */
-  --cor-active-icon: #2563eb; /* Azul mais escuro para estado ativo */
+  --background-color: #f0f2f5;
+  --background-color-light: #ffffff;
+  --background-color-dark: #e2e8f0;
+  --background-color-hover: #e2e8f0;
+  --background-color-translucent: rgba(240, 242, 245, 0.8);
+  --border-color: #dee2e6;
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  --primary-color: #3b82f6;
+  --primary-color-dark: #2563eb;
+  --primary-color-translucent: rgba(59, 130, 246, 0.1);
+  --secondary-color: #6c757d;
+  --secondary-color-dark: #5a6268;
+  --success-color: #28a745;
+  --info-color: #17a2b8;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
+  --accent-color: #fd7e14;
+  --pink-color: #e83e8c;
+  --purple-color: #6f42c1;
+
+  --text-color: #212529;
+  --text-color-secondary: #6c757d;
+  --text-color-heading: #212529;
+  --text-color-light: #adb5bd;
+  --text-color-dark: #000000;
 
   /* Variáveis de formulário para o tema claro */
   --cor-fundo-input: #ffffff;
@@ -61,6 +89,35 @@ body.theme-light {
   --font-size-3xl: 1.875rem;
   --font-size-4xl: 2.25rem;
 }
+
+/* Mapeamento das variáveis antigas para as novas */
+:root,
+body.theme-dark {
+  --cor-fundo-app: var(--background-color);
+  --cor-sidebar-primaria: var(--background-color-light);
+  --cor-sidebar-secundaria-fundo: var(--background-color-translucent);
+  --cor-borda-sidebar: var(--border-color);
+  --cor-fundo-hover-sidebar: var(--primary-color-translucent);
+  --cor-texto-primario: var(--text-color);
+  --cor-texto-secundario: var(--text-color-secondary);
+  --cor-texto-cabecalho: var(--text-color-heading);
+  --cor-hover-icon: var(--primary-color);
+  --cor-active-icon: var(--primary-color-dark);
+}
+
+body.theme-light {
+  --cor-fundo-app: var(--background-color);
+  --cor-sidebar-primaria: var(--background-color-light);
+  --cor-sidebar-secundaria-fundo: var(--background-color-translucent);
+  --cor-borda-sidebar: var(--border-color);
+  --cor-fundo-hover-sidebar: var(--primary-color-translucent);
+  --cor-texto-primario: var(--text-color);
+  --cor-texto-secundario: var(--text-color-secondary);
+  --cor-texto-cabecalho: var(--text-color-heading);
+  --cor-hover-icon: var(--primary-color);
+  --cor-active-icon: var(--primary-color-dark);
+}
+
 /* --- Reset Global Definitivo --- */
 *,
 *::before,
@@ -74,50 +131,46 @@ html,
 body {
   margin: 0;
   padding: 0;
-  width: 100%; /* Ensure they take full width */
-  height: 100%; /* Ensure they take full height */
+  width: 100%;
+  height: 100%;
   scroll-behavior: smooth;
-  overflow-x: hidden; /* Prevent horizontal scrollbars */
-  position: relative; /* Added for explicit positioning */
-  top: 0; /* Added for explicit positioning */
-  left: 0; /* Added for explicit positioning */
+  overflow-x: hidden;
+  position: relative;
+  top: 0;
+  left: 0;
 }
 
-/* --- Regra Única e Consolidada para o Body --- */
 body {
-  min-height: 100%; /* Garante que o body ocupe no mínimo a altura total */
+  min-height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
-  line-height: 1.5; /* Melhora a legibilidade geral */
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Cor de fundo que serve como fallback caso a imagem não carregue */
   background-color: var(--cor-fundo-app);
 
-  /* Imagem de fundo global */
   background-image: url("./assets/images/background_jpj.jpg");
   background-attachment: fixed;
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
 
-  overflow: hidden; /* Prevent both horizontal and vertical scrollbars */
+  overflow: hidden;
 }
 
-/* --- Estilos do Contêiner Principal da Aplicação --- */
 #root {
   margin: 0;
   padding: 0;
-  width: 100%; /* Ensure it takes full width */
-  height: 100%; /* Ensure it takes full height */
+  width: 100%;
+  height: 100%;
 }
 
 .App {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: transparent; /* Garante que o container .App seja transparente para a imagem de fundo aparecer */
+  background-color: transparent;
 }
 
 .app-main-content {
@@ -141,10 +194,9 @@ body {
   height: 100vh;
 }
 
-/* PARA COMPENSAR O HEADER FIXO NA NAVEGAÇÃO POR ÂNCORA */
 #inicio,
 #sobre-nos,
 #localizacao,
 #contato {
-  scroll-margin-top: 4vh; /* ANTES: 12vh. Ajustado para a altura do header de 14vh */
+  scroll-margin-top: 4vh;
 }

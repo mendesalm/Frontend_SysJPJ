@@ -6,15 +6,26 @@ import * as locacaoService from "~/services/locacaoService";
 import { showSuccessToast, showErrorToast } from "~/utils/notifications";
 import Modal from "~/components/modal/Modal";
 import LocacaoForm from "./LocacaoForm";
-import { Calendar, momentLocalizer } from "react-big-calendar";
-import moment from "moment";
-import "moment/locale/pt-br"; // Import the pt-br locale
+import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+import { format, parse, startOfWeek, getDay } from "date-fns";
+import ptBR from "date-fns/locale/pt-BR";
+
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./LocacaoSalao.css";
 import "~/assets/styles/TableStyles.css";
 import { BiErrorCircle } from "react-icons/bi";
 
-const localizer = momentLocalizer(moment);
+const locales = {
+  "pt-BR": ptBR,
+};
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
 
 const LocacaoSalaoPage = () => {
   const { user } = useAuth();
@@ -154,7 +165,7 @@ const LocacaoSalaoPage = () => {
             onNavigate={handleNavigate}
             date={date}
             views={["month"]}
-            culture="pt-br"
+            culture="pt-BR"
           />
         </div>
 
@@ -205,11 +216,7 @@ const LocacaoSalaoPage = () => {
                           loc.nomeLocatarioExterno}
                       </td>
                       <td>{loc.finalidade}</td>
-                      <td>{`${moment(loc.dataInicio).format(
-                        "DD/MM/YY HH:mm"
-                      )} - ${moment(loc.dataFim).format(
-                        "DD/MM/YY HH:mm"
-                      )}`}</td>
+                      <td>{`${format(new Date(loc.dataInicio), "dd/MM/yy HH:mm")} - ${format(new Date(loc.dataFim), "dd/MM/yy HH:mm")}`}</td>
                       <td>
                         {loc.ehNaoOneroso
                           ? "Não Oneroso"

@@ -10,7 +10,8 @@ import {
   deleteSession,
 } from "~/services/sessionService";
 import { createAviso } from "~/services/avisoService";
-import moment from "moment-timezone"; // Importar moment-timezone
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale'; // Importar moment-timezone
 import { formatDateForInput, formatFullDate } from "~/utils/dateUtils";
 import { showSuccessToast, showErrorToast } from "~/utils/notifications";
 import Modal from "~/components/modal/Modal";
@@ -35,7 +36,7 @@ const HighlightedSession = ({ session, onEdit, onDelete, handleViewDocument }) =
         <h2>{`${session.tipoSessao} - ${session.subtipoSessao}`}</h2>
       </div>
       <div className="highlight-body">
-        <p className="highlight-date">{formatFullDate(session.dataSessao)}</p>
+        <p className="highlight-date">{format(new Date(session.dataSessao), "EEEE, dd 'de' MMMM 'de' yyyy, 'às' HH:mm'h'", { locale: ptBR })}</p>
         <p className="highlight-status">Status: {session.status}</p>
       </div>
       <div className="highlight-footer">
@@ -93,7 +94,7 @@ const SessionListItem = ({ session, onEdit, onDelete }) => (
   <li className="session-list-item">
     <div className="list-item-info">
       <span className="list-item-date">
-        {formatFullDate(session.dataSessao)}
+        {format(new Date(session.dataSessao), "dd/MM/yyyy")}
       </span>
       <span className="list-item-type">{`${session.tipoSessao} - ${session.subtipoSessao}`}</span>
     </div>
@@ -142,7 +143,7 @@ const PastSessionsTable = ({
         <tbody>
           {sessions.map((session) => (
             <tr key={session.id}>
-              <td>{formatFullDate(session.dataSessao)}</td>
+              <td>{format(new Date(session.dataSessao), "dd/MM/yyyy")}</td>
               <td>{`${session.tipoSessao} - ${session.subtipoSessao}`}</td>
               <td>
                 <span
@@ -289,7 +290,7 @@ const SessionsPage = () => {
             titulo: `Nova Sessão Agendada: ${newSession.tipoSessao} de ${newSession.subtipoSessao}`,
             conteudo: `Uma nova sessão foi agendada para ${formatFullDate(newSession.dataSessao)}. Confira os detalhes, edital e convite.`,
             link: `/sessoes/${newSession.id}`,
-            dataExpiracao: moment(newSession.dataSessao).toISOString(), // Envia a data completa como ISO 8601
+            dataExpiracao: new Date(newSession.dataSessao).toISOString(), // Envia a data completa como ISO 8601
             fixado: false, // Adicionado explicitamente
             documentos: { // Reintroduzindo o objeto documentos
               editalUrl: newSession.caminhoEditalPdf || null,

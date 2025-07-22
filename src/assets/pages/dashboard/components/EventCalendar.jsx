@@ -1,14 +1,25 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Calendar, momentLocalizer } from "react-big-calendar";
-import moment from "moment";
+import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+import { format, parse, startOfWeek, getDay, isSameDay } from "date-fns";
+import ptBR from "date-fns/locale/pt-BR";
+
+const locales = {
+  "pt-BR": ptBR,
+};
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { getCalendarioUnificado } from "../../../../services/dashboardService";
 import Modal from "../../../../components/modal/Modal";
 import "./EventCalendar.css";
 import { showErrorToast } from "../../../../utils/notifications";
 import { SITUACAO_MEMBRO } from "../../../../constants/userConstants";
-
-const localizer = momentLocalizer(moment);
 
 const SITUACOES_FILTRO = SITUACAO_MEMBRO.filter(
   (s) => s !== "Inativo" && s !== "Irregular"
@@ -125,8 +136,8 @@ const EventCalendar = () => {
         .map((item) => ({
           id: item.id || item.data,
           title: item.titulo,
-          start: moment(item.data.split("T")[0], "YYYY-MM-DD").toDate(),
-          end: moment(item.data.split("T")[0], "YYYY-MM-DD").toDate(),
+          start: parse(item.data.split("T")[0], "yyyy-MM-dd", new Date()),
+          end: parse(item.data.split("T")[0], "yyyy-MM-dd", new Date()),
           allDay: true,
           resource: {
             type: item.tipo || "geral",
@@ -164,7 +175,7 @@ const EventCalendar = () => {
   const openModalForDate = useCallback(
     (date) => {
       const eventsForDay = filteredEvents.filter((event) =>
-        moment(event.start).isSame(date, "day")
+        isSameDay(event.start, date)
       );
       if (eventsForDay.length > 0) {
         setSelectedSlot({ date, events: eventsForDay });
@@ -184,7 +195,7 @@ const EventCalendar = () => {
 
   const tileContent = ({ date }) => {
     const dayEvents = filteredEvents.filter((event) =>
-      moment(event.start).isSame(date, "day")
+      isSameDay(event.start, date)
     );
 
     if (dayEvents.length > 0) {
@@ -240,7 +251,7 @@ const EventCalendar = () => {
 
   const handleSelectSlot = useCallback(
     (slotInfo) => {
-      openModalForDate(moment(slotInfo.start).toDate());
+      openModalForDate(slotInfo.start);
     },
     [openModalForDate]
   );
@@ -248,25 +259,6 @@ const EventCalendar = () => {
   const handleNavigate = (newDate) => {
     setDate(newDate);
   };
-
-  const messages = {
-    allDay: "Dia todo",
-    previous: "Anterior",
-    next: "Próximo",
-    today: "Hoje",
-    month: "Mês",
-    week: "Semana",
-    day: "Dia",
-    agenda: "Agenda",
-    date: "Data",
-    time: "Hora",
-    event: "Evento",
-    noEventsInRange: "Não há eventos neste período.",
-    showMore: (total) => `+ Ver mais (${total})`,
-  };
-  moment.updateLocale("pt-br", {
-    /* ...configurações do moment... */
-  });
 
   return (
     <>
@@ -303,8 +295,7 @@ const EventCalendar = () => {
             events={filteredEvents}
             startAccessor="start"
             endAccessor="end"
-            style={{ height: "calc(100vh - 300px)" }}
-            messages={messages}
+            style={{ height: "100%" }}
             views={["month"]}
             onSelectEvent={handleSelectEvent}
             onSelectSlot={handleSelectSlot}
@@ -317,6 +308,7 @@ const EventCalendar = () => {
               month: { dateHeader: CustomDateHeader },
               tileContent: tileContent,
             }}
+            culture="pt-BR"
           />
         )}
       </div>
@@ -326,7 +318,7 @@ const EventCalendar = () => {
         onClose={() => setIsModalOpen(false)}
         title={
           selectedSlot.date
-            ? `Eventos para ${moment(selectedSlot.date).format("DD/MM/YYYY")}`
+            ? `Eventos para ${format(selectedSlot.date, "dd/MM/yyyy")}`
             : "Detalhes do Evento"
         }
       >
