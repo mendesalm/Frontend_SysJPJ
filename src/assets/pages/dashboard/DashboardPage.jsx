@@ -22,11 +22,12 @@ const DashboardPage = () => {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const today = new Date().toISOString();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
       const [dashboardResponse, avisosResponse, nextSessionResponse] = await Promise.all([
         getDashboardData(),
         getAllAvisos(),
-        getSessions({ startDate: today, limit: 1, sortBy: 'dataSessao', order: 'ASC' }),
+        getSessions({ sortBy: 'dataSessao', order: 'ASC' }),
       ]);
 
       if (dashboardResponse && dashboardResponse.data) {
@@ -42,7 +43,11 @@ const DashboardPage = () => {
       }
 
       if (nextSessionResponse && nextSessionResponse.data && nextSessionResponse.data.length > 0) {
-        setNextSession(nextSessionResponse.data[0]);
+        const now = new Date();
+        const futureAgendadaSessions = nextSessionResponse.data.filter(session => 
+          new Date(session.dataSessao) >= now && session.status === 'Agendada'
+        ).sort((a, b) => new Date(a.dataSessao) - new Date(b.dataSessao));
+        setNextSession(futureAgendadaSessions[0] || null);
       }
     } catch (err) {
       console.error("Erro ao buscar dados do dashboard:", err);

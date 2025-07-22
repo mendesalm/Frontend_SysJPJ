@@ -240,14 +240,16 @@ const SessionsPage = () => {
     isLoading: isLoadingFuture,
     refetch: refetchFuture,
   } = useDataFetching(getSessions, [
-    { startDate: todayStart, limit: 6, sortBy: "dataSessao", order: "ASC" },
+    { startDate: todayStart, status: "Agendada", limit: 6, sortBy: "dataSessao", order: "ASC" },
   ]);
 
   const {
     data: pastSessions,
     isLoading: isLoadingPast,
     refetch: fetchPastSessions,
-  } = useDataFetching(getSessions, [{}], true);
+  } = useDataFetching(getSessions, [
+    { endDate: todayStart, status: "Realizada", sortBy: "dataSessao", order: "DESC" },
+  ]);
 
   const futureSessions = useMemo(() => {
     const now = new Date();
