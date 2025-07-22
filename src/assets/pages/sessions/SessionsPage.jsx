@@ -229,12 +229,18 @@ const SessionsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentSession, setCurrentSession] = useState(null);
 
+  const todayStart = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
+  }, []);
+
   const {
     data: futureSessionsDataRaw,
     isLoading: isLoadingFuture,
     refetch: refetchFuture,
   } = useDataFetching(getSessions, [
-    { startDate: new Date().toISOString(), limit: 6, sortBy: "dataSessao", order: "ASC" },
+    { startDate: todayStart, limit: 6, sortBy: "dataSessao", order: "ASC" },
   ]);
 
   const {
@@ -256,7 +262,6 @@ const SessionsPage = () => {
           try {
             await updateSession(session.id, { ...session, status: 'Realizada' });
             console.log(`Sessão ${session.id} atualizada para 'Realizada'.`);
-            refetchFuture(); // Refetch to update the UI
           } catch (error) {
             console.error(`Erro ao atualizar status da sessão ${session.id}:`, error);
           }
