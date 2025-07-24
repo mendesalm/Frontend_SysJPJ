@@ -6,6 +6,6 @@
   margin-left: 260px; /* Largura da sidebar */
   flex-grow: 1;
   padding: 2rem;
-  background-color: #f4f7f6;
+  background-color: var(--background-color);
   min-height: 100vh;
 }

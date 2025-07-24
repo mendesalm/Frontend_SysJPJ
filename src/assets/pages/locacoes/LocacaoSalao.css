@@ -54,7 +54,7 @@
   border-bottom: 1px solid var(--cor-borda-sidebar);
 }
 .rbc-day-bg.rbc-today {
-  background-color: rgba(14, 165, 233, 0.1);
+  background-color: var(--primary-color-translucent);
 }
 .rbc-event {
   background-color: var(--cor-active-icon);
@@ -68,22 +68,22 @@
 
 /* Badges de Status para a tabela */
 .status-pendente {
-  background-color: #ca8a04;
-  color: #1f2937;
+  background-color: var(--warning-color);
+  color: var(--text-color-dark);
 }
 .status-confirmado {
-  background-color: #15803d;
+  background-color: var(--success-color);
 }
 .status-cancelado {
-  background-color: #b91c1c;
+  background-color: var(--error-color);
 }
 /* NOVO: Estilo para o status Concluído */
 .status-concluído {
-  background-color: #4b5563;
+  background-color: var(--text-color-secondary);
 }
 
 /* NOVO: Estilo para o botão de encerrar */
 .btn-concluir {
-  background-color: #0e7490;
-  color: white;
+  background-color: var(--info-color);
+  color: var(--text-color);
 }

@@ -10,6 +10,7 @@ import {
   inicializarEscala,
   adicionarMembroEscala,
   removerMembroEscala,
+  swapEscalaOrder,
 } from "../../../../services/escalaService";
 import { getAllMembers } from "../../../../services/memberService";
 import {
@@ -18,6 +19,7 @@ import {
 } from "../../../../utils/notifications";
 import "../../../../assets/styles/TableStyles.css";
 import "./GestaoEscalaPage.css";
+
 import { FaTrash } from "react-icons/fa";
 
 const ItemType = "ESCALA_ITEM";
@@ -61,7 +63,7 @@ const EscalaRow = ({
     <tr
       ref={ref}
       style={{ opacity: isDragging ? 0.5 : 1 }}
-      className="escala-row"
+      className={`escala-row ${item.foiResponsavelNoCiclo ? "escala-cumprido" : ""}`}
     >
       <td className="drag-handle">{canManage ? "☰" : ""}</td>
       <td>{index + 1}º</td>
@@ -106,6 +108,9 @@ const GestaoEscalaPage = () => {
   const [primeiroMembroId, setPrimeiroMembroId] = useState("");
   const [membroParaAdicionarId, setMembroParaAdicionarId] = useState("");
   const [ordemFoiAlterada, setOrdemFoiAlterada] = useState(false);
+  const [showSwapModal, setShowSwapModal] = useState(false);
+  const [selectedMember1, setSelectedMember1] = useState("");
+  const [selectedMember2, setSelectedMember2] = useState("");
 
   const canManage = useMemo(
     () =>
@@ -117,14 +122,18 @@ const GestaoEscalaPage = () => {
   useEffect(() => {
     if (canManage) {
       getAllMembers({ status: "Ativo", limit: 999 })
-        .then((response) => setMembros(Array.isArray(response.data) ? response.data : []))
+        .then((response) =>
+          setMembros(Array.isArray(response.data) ? response.data : [])
+        )
         .catch((err) => console.error("Erro ao buscar membros:", err));
     }
   }, [canManage]);
 
   useEffect(() => {
     if (fetchedData) {
-      setEscala(fetchedData);
+      // Sort by 'ordem' field
+      const sortedEscala = [...fetchedData].sort((a, b) => a.ordem - b.ordem);
+      setEscala(sortedEscala);
       setOrdemFoiAlterada(false);
     }
   }, [fetchedData]);
@@ -137,22 +146,25 @@ const GestaoEscalaPage = () => {
     return membros.filter((membro) => !idsNaEscala.has(membro.id));
   }, [membros, escala]);
 
-  const moveRow = useCallback((dragIndex, hoverIndex) => {
-    setEscala((prevEscala) => {
-      const newEscala = [...prevEscala];
-      const [draggedItem] = newEscala.splice(dragIndex, 1);
-      newEscala.splice(hoverIndex, 0, draggedItem);
-      return newEscala;
-    });
-    setOrdemFoiAlterada(true);
-  }, []);
+  const moveRow = useCallback(
+    (dragIndex, hoverIndex) => {
+      setEscala((prevEscala) => {
+        const newEscala = [...prevEscala];
+        const [draggedItem] = newEscala.splice(dragIndex, 1);
+        newEscala.splice(hoverIndex, 0, draggedItem);
+        return newEscala;
+      });
+      setOrdemFoiAlterada(true);
+    },
+    []
+  );
 
   const handleSaveChanges = async () => {
     if (!escala) return;
     const ordemIds = escala.map((item) => item.id);
+    console.log("[GestaoEscalaPage] IDs para reordenar:", ordemIds); // Log
     try {
-      // CORREÇÃO: Enviando o objeto com a chave correta "ordemIds"
-      await updateOrdemEscala({ ordemIds });
+      await updateOrdemEscala(ordemIds);
       showSuccessToast("Ordem da escala salva com sucesso!");
       setOrdemFoiAlterada(false);
       refetch();
@@ -229,9 +241,32 @@ const GestaoEscalaPage = () => {
     }
   };
 
+  const handleSwapOrder = async () => {
+    if (!selectedMember1 || !selectedMember2) {
+      showErrorToast("Por favor, selecione dois membros para trocar.");
+      return;
+    }
+    if (selectedMember1 === selectedMember2) {
+      showErrorToast("Por favor, selecione membros diferentes para trocar.");
+      return;
+    }
+
+    try {
+      await swapEscalaOrder(selectedMember1, selectedMember2);
+      showSuccessToast("Ordem dos membros trocada com sucesso!");
+      setShowSwapModal(false);
+      setSelectedMember1("");
+      setSelectedMember2("");
+      refetch();
+    } catch (err) {
+      console.error("Erro ao trocar ordem:", err);
+      showErrorToast("Falha ao trocar a ordem dos membros.");
+    }
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="table-page-container gestao-escala-page">
+      <div className="table-page-container">
         <div className="table-header">
           <h1>Gestão da Escala de Jantares</h1>
         </div>
@@ -248,7 +283,7 @@ const GestaoEscalaPage = () => {
             </div>
 
             <div className="table-responsive">
-              <table className="custom-table escala-table">
+              <table className="custom-table">
                 <thead>
                   <tr>
                     <th style={{ width: "50px" }}></th>
@@ -356,6 +391,17 @@ const GestaoEscalaPage = () => {
                   </div>
                 </div>
               </div>
+
+              <div className="card swap-order-section">
+                <h4>Trocar Ordem de Membros</h4>
+                <p>Troca a posição de dois membros na escala.</p>
+                <button
+                  onClick={() => setShowSwapModal(true)}
+                  className="btn btn-primary"
+                >
+                  Trocar Ordem
+                </button>
+              </div>
             </aside>
           )}
         </div>
@@ -368,6 +414,57 @@ const GestaoEscalaPage = () => {
             >
               Salvar Nova Ordem
             </button>
+          </div>
+        )}
+
+        {showSwapModal && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2>Trocar Ordem de Membros</h2>
+              <div className="form-group">
+                <label htmlFor="member1-select">Primeiro Membro</label>
+                <select
+                  id="member1-select"
+                  value={selectedMember1}
+                  onChange={(e) => setSelectedMember1(e.target.value)}
+                  className="form-select"
+                >
+                  <option value="">Selecione...</option>
+                  {escala.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.membro?.NomeCompleto || item.NomeCompleto}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="member2-select">Segundo Membro</label>
+                <select
+                  id="member2-select"
+                  value={selectedMember2}
+                  onChange={(e) => setSelectedMember2(e.target.value)}
+                  className="form-select"
+                >
+                  <option value="">Selecione...</option>
+                  {escala.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.membro?.NomeCompleto || item.NomeCompleto}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="modal-actions">
+                <button
+                  onClick={() => setShowSwapModal(false)}
+                  className="btn btn-secondary"
+                >
+                  Cancelar
+                </button>
+                <button onClick={handleSwapOrder} className="btn btn-primary">
+                  Trocar
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

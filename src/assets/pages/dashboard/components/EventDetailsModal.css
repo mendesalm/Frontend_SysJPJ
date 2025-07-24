@@ -1,10 +1,10 @@
 /* src/assets/pages/dashboard/components/EventCalendar.css (Versão Corrigida) */
 
 .event-calendar-container {
-  background: rgba(31, 41, 55, 0.6);
+  background: var(--background-color-translucent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 1.5rem;
   position: relative;
@@ -14,36 +14,35 @@
 }
 
 .rbc-calendar {
-  color: #e5e7eb;
+  color: var(--text-color-heading);
   flex-grow: 1;
 }
 
 .rbc-toolbar {
   margin-bottom: 1.5rem;
-  color: #f9fafb;
+  color: var(--text-color);
   flex-shrink: 0;
 }
 
 .rbc-toolbar button {
-  color: #d1d5db;
-  background-color: #374151;
-  border: 1px solid #4b5563;
+  color: var(--text-color-secondary);
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
 }
 
 .rbc-toolbar button:hover,
 .rbc-toolbar button:focus {
-  color: #fff;
-  background-color: #4b5563;
+  color: var(--text-color);
+  background-color: var(--background-color-hover);
 }
 
 .rbc-toolbar button.rbc-active {
-  background-color: #0ea5e9;
-  color: white;
-  border-color: #0ea5e9;
+  background-color: var(--primary-color);
+  color: var(--text-color);
 }
 
 .rbc-header {
-  border-bottom: 1px solid #4b5563;
+  border-bottom: 1px solid var(--border-color);
   padding: 10px 5px;
   text-align: center;
 }
@@ -51,13 +50,13 @@
 /* --- CORREÇÃO DEFINITIVA E SIMPLIFICADA DAS BORDAS --- */
 
 .rbc-month-view {
-  border: 1px solid #374151; /* Borda externa principal */
+  border: 1px solid var(--border-color); /* Borda externa principal */
 }
 
 .rbc-month-row {
   display: flex;
   min-height: 100px;
-  border-top: 1px solid #374151; /* Borda horizontal entre as semanas */
+  border-top: 1px solid var(--border-color); /* Borda horizontal entre as semanas */
 }
 
 .rbc-header + .rbc-month-row {
@@ -66,7 +65,7 @@
 
 .rbc-date-cell {
   flex: 1 1 0%;
-  border-left: 1px solid #374151; /* Borda vertical entre os dias */
+  border-left: 1px solid var(--border-color); /* Borda vertical entre os dias */
 }
 
 .rbc-month-row .rbc-date-cell:first-child {
@@ -75,11 +74,11 @@
 /* --- FIM DA CORREÇÃO --- */
 
 .rbc-today {
-  background-color: rgba(14, 165, 233, 0.1) !important;
+  background-color: var(--primary-color-translucent) !important;
 }
 
 .rbc-off-range-bg {
-  background: #2b3a53;
+  background: var(--background-color-dark);
 }
 
 .rbc-day-bg-custom-wrapper {
@@ -102,7 +101,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--text-color-light);
 }
 
 .custom-date-header {
@@ -115,7 +114,7 @@
 }
 
 .custom-date-header:hover {
-  background-color: rgba(14, 165, 233, 0.2);
+  border-color: var(--primary-color);
 }
 
 /* ... (restante dos estilos para filtros, eventos, modal, etc.) ... */
@@ -125,7 +124,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(31, 41, 55, 0.8);
+  background: var(--background-color-translucent);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -135,7 +134,7 @@
 .calendar-error-message {
   padding: 2rem;
   text-align: center;
-  color: #ef4444;
+  color: var(--error-color);
 }
 .rbc-event-content-wrapper {
   display: flex;
@@ -150,7 +149,7 @@
   border-radius: 50%;
   margin-right: 6px;
   flex-shrink: 0;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: var(--text-color-light);
 }
 .event-details-modal-list,
 .event-group {
@@ -182,7 +181,7 @@
 .event-detail-item {
   padding: 1rem;
   background-color: var(--cor-fundo-app);
-  border-left: 5px solid #64748b;
+  border-left: 5px solid var(--text-color-secondary);
   border-radius: 6px;
 }
 .event-type-badge {
@@ -190,13 +189,13 @@
   font-weight: bold;
   padding: 2px 8px;
   border-radius: 4px;
-  color: white;
+  color: var(--text-color);
   display: inline-block;
 }
 .calendar-filters-container {
   padding-bottom: 1.5rem;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid #4b5563;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   gap: 1.5rem;
@@ -228,38 +227,38 @@
 .rbc-event-locacao,
 .event-marker.rbc-event-locacao,
 .event-type-locacao {
-  background-color: #22c55e !important;
+  background-color: var(--success-color) !important;
 }
 .rbc-event-sessao,
 .event-marker.rbc-event-sessao,
 .event-type-sessao {
-  background-color: #3b82f6 !important;
+  background-color: var(--info-color) !important;
 }
 .rbc-event-evento,
 .event-marker.rbc-event-evento,
 .event-type-evento {
-  background-color: #f97316 !important;
+  background-color: var(--warning-color) !important;
 }
 .rbc-event-geral,
 .event-marker.rbc-event-geral,
 .event-type-geral {
-  background-color: #64748b !important;
+  background-color: var(--text-color-secondary) !important;
 }
 .rbc-event-aniversario-membro,
 .event-marker.rbc-event-aniversario-membro,
 .event-type-aniversario-membro {
-  background-color: #eab308 !important;
+  background-color: var(--accent-color) !important;
 }
 .rbc-event-aniversario-familiar,
 .event-marker.rbc-event-aniversario-familiar,
 .event-type-aniversario-familiar {
-  background-color: #ec4899 !important;
+  background-color: var(--pink-color) !important;
 }
 .rbc-event-aniversario-maconico,
 .event-marker.rbc-event-aniversario-maconico,
 .event-type-aniversario-maconico {
-  background-color: #8b5cf6 !important;
+  background-color: var(--purple-color) !important;
 }
 .event-type-aniversario-membro {
-  color: #422006;
+  color: var(--text-color-dark);
 }

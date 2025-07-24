@@ -156,16 +156,16 @@
 }
 
 .btn-devolver {
-  background-color: #f59e0b;
-  color: #1f2937;
+  background-color: var(--warning-color);
+  color: var(--text-color-dark);
 }
 .btn-reservar {
-  background-color: #10b981;
-  color: white;
+  background-color: var(--success-color);
+  color: var(--text-color);
 }
 .btn-solicitar {
-  background-color: #3b82f6; /* Azul */
-  color: white;
+  background-color: var(--info-color); /* Azul */
+  color: var(--text-color);
 }
 
 /* Novo estilo para a mensagem de status da solicitação */

@@ -44,9 +44,9 @@
 }
 
 .stat-card {
-  background: rgba(31, 41, 55, 0.6);
+  background: var(--background-color-translucent);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
   padding: 1.5rem;
   border-radius: 12px;
   text-align: center;
@@ -55,14 +55,14 @@
 .stat-card h3 {
   margin: 0 0 1rem 0;
   font-size: 1rem;
-  color: #9ca3af;
+  color: var(--text-color-secondary);
   text-transform: uppercase;
 }
 
 .stat-card .stat-value {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #f9fafb;
+  color: var(--text-color);
 }
 
 /* --- Estilos para o Painel do Membro --- */

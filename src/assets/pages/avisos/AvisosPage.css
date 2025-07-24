@@ -12,7 +12,7 @@
 
 .btn-novo-aviso {
   background-color: var(--cor-active-icon);
-  color: white;
+  color: var(--text-color);
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -36,8 +36,8 @@
 }
 
 .aviso-card.fixado {
-  border-left-color: #ffc107; /* Mantemos uma cor específica para destaque */
-  background-color: rgba(255, 193, 7, 0.05);
+  border-left-color: var(--warning-color); /* Mantemos uma cor específica para destaque */
+  background-color: var(--warning-color-translucent);
 }
 
 .aviso-card-header {
@@ -54,8 +54,8 @@
 }
 
 .aviso-fixado-badge {
-  background-color: #ffc107;
-  color: #333;
+  background-color: var(--warning-color);
+  color: var(--text-color-dark);
   padding: 3px 8px;
   border-radius: 10px;
   font-size: var(--font-size-xs);

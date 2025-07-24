@@ -125,20 +125,20 @@
 }
 
 .btn-primary {
-  background-color: #0ea5e9;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--text-color);
 }
 .btn-primary:hover {
-  background-color: #0284c7;
+  background-color: var(--primary-color-dark);
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background-color: #4b5563;
-  color: var(--cor-texto-primario);
+  background-color: var(--secondary-color);
+  color: var(--text-color);
 }
 .btn-secondary:hover {
-  background-color: #6b7280;
+  background-color: var(--secondary-color-dark);
 }
 
 .table-filters {
@@ -152,17 +152,17 @@
 /* Estilos para campos inválidos */
 .form-input.is-invalid,
 .form-textarea.is-invalid {
-  border-color: #dc3545;
+  border-color: var(--error-color);
 }
 
 .form-input.is-invalid:focus,
 .form-textarea.is-invalid:focus {
-  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+  box-shadow: 0 0 0 0.2rem var(--error-color-translucent);
 }
 
 /* Estilo para a mensagem de erro */
 .form-error-message {
-  color: #e74c3c;
+  color: var(--error-color);
   font-size: var(--font-size-sm);
   margin-top: 0.25rem;
   font-weight: 500;
@@ -177,7 +177,7 @@
 .familiar-row.deceased select,
 .familiar-row.deceased option {
   text-decoration: line-through;
-  color: #9ca3af;
+  color: var(--text-color-secondary);
 }
 
 /* --- ESTILOS PARA O LAYOUT DE DADOS PESSOAIS --- */
@@ -201,7 +201,7 @@
   border-radius: 20px;
   object-fit: cover;
   border: 4px solid var(--cor-borda-sidebar);
-  background-color: #4b5563;
+  background-color: var(--background-color-dark);
 }
 
 .fields-column {
@@ -278,7 +278,7 @@
   max-width: 150px;
   height: auto;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow);
 }
 
 .book-cover-placeholder {
@@ -292,7 +292,7 @@
   color: var(--cor-texto-secundario);
   font-style: italic;
   text-align: center;
-  border: 2px dashed var(--cor-texto-secundario);
+  border: 2px dashed var(--text-color-secondary);
 }
 
 /* NOVOS ESTILOS PARA O AUTOCOMPLETAR */
@@ -361,8 +361,8 @@
   }
 }
 .form-input.focused {
-  border-color: #22c55e; /* Borda verde */
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25); /* Sombra verde suave */
+  border-color: var(--success-color); /* Borda verde */
+  box-shadow: 0 0 0 3px var(--success-color-translucent); /* Sombra verde suave */
 }
 
 /* NOVO: Estilo para o layout em linha flexível */

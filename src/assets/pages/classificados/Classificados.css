@@ -46,7 +46,7 @@
 
 .card-tipo-anuncio {
   background-color: var(--cor-active-icon);
-  color: white;
+  color: var(--text-color);
   padding: 3px 10px;
   border-radius: 15px;
   font-size: 0.75rem;
@@ -64,7 +64,7 @@
 .card-valor {
   font-size: 1.1rem;
   font-weight: bold;
-  color: #22c55e;
+  color: var(--success-color);
   margin: 0 0 1rem 0;
 }
 

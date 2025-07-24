@@ -6,7 +6,7 @@
 }
 .relatorios-container h1 { text-align: center; margin-bottom: 2rem; }
 .loading-message, .error-message { text-align: center; margin-bottom: 1rem; font-size: 1.1rem; }
-.error-message { color: #dc3545; }
+.error-message { color: var(--error-color); }
 
 .relatorios-grid {
   display: grid;
@@ -15,27 +15,27 @@
 }
 
 .relatorio-card {
-  background: #fff;
+  background: var(--background-color-light);
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: var(--box-shadow);
   display: flex;
   flex-direction: column;
 }
 
 .relatorio-card h3 { margin-top: 0; }
-.relatorio-card p { flex-grow: 1; color: #555; }
+.relatorio-card p { flex-grow: 1; color: var(--text-color-secondary); }
 .relatorio-card button {
   width: 100%;
   padding: 12px;
   font-size: 1rem;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--text-color);
   border: none;
   border-radius: 5px;
   cursor: pointer;
   margin-top: 1rem;
 }
-.relatorio-card button:disabled { background-color: #6c757d; cursor: not-allowed; }
+.relatorio-card button:disabled { background-color: var(--secondary-color); cursor: not-allowed; }
 .filter-inputs { display: flex; gap: 10px; margin-top: 10px; }
-.filter-inputs input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+.filter-inputs input { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; }

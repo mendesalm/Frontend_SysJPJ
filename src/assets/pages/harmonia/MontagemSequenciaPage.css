@@ -65,7 +65,7 @@
 
 .tipos-sessao-list .sessao-item.active {
   background-color: var(--cor-active-icon);
-  color: white;
+  color: var(--text-color);
 }
 
 .sequencia-editor {

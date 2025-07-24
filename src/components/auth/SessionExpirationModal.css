@@ -9,7 +9,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: var(--background-color-translucent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -20,31 +20,30 @@
 }
 
 .session-modal-content {
-  background: #1f2937; /* Cor escura do tema */
+  background: var(--background-color-light);
   padding: 2.5rem;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--box-shadow);
   text-align: center;
   max-width: 450px;
   width: 90%;
-  color: #f9fafb;
-}
+  color: var(--text-color);
 
 .session-modal-content h2 {
   font-size: 1.75rem;
-  color: #fbbf24; /* Amarelo/âmbar para aviso */
+  color: var(--warning-color); /* Amarelo/âmbar para aviso */
   margin-bottom: 1rem;
 }
 
 /* Cor específica para o título de sessão expirada */
 .session-modal-content.expired h2 {
-  color: #f87171; /* Vermelho para alerta */
+  color: var(--error-color); /* Vermelho para alerta */
 }
 
 .session-modal-content p {
   font-size: 1rem;
-  color: #d1d5db;
+  color: var(--text-color-light);
   line-height: 1.6;
   margin-bottom: 2rem;
 }
@@ -71,19 +70,19 @@
 }
 
 .session-modal-content .btn-primary {
-  background-color: #0ea5e9;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--text-color);
 }
 .session-modal-content .btn-primary:hover {
-  background-color: #0284c7;
+  background-color: var(--primary-color-dark);
 }
 
 .session-modal-content .btn-secondary {
-  background-color: #4b5563;
-  color: #f9fafb;
+  background-color: var(--secondary-color);
+  color: var(--text-color);
 }
 .session-modal-content .btn-secondary:hover {
-  background-color: #6b728047;
+  background-color: var(--secondary-color-dark);
 }
 
 /* Animação de entrada */

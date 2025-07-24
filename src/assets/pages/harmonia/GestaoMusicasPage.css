@@ -28,7 +28,7 @@
 
 .styled-table thead tr {
   background-color: var(--primary-color);
-  color: white;
+  color: var(--text-color);
   text-align: left;
 }
 
@@ -59,7 +59,7 @@
   border-radius: 4px;
   border: none;
   cursor: pointer;
-  color: white;
+  color: var(--text-color);
 }
 
 .btn-preview {

@@ -26,8 +26,8 @@
 .table-search .form-input {
   width: 100%;
   max-width: 400px; /* Limita a largura máxima do campo */
-  background-color: #3a475a; /* Cor de fundo um pouco mais clara */
-  border: 1px solid #4a5568;
+  background-color: var(--cor-fundo-input); /* Cor de fundo um pouco mais clara */
+  border: 1px solid var(--cor-borda-input);
   color: var(--cor-texto-primario);
 }
 
@@ -35,9 +35,9 @@
 .table-responsive {
   overflow-x: auto;
   border-radius: 20px;
-  background: #2d3748; /* Fundo base para o efeito */
+  background: var(--background-color); /* Fundo base para o efeito */
   padding: 1.5rem;
-  box-shadow: inset 7px 7px 15px #252e3c, inset -7px -7px 15px #354054;
+  box-shadow: var(--box-shadow);
 }
 
 /* ATUALIZADO: A tabela agora tem espaçamento entre as linhas */
@@ -59,25 +59,24 @@
   color: var(--cor-texto-secundario);
   text-transform: uppercase;
   font-size: 0.8rem;
-  border-bottom: 2px solid #354054;
+  border-bottom: 2px solid var(--border-color);
 }
 
 /* ATUALIZADO: As linhas agora têm o efeito de relevo neumórfico */
 .custom-table tbody tr {
-  background: linear-gradient(145deg, #303b4e, #293241);
+  background: var(--background-color-light);
   border-radius: 15px;
-  box-shadow: 7px 7px 14px #252e3c, -7px -7px 14px #354054;
+  box-shadow: var(--box-shadow);
   transition: all 0.2s ease-in-out;
 }
 
 .custom-table tbody tr.modified {
-  background: linear-gradient(145deg, #3a4f6e, #2e3f56);
-  box-shadow: 7px 7px 14px #252e3c, -7px -7px 14px #354054,
-    inset 0 0 5px rgba(255, 255, 255, 0.1);
+  background: var(--background-color-hover);
+  box-shadow: var(--box-shadow), inset 0 0 5px var(--primary-color-translucent);
 }
 
 .custom-table tbody tr:hover {
-  box-shadow: 4px 4px 10px #252e3c, -4px -4px 10px #354054;
+  box-shadow: var(--box-shadow);
   transform: translateY(2px);
 }
 
@@ -111,14 +110,14 @@
   max-width: 60px; /* Largura máxima da imagem */
   height: auto;
   border-radius: 4px; /* Cantos arredondados para a imagem */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+  box-shadow: var(--box-shadow); /* Sombra sutil */
 }
 
 .cover-placeholder {
   width: 60px;
   height: 80px; /* Altura similar à de uma capa de livro */
-  background-color: #4a5568; /* Cor de fundo para o placeholder */
-  color: #a0aec0;
+  background-color: var(--background-color-dark); /* Cor de fundo para o placeholder */
+  color: var(--text-color-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -138,37 +137,40 @@
   cursor: pointer;
   font-size: var(--font-size-sm);
   font-weight: 500;
-  transition: opacity 0.2s, transform 0.2s;
+  transition: all 0.2s ease-in-out;
+  background-color: var(--background-color-light);
+  box-shadow: var(--box-shadow);
 }
 
 .btn-action:hover {
-  opacity: 0.9;
-  transform: scale(1.05);
+  background-color: var(--background-color-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--box-shadow);
 }
 
 .btn-action:disabled {
-  background-color: #4b5563;
+  background-color: var(--secondary-color);
   cursor: not-allowed;
   opacity: 0.5;
 }
 
 .btn-approve {
-  background-color: #011508;
-  color: white;
+  background-color: var(--success-color-dark);
+  color: var(--text-color);
 }
 .btn-edit {
-  background-color: #02153c;
-  color: white;
+  background-color: var(--info-color-dark);
+  color: var(--text-color);
 }
 .btn-delete {
-  background-color: hsl(0, 75%, 13%);
-  color: white;
+  background-color: var(--error-color-dark);
+  color: var(--text-color);
 }
 
 .status-badge {
   padding: 4px 10px;
   border-radius: 15px;
-  color: #fff;
+  color: var(--text-color);
   font-size: var(--font-size-xs);
   font-weight: 500;
   text-transform: capitalize;
@@ -180,36 +182,36 @@
 .status-aprovado,
 .status-disponível,
 .status-ativa {
-  background-color: #15803d;
+  background-color: var(--success-color);
 }
 .status-pendente,
 .status-emprestado {
-  background-color: #ca8a04;
-  color: #1f2937;
+  background-color: var(--warning-color);
+  color: var(--text-color-dark);
 }
 .status-rejeitado,
 .status-inservível {
-  background-color: #b91c1c;
+  background-color: var(--error-color);
 }
 .status-regular {
-  background-color: #0e7490;
+  background-color: var(--info-color);
 }
 
 .custom-table tbody tr.deceased-row {
-  background-color: rgba(75, 85, 99, 0.2);
-  color: #9ca3af;
+  background-color: var(--background-color-translucent);
+  color: var(--text-color-secondary);
   text-decoration: line-through;
   opacity: 0.6;
 }
 
 .custom-table tbody tr.deceased-row:hover {
-  background-color: rgba(75, 85, 99, 0.3);
+  background-color: var(--background-color-hover);
 }
 
 .custom-table tbody tr.deceased-row td {
   text-decoration: line-through;
   opacity: 0.6;
-  color: #9ca3af;
+  color: var(--text-color-secondary);
 }
 
 .custom-table tbody tr.deceased-row .btn-action {
@@ -234,23 +236,23 @@
   padding: 10px 18px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(145deg, #303b4e, #293241);
-  color: var(--cor-texto-primario);
+  background: var(--background-color-light);
+  color: var(--text-color);
   font-size: var(--font-size-base);
   font-weight: 500;
   cursor: pointer;
-  box-shadow: 5px 5px 10px #252e3c, -5px -5px 10px #354054;
+  box-shadow: var(--box-shadow);
   transition: all 0.2s ease-in-out;
 }
 
 .btn-pagination:hover {
-  box-shadow: 2px 2px 5px #252e3c, -2px -2px 5px #354054;
+  box-shadow: var(--box-shadow);
   transform: translateY(1px);
 }
 
 .btn-pagination:disabled {
-  background: #2d3748;
-  box-shadow: inset 3px 3px 7px #252e3c, inset -3px -3px 7px #354054;
+  background: var(--background-color-dark);
+  box-shadow: inset 3px 3px 7px var(--background-color-dark), inset -3px -3px 7px var(--background-color-dark);
   color: var(--cor-texto-secundario);
   cursor: not-allowed;
   transform: none;

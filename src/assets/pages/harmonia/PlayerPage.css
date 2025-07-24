@@ -1,16 +1,4 @@
-/* Definição de variáveis de cor (exemplo, ajuste conforme seu tema) */
-:root {
-  --primary-color: #0d6efd;
-  --primary-rgb: 13, 110, 253;
-  --danger-color: #dc3545;
-  --background-color: #f8f9fa;
-  --elevation-1: #ffffff;
-  --elevation-2: #f0f3f5;
-  --elevation-3: #e9ecef;
-  --text-color: #212529;
-  --text-secondary-color: #6c757d;
-  --border-color: #dee2e6;
-}
+
 
 /* Container principal da página */
 .harmonia-player-container {
@@ -27,9 +15,9 @@
 .harmonia-player-card {
   width: 100%;
   max-width: 800px;
-  background-color: var(--elevation-1);
+  background-color: var(--background-color-light);
   border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--box-shadow);
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -47,7 +35,7 @@
 .player-header h2 {
   text-align: center;
   margin: 0;
-  color: var(--text-color);
+  color: var(--text-color-heading);
 }
 
 .form-select {
@@ -55,7 +43,7 @@
   padding: 0.8rem;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  background-color: var(--elevation-2);
+  background-color: var(--background-color-dark);
   font-size: 1rem;
 }
 
@@ -65,7 +53,7 @@
   align-items: center;
   gap: 1.5rem;
   padding: 1rem;
-  background-color: var(--elevation-2);
+  background-color: var(--background-color-dark);
   border-radius: 12px;
 }
 
@@ -76,8 +64,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--primary-color), #42a5f5);
-  color: white;
+  background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+  color: var(--text-color);
   border-radius: 12px;
 }
 
@@ -132,18 +120,18 @@
 
 .btn-stop-advance {
   background-color: var(--primary-color);
-  color: white;
+  color: var(--text-color);
 }
 
 .btn-stop-advance:hover,
 .btn-nav:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--box-shadow);
 }
 
 .btn-stop-advance:disabled,
 .btn-nav:disabled {
-  background-color: var(--elevation-3);
+  background-color: var(--background-color-dark);
   color: var(--text-secondary-color);
   cursor: not-allowed;
   transform: none;
@@ -173,7 +161,7 @@
   border-radius: 12px;
   text-align: center;
   cursor: pointer;
-  background-color: var(--elevation-1);
+  background-color: var(--background-color-light);
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   opacity: 0.6;
   transform: scale(0.95);
@@ -183,8 +171,8 @@
   opacity: 1;
   transform: scale(1.05);
   border-color: var(--primary-color);
-  background-color: #ffffff;
-  box-shadow: 0 6px 25px rgba(var(--primary-rgb), 0.2);
+  background-color: var(--background-color-light);
+  box-shadow: 0 6px 25px var(--primary-color-translucent);
 }
 
 .carrossel-card:hover:not(.active) {
@@ -227,7 +215,7 @@
 
 .error-message {
   color: var(--danger-color);
-  background-color: rgba(220, 53, 69, 0.1);
+  background-color: var(--error-color-translucent);
 }
 
 .info-message {

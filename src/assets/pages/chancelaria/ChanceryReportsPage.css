@@ -36,7 +36,7 @@
   padding: 12px;
   font-size: 1rem;
   background-color: var(--cor-active-icon);
-  color: white;
+  color: var(--text-color);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -44,7 +44,7 @@
 }
 
 .report-card button:disabled {
-  background-color: #4b5563;
+  background-color: var(--button-disabled-background);
   cursor: not-allowed;
 }
 

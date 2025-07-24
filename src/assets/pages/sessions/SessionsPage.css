@@ -19,7 +19,7 @@
   padding: 2rem;
   border-radius: var(--border-radius-lg);
   margin-bottom: 2.5rem;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--box-shadow);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -79,7 +79,7 @@
 }
 
 .btn-action-light:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--primary-color-translucent);
   opacity: 1;
 }
 
@@ -207,7 +207,7 @@
   line-height: 56px;
   text-align: center;
   border: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow);
   cursor: pointer;
   z-index: 1000;
   transition: transform 0.2s ease-in-out, background-color 0.3s ease;

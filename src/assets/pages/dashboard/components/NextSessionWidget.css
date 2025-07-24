@@ -44,7 +44,7 @@
 
 .btn-document {
   background-color: var(--primary-color);
-  color: white;
+  color: var(--text-color);
 }
 
 .btn-document:hover {
@@ -53,7 +53,7 @@
 
 .btn-details {
   background-color: var(--secondary-color);
-  color: white;
+  color: var(--text-color);
 }
 
 .btn-details:hover {

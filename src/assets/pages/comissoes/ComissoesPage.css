@@ -47,23 +47,23 @@
 }
 .btn-delete-icon:hover {
   opacity: 1;
-  color: #ef4444;
+  color: var(--error-color);
 }
 
 .tipo-badge {
   padding: 3px 10px;
   border-radius: 12px;
   font-size: var(--font-size-xs);
-  color: #fff;
+  color: var(--text-color);
   align-self: flex-start; /* Alinha o badge à esquerda */
 }
 
 .tipo-permanente {
-  background-color: #15803d;
+  background-color: var(--success-color);
 }
 .tipo-temporária {
-  background-color: #ca8a04;
-  color: #1f2937;
+  background-color: var(--warning-color);
+  color: var(--text-color-dark);
 }
 
 .datas {

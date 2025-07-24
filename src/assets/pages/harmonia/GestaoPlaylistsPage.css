@@ -62,7 +62,7 @@
 
 .playlist-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow);
   border-color: var(--cor-active-icon);
 }
 
@@ -92,7 +92,7 @@
   padding: 0;
 }
 .btn-delete-playlist:hover {
-  color: #ef4444;
+  color: var(--error-color);
 }
 
 .playlist-card-body {
@@ -132,7 +132,7 @@
   cursor: pointer;
 }
 .btn-delete-musica:hover {
-  color: #ef4444;
+  color: var(--error-color);
 }
 
 .placeholder-musicas {

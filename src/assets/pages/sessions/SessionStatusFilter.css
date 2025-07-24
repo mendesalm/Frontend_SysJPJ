@@ -6,14 +6,14 @@
 }
 
 .btn-filter {
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
+  background-color: var(--background-color-light);
+  border: 1px solid var(--border-color);
   border-radius: 5px;
   padding: 0.5rem 1rem;
   cursor: pointer;
 }
 
 .btn-filter.active {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--text-color);
 }

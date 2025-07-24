@@ -21,7 +21,7 @@
 
 .evento-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow);
 }
 
 .evento-card-header {
@@ -87,7 +87,7 @@
 .evento-badge {
   padding: 4px 12px;
   border-radius: 15px;
-  color: #fff;
+  color: var(--text-color);
   /* ANTES: font-size: 0.8rem; */
   font-size: var(--font-size-xs); /* DEPOIS */
   font-weight: 500;
@@ -95,14 +95,14 @@
 }
 
 .tipo-sessão-maçônica {
-  background-color: #9333ea;
+  background-color: var(--purple-color);
 }
 .tipo-evento-social {
-  background-color: #059669;
+  background-color: var(--success-color);
 }
 .tipo-evento-filantrópico {
-  background-color: #d97706;
+  background-color: var(--warning-color);
 }
 .tipo-outro {
-  background-color: #64748b;
+  background-color: var(--text-color-secondary);
 }

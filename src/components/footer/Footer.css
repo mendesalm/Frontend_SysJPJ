@@ -1,10 +1,10 @@
 .main-footer {
-  background-color: #1f2937; /* Dark background */
-  color: #d1d5db; /* Light gray text */
+  background-color: var(--background-color-light); /* Dark background */
+  color: var(--text-color-light); /* Light gray text */
   padding: 1.5rem;
   text-align: center;
   font-size: 0.9rem;
-  border-top: 1px solid #374151; /* Subtle top border */
+  border-top: 1px solid var(--border-color); /* Subtle top border */
 }
 
 .main-footer p {

@@ -4,10 +4,9 @@ export const getEscala = () => {
   return apiClient.get("/escala");
 };
 
-// CORREÇÃO DEFINITIVA: A função agora envia um objeto com a chave "ordemIds",
-// conforme especificado no novo relatório do backend.
-export const updateOrdemEscala = (ids) => {
-  return apiClient.put("/escala/ordenar", { ordemIds: ids });
+export const updateOrdemEscala = (ordemIds) => {
+  console.log("[escalaService] Enviando para a API:", { ids: ordemIds }); // Log
+  return apiClient.put("/responsabilidades-jantar/reorder", { orderedIds: ordemIds });
 };
 
 export const getProximoResponsavel = () => {
@@ -32,4 +31,8 @@ export const removerMembroEscala = (escalaId) => {
 
 export const getProximosDaFila = () => {
   return apiClient.get("/escala-jantar/proximos");
+};
+
+export const swapEscalaOrder = (id1, id2) => {
+  return apiClient.put("/responsabilidades-jantar/swap-order", { id1, id2 });
 };
