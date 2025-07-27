@@ -10,9 +10,9 @@ export const SUBTIPOS_SESSAO = [
   "Elevação",
   "Pública",
 ];
+export const SUBTIPOS_SESSAO_ESPECIAL = ["Administrativa", "Eleitoral"];
 
 export const sessionValidationSchema = yup.object().shape({
-  // CORREÇÃO: Validamos o campo como uma string no formato exato que o backend espera.
   dataSessao: yup
     .string()
     .required("A data da sessão é obrigatória.")
@@ -28,8 +28,22 @@ export const sessionValidationSchema = yup.object().shape({
 
   subtipoSessao: yup
     .string()
-    .oneOf(SUBTIPOS_SESSAO, "Subtipo de sessão inválido.")
-    .required("O subtipo da sessão é obrigatório."),
+    .required("O subtipo da sessão é obrigatório.")
+    .when("tipoSessao", {
+      is: "Especial",
+      then: (schema) =>
+        schema.oneOf(
+          SUBTIPOS_SESSAO_ESPECIAL,
+          "Para sessões especiais, o subtipo deve ser Administrativa ou Eleitoral."
+        ),
+      otherwise: (schema) =>
+        schema.oneOf(
+          SUBTIPOS_SESSAO,
+          "Subtipo de sessão inválido para este tipo."
+        ),
+    }),
+
+  objetivoSessao: yup.string().optional(),
 
   status: yup.string().optional(),
 

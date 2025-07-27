@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   sessionValidationSchema,
   TIPOS_SESSAO,
   SUBTIPOS_SESSAO,
+  SUBTIPOS_SESSAO_ESPECIAL,
 } from "~/validators/sessionValidator";
 import { formatDateForInput } from "~/utils/dateUtils";
 import "~/assets/styles/FormStyles.css";
@@ -13,10 +14,17 @@ const SessionForm = ({ sessionToEdit, onSave, onCancel }) => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
     reset,
+    setValue,
   } = useForm({
     resolver: yupResolver(sessionValidationSchema),
+  });
+
+  const tipoSessao = useWatch({
+    control,
+    name: "tipoSessao",
   });
 
   useEffect(() => {
@@ -25,7 +33,7 @@ const SessionForm = ({ sessionToEdit, onSave, onCancel }) => {
         ...sessionToEdit,
         dataSessao: formatDateForInput(sessionToEdit.dataSessao),
         tipoResponsabilidadeJantar: sessionToEdit.tipoResponsabilidadeJantar || 'Sequencial',
-        enviarEmails: false, // Adicionar o campo para edição, padrão false
+        enviarEmails: false,
       });
     } else {
       const defaultDate = new Date();
@@ -34,25 +42,39 @@ const SessionForm = ({ sessionToEdit, onSave, onCancel }) => {
         dataSessao: formatDateForInput(defaultDate),
         tipoSessao: TIPOS_SESSAO[0],
         subtipoSessao: SUBTIPOS_SESSAO[0],
+        objetivoSessao: "Sessão Regular",
         status: "Agendada",
         tipoResponsabilidadeJantar: 'Sequencial',
-        enviarEmails: false, // Padrão para nova sessão
+        enviarEmails: false,
       });
     }
   }, [sessionToEdit, reset]);
+
+  useEffect(() => {
+    if (tipoSessao === "Especial") {
+      setValue("subtipoSessao", SUBTIPOS_SESSAO_ESPECIAL[0]);
+      setValue("objetivoSessao", "");
+    } else {
+      setValue("subtipoSessao", SUBTIPOS_SESSAO[0]);
+      setValue("objetivoSessao", "Sessão Regular");
+    }
+  }, [tipoSessao, setValue]);
 
   const handleFormSubmit = (data) => {
     const payload = {
         dataSessao: data.dataSessao,
         tipoSessao: data.tipoSessao,
         subtipoSessao: data.subtipoSessao,
+        objetivoSessao: data.objetivoSessao,
         status: data.status,
         tipoResponsabilidadeJantar: data.tipoResponsabilidadeJantar,
-        enviarEmails: data.enviarEmails, // Incluir o valor do checkbox
+        enviarEmails: data.enviarEmails,
     };
 
     onSave(payload);
   };
+
+  const subtipoOptions = tipoSessao === "Especial" ? SUBTIPOS_SESSAO_ESPECIAL : SUBTIPOS_SESSAO;
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="form-container">
@@ -96,7 +118,7 @@ const SessionForm = ({ sessionToEdit, onSave, onCancel }) => {
               errors.subtipoSessao ? "is-invalid" : ""
             }`}
           >
-            {SUBTIPOS_SESSAO.map((subtipo) => (
+            {subtipoOptions.map((subtipo) => (
               <option key={subtipo} value={subtipo}>
                 {subtipo}
               </option>
@@ -106,6 +128,20 @@ const SessionForm = ({ sessionToEdit, onSave, onCancel }) => {
             <p className="form-error-message">{errors.subtipoSessao.message}</p>
           )}
         </div>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="objetivoSessao">Objetivo da Sessão</label>
+        <input
+          id="objetivoSessao"
+          type="text"
+          {...register("objetivoSessao")}
+          className={`form-input ${errors.objetivoSessao ? "is-invalid" : ""}`}
+          readOnly={tipoSessao !== "Especial"}
+        />
+        {errors.objetivoSessao && (
+          <p className="form-error-message">{errors.objetivoSessao.message}</p>
+        )}
       </div>
 
       <div className="form-group">
@@ -124,7 +160,6 @@ const SessionForm = ({ sessionToEdit, onSave, onCancel }) => {
           )}
         </div>
 
-      {/* Novo checkbox para envio de emails */}
       <div className="form-group form-check-group">
         <input
           type="checkbox"
@@ -154,4 +189,3 @@ const SessionForm = ({ sessionToEdit, onSave, onCancel }) => {
 };
 
 export default SessionForm;
-

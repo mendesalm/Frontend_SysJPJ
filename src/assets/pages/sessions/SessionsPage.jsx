@@ -242,7 +242,7 @@ const SessionsPage = () => {
     data: pastSessionsRaw,
     isLoading: isLoadingPast,
     refetch: fetchPastSessions,
-  } = useDataFetching(getSessions, [{}], true);
+  } = useDataFetching(getSessions, [{}], false); // Disable initial fetch
 
   const futureSessions = useMemo(() => {
     const now = new Date();
@@ -259,26 +259,10 @@ const SessionsPage = () => {
   }, [pastSessionsRaw]);
 
   useEffect(() => {
-    if (futureSessionsDataRaw && !hasPerformedInitialStatusUpdate) {
-      const now = new Date();
-      let needsRefetch = false;
-      futureSessionsDataRaw.forEach(async (session) => {
-        if (new Date(session.dataSessao) < now && session.status === 'Agendada') {
-          try {
-            await updateSession(session.id, { ...session, status: 'Realizada' });
-            console.log(`Sessão ${session.id} atualizada para 'Realizada'.`);
-            needsRefetch = true;
-          } catch (error) {
-            console.error(`Erro ao atualizar status da sessão ${session.id}:`, error);
-          }
-        }
-      });
-      if (needsRefetch) {
-        refetchFuture();
-      }
-      setHasPerformedInitialStatusUpdate(true);
+    if (activeTab === 'past') {
+      handleSearchPastSessions();
     }
-  }, [futureSessionsDataRaw, refetchFuture, hasPerformedInitialStatusUpdate]);
+  }, [activeTab]);
 
   const highlightedSession = futureSessions?.[0];
   const futureSessionsList = (futureSessions || []).filter(
@@ -309,12 +293,17 @@ const SessionsPage = () => {
   };
 
   const handleSave = async (formData) => {
+    const data = new FormData();
+    Object.keys(formData).forEach(key => {
+      data.append(key, formData[key]);
+    });
+
     try {
       if (currentSession) {
-        await updateSession(currentSession.id, formData);
+        await updateSession(currentSession.id, data);
         showSuccessToast("Sessão atualizada com sucesso!");
       } else {
-        const newSessionResponse = await createSession(formData);
+        const newSessionResponse = await createSession(data);
         console.log("Resposta da criação da sessão (newSessionResponse.data):", newSessionResponse.data);
         showSuccessToast("Sessão criada com sucesso!");
 

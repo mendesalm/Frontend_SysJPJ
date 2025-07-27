@@ -15,6 +15,7 @@ import "./DashboardPage.css";
 const DashboardPage = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [avisos, setAvisos] = useState([]);
+  const [sessions, setSessions] = useState([]);
   const [nextSession, setNextSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -24,7 +25,7 @@ const DashboardPage = () => {
       setLoading(true);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const [dashboardResponse, avisosResponse, nextSessionResponse] = await Promise.all([
+      const [dashboardResponse, avisosResponse, sessionsResponse] = await Promise.all([
         getDashboardData(),
         getAllAvisos(),
         getSessions({ sortBy: 'dataSessao', order: 'ASC' }),
@@ -42,9 +43,10 @@ const DashboardPage = () => {
         throw new Error("Resposta da API de avisos inválida.");
       }
 
-      if (nextSessionResponse && nextSessionResponse.data && nextSessionResponse.data.length > 0) {
+      if (sessionsResponse && sessionsResponse.data) {
+        setSessions(sessionsResponse.data);
         const now = new Date();
-        const futureAgendadaSessions = nextSessionResponse.data.filter(session => 
+        const futureAgendadaSessions = sessionsResponse.data.filter(session => 
           new Date(session.dataSessao) >= now && session.status === 'Agendada'
         ).sort((a, b) => new Date(a.dataSessao) - new Date(b.dataSessao));
         setNextSession(futureAgendadaSessions[0] || null);
@@ -105,7 +107,7 @@ const DashboardPage = () => {
           </div>
         </div>
         <div className="calendar-widget-container">
-          <EventCalendar />
+          <EventCalendar sessions={sessions} />
         </div>
       </div>
     </div>

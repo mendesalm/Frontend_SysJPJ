@@ -7,22 +7,27 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faDownload } from "@fortawesome/free-solid-svg-icons";
 import "~/assets/styles/TableStyles.css"; // Reutilizar estilos de tabela
+import "./HistoricoSessoesPage.css"; // Importar o novo CSS
 
 const HistoricoSessoesPage = () => {
   const [filterDate, setFilterDate] = useState(""); // Para o filtro de data
   const [filteredSessions, setFilteredSessions] = useState([]);
 
   // Busca as últimas 5 sessões aprovadas inicialmente
+  const fetchInitialSessions = useCallback(() => {
+    return getSessions({
+      status: "Aprovada",
+      limit: 5,
+      sortBy: "dataSessao",
+      order: "DESC",
+    });
+  }, []);
+
   const {
     data: initialSessions,
     isLoading: isLoadingInitial,
     error: initialError,
-  } = useDataFetching(() => getSessions({
-    status: "Aprovada", // Assumindo que sessões históricas aprovadas têm esse status
-    limit: 5,
-    sortBy: "dataSessao",
-    order: "DESC",
-  }));
+  } = useDataFetching(fetchInitialSessions);
 
   useEffect(() => {
     if (initialSessions) {
@@ -87,7 +92,7 @@ const HistoricoSessoesPage = () => {
   }
 
   return (
-    <div className="container">
+    <div className="historico-sessoes-container">
       <h1 className="page-title">Histórico de Sessões</h1>
 
       <div className="filter-bar">

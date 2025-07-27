@@ -262,3 +262,54 @@
   font-size: var(--font-size-lg);
   font-weight: 600;
 }
+
+/* Estilos para o filtro de data e outros filtros */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem; /* Add padding around the filter elements */
+  background: var(--background-color-light); /* A slightly different background to make it stand out */
+  border-radius: 15px; /* Rounded corners for a softer look */
+  box-shadow: var(--box-shadow); /* Subtle shadow for depth */
+  align-items: center;
+}
+
+.filter-bar .form-input,
+.filter-bar .form-select { /* Apply styles to both input and select within filter bar */
+  flex-grow: 1;
+  max-width: 300px; /* Keep a reasonable max-width for inputs */
+  /* Inherit existing form-input styles, but ensure they look good here */
+  background-color: var(--cor-fundo-input);
+  border: 1px solid var(--cor-borda-input);
+  color: var(--cor-texto-primario);
+}
+
+.filter-bar .btn-action {
+  padding: 10px 20px;
+  /* Ensure buttons within filter bar also look good */
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.filter-bar .btn-action:hover {
+  background-color: var(--primary-color-dark);
+  transform: translateY(-1px);
+}
+
+/* Responsive adjustments for filter bar */
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column; /* Stack items vertically on small screens */
+    align-items: stretch; /* Stretch items to full width */
+  }
+  .filter-bar .form-input,
+  .filter-bar .form-select,
+  .filter-bar .btn-action {
+    max-width: 100%; /* Full width for inputs and buttons */
+  }
+}

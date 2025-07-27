@@ -5,7 +5,7 @@ import CountUp from 'react-countup';
 
 const NoticesWidget = ({ count }) => {
   return (
-    <Link to="/avisos" className="stat-card-link">
+    <Link to="/mural-de-avisos" className="stat-card-link">
       <div className="stat-card">
         <h3>Avisos</h3>
         <p className="stat-value">

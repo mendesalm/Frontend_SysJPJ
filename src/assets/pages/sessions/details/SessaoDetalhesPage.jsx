@@ -161,6 +161,7 @@ const SessaoDetalhesPage = () => {
           <p className="session-date">
             {moment.utc(session.dataSessao).format("DD [de] MMMM [de] YYYY")}
           </p>
+          <p className="session-objetivo">{session.objetivoSessao}</p>
           <div className="session-documents">
             
             

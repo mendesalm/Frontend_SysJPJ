@@ -108,7 +108,7 @@ const EventDetailsModalContent = ({ events }) => {
   );
 };
 
-const EventCalendar = () => {
+const EventCalendar = ({ sessions = [] }) => {
   const [allEvents, setAllEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -124,50 +124,65 @@ const EventCalendar = () => {
     return initialFilters;
   });
 
-  const fetchEvents = useCallback(async (currentDate) => {
-    try {
-      setError(null);
-      setLoading(true);
-      const ano = currentDate.getFullYear();
-      const mes = currentDate.getMonth() + 1;
-      const response = await getCalendarioUnificado(ano, mes);
-      const formattedEvents = response.data
-        .filter((item) => item.data)
-        .map((item) => ({
-          id: item.id || item.data,
-          title: item.titulo,
-          start: parse(item.data.split("T")[0], "yyyy-MM-dd", new Date()),
-          end: parse(item.data.split("T")[0], "yyyy-MM-dd", new Date()),
-          allDay: true,
-          resource: {
-            type: item.tipo || "geral",
-            subtipo:
-              item.tipo === "Aniversário"
-                ? getAniversarioSubtipo(item.titulo)
-                : null,
-            status: item.status,
-            situacao: item.situacao || "Ativo", // Garante um valor padrão para filtragem
-          },
-        }));
-      setAllEvents(formattedEvents);
-    } catch (fetchError) {
-      const errorMessage = "Não foi possível carregar os dados do calendário.";
-      console.error("Erro ao buscar eventos para o calendário:", fetchError);
-      showErrorToast(errorMessage);
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    fetchEvents(date);
-  }, [date, fetchEvents]);
+    const fetchOtherEvents = async (currentDate) => {
+      try {
+        setError(null);
+        setLoading(true);
+        const ano = currentDate.getFullYear();
+        const mes = currentDate.getMonth() + 1;
+        const response = await getCalendarioUnificado(ano, mes);
+        const formattedEvents = response.data
+          .filter((item) => item.data)
+          .map((item) => ({
+            id: item.id || item.data,
+            title: item.titulo,
+            start: parse(item.data.split("T")[0], "yyyy-MM-dd", new Date()),
+            end: parse(item.data.split("T")[0], "yyyy-MM-dd", new Date()),
+            allDay: true,
+            resource: {
+              type: item.tipo || "geral",
+              subtipo:
+                item.tipo === "Aniversário"
+                  ? getAniversarioSubtipo(item.titulo)
+                  : null,
+              status: item.status,
+              situacao: item.situacao || "Ativo",
+            },
+          }));
+
+        const formattedSessions = sessions.map(session => ({
+            id: session.id,
+            title: `Sessão ${session.tipoSessao}`,
+            start: new Date(session.dataSessao),
+            end: new Date(session.dataSessao),
+            allDay: true,
+            resource: {
+                type: 'Sessão',
+                subtipo: session.tipoSessao,
+                status: session.status,
+                situacao: 'Ativo'
+            }
+        }));
+
+        setAllEvents([...formattedEvents, ...formattedSessions]);
+      } catch (fetchError) {
+        const errorMessage = "Não foi possível carregar os dados do calendário.";
+        console.error("Erro ao buscar eventos para o calendário:", fetchError);
+        showErrorToast(errorMessage);
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOtherEvents(date);
+  }, [date, sessions]);
 
   const filteredEvents = useMemo(() => {
     return allEvents.filter((event) => {
       if (event.resource.type !== "Aniversário") return true;
-      if (event.resource.subtipo === "familiar") return true; // Mostra sempre os familiares por agora
+      if (event.resource.subtipo === "familiar") return true;
       return filters[event.resource.situacao];
     });
   }, [allEvents, filters]);
@@ -199,12 +214,11 @@ const EventCalendar = () => {
     );
 
     if (dayEvents.length > 0) {
-      // CORREÇÃO: Ordem de prioridade ajustada.
       const priorityMap = {
         Sessão: 1,
-        membro: 2, // Aniversário de membro é prioridade 2
-        familiar: 3, // Aniversário de familiar é prioridade 3
-        maconico: 4, // Data maçónica é prioridade 4
+        membro: 2,
+        familiar: 3,
+        maconico: 4,
         Evento: 5,
         Locacao: 6,
         geral: 99,
