@@ -34,7 +34,6 @@ const BalaustreEditor = ({ balaustreId, refetchSession }) => {
       const response = await getBalaustre(balaustreId);
       setBalaustre(response);
     } catch (err) {
-      console.error("[BalaustreEditor] ERRO AO BUSCAR DADOS:", err);
       showErrorToast("Erro ao carregar dados do balaústre.");
     } finally {
       setIsLoading(false);
@@ -136,7 +135,7 @@ const BalaustreEditor = ({ balaustreId, refetchSession }) => {
   const canSignBalaustre = hasPermission("assinarDocumentos");
 
   const ActionButtons = () => (
-    <div className="actions-box">
+    <div className="session-sidebar-right">
       <h3>Ações do Balaústre</h3>
       {isApproved ? (
         <p className="text-success">Este balaústre está aprovado e não pode mais ser modificado.</p>
@@ -195,14 +194,14 @@ const BalaustreEditor = ({ balaustreId, refetchSession }) => {
       <FormPageLayout
         title="Editor de Balaústre"
         actionsComponent={<ActionButtons />}
-      >
-        <BalaustreForm
-          formId="balaustre-edit-form"
-          initialData={balaustre.dadosFormulario}
-          onSave={handleSave}
-          isSubmitting={isSubmitting}
-          readOnly={isApproved} // Bloqueia o formulário se aprovado
-        />
+  >
+    <BalaustreForm
+        formId="balaustre-edit-form"
+        initialData={balaustre.dadosFormulario}
+        onSave={handleSave}
+        isSubmitting={isSubmitting}
+        readOnly={isApproved} // Bloqueia o formulário se aprovado
+      />
       </FormPageLayout>
       <ConfirmationModal
         isOpen={showConfirmModal}

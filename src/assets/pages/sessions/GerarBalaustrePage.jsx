@@ -15,11 +15,10 @@ const GerarBalaustrePage = () => {
       const response = await gerarBalaustreGoogleDocs(formData); // Usa a função atualizada
       setGeneratedUrl(response.data.url);
       showSuccessToast("Balaústre gerado com sucesso!"); // Mensagem atualizada
-    } catch (error) {
+    } catch {
       showErrorToast(
         "Falha ao gerar o balaústre. Verifique os dados e tente novamente."
       ); // Mensagem atualizada
-      console.error(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -28,7 +27,7 @@ const GerarBalaustrePage = () => {
   return (
     <div className="table-page-container">
       <div className="table-header">
-        <h1>Gerador de Balaústre para Google Docs</h1> {/* Título atualizado */}
+        <h1>Gerador de Balaústre</h1> {/* Título atualizado */}
       </div>
 
       {generatedUrl && (
